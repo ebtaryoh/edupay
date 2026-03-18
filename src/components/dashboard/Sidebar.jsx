@@ -1,37 +1,13 @@
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 
-const linkWrap =
-  "flex items-center gap-4 px-6 py-4 rounded-xl transition w-full";
-
-const getLinkClass = (isActive) =>
-  [
-    linkWrap,
-    isActive
-      ? "text-[#2C14DD] font-semibold"
-      : "text-[#14143A] hover:bg-white/50",
-  ].join(" ");
-
-function IconBox({ children, active }) {
-  return (
-    <span
-      className={[
-        "w-11 h-11 rounded-2xl flex items-center justify-center border",
-        active ? "border-[#2C14DD]" : "border-transparent",
-      ].join(" ")}
-    >
-      {children}
-    </span>
-  );
-}
-
-/** Icons styled like your design (outline, blue stroke) */
 function DashboardIcon({ active }) {
   return (
-    <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+    <svg width="36" height="36" viewBox="0 0 38 38" fill="none" aria-hidden="true">
       <path
-        d="M3 10.5L12 3l9 7.5V21a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1v-10.5z"
-        stroke={active ? "#2C14DD" : "#2C14DD"}
-        strokeWidth="2"
+        d="M8.7 17.3L19 8.5l10.3 8.8V28c0 2.1-1.7 3.8-3.8 3.8h-5.1v-8.5h-2.8v8.5h-5.1A3.8 3.8 0 0 1 8.7 28V17.3z"
+        fill={active ? "#2F2AD9" : "none"}
+        stroke="#2F2AD9"
+        strokeWidth="2.2"
         strokeLinejoin="round"
       />
     </svg>
@@ -40,19 +16,30 @@ function DashboardIcon({ active }) {
 
 function PaymentsIcon({ active }) {
   return (
-    <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+    <svg width="36" height="36" viewBox="0 0 38 38" fill="none" aria-hidden="true">
       <path
-        d="M12 3a9 9 0 1 0 9 9"
-        stroke="#2C14DD"
-        strokeWidth="2"
+        d="M19 8.5a10.5 10.5 0 1 0 10.5 10.5"
+                fill={active ? "#2F2AD9" : "none"}
+
+        stroke="#2F2AD9"
+        strokeWidth="2.4"
         strokeLinecap="round"
       />
       <path
-        d="M12 7v6l4 2"
-        stroke="#2C14DD"
-        strokeWidth="2"
+        d="M19 8.5v10.5h10.5"
+                        fill={active ? "#2F2AD9" : "none"}
+
+        stroke="#2F2AD9"
+        strokeWidth="2.4"
         strokeLinecap="round"
         strokeLinejoin="round"
+      />
+      <path
+        d="M10.2 15.2A8.6 8.6 0 0 1 19 10.4"
+        stroke="#2F2AD9"
+        strokeWidth="2.4"
+        strokeLinecap="round"
+        opacity="0.75"
       />
     </svg>
   );
@@ -60,17 +47,38 @@ function PaymentsIcon({ active }) {
 
 function BookstoreIcon({ active }) {
   return (
-    <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
-      <path
-        d="M6 4h10a2 2 0 0 1 2 2v14H8a2 2 0 0 0-2 2V4z"
-        stroke="#2C14DD"
-        strokeWidth="2"
-        strokeLinejoin="round"
+    <svg width="36" height="36" viewBox="0 0 38 38" fill="none" aria-hidden="true">
+      <rect
+        x="8.5"
+        y="8.5"
+        width="21"
+        height="21"
+        rx="5.5"
+        stroke="#2F2AD9"
+        strokeWidth="2.4"
       />
       <path
-        d="M6 20h12"
-        stroke="#2C14DD"
-        strokeWidth="2"
+        d="M14 25V16"
+                fill={active ? "#2F2AD9" : "none"}
+
+        stroke="#2F2AD9"
+        strokeWidth="2.4"
+        strokeLinecap="round"
+      />
+      <path
+        d="M19 25V13"
+                        fill={active ? "#2F2AD9" : "none"}
+
+        stroke="#2F2AD9"
+        strokeWidth="2.4"
+        strokeLinecap="round"
+      />
+      <path
+        d="M24 25v-6"
+                        fill={active ? "#2F2AD9" : "none"}
+
+        stroke="#2F2AD9"
+        strokeWidth="2.4"
         strokeLinecap="round"
       />
     </svg>
@@ -79,120 +87,129 @@ function BookstoreIcon({ active }) {
 
 function AccountIcon({ active }) {
   return (
-    <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+    <svg width="36" height="36" viewBox="0 0 38 38" fill="none" aria-hidden="true">
+      <circle cx="19" cy="13.4" r="5.4" stroke="#2F2AD9" strokeWidth="2.4" />
       <path
-        d="M20 21a8 8 0 1 0-16 0"
-        stroke="#2C14DD"
-        strokeWidth="2"
+        d="M9.4 30c1.7-4.8 5.2-7.2 9.6-7.2s7.9 2.4 9.6 7.2"
+                fill={active ? "#2F2AD9" : "none"}
+
+        stroke="#2F2AD9"
+        strokeWidth="2.4"
         strokeLinecap="round"
-      />
-      <path
-        d="M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4z"
-        stroke="#2C14DD"
-        strokeWidth="2"
       />
     </svg>
   );
 }
 
+function ItemSeparator() {
+  return <div className="mx-3 my-3.5 h-px bg-[#D7DCF0]" />;
+}
+
+function SidebarLink({ to, end = false, label, icon }) {
+  return (
+    <NavLink to={to} end={end} className="block cursor-pointer">
+      {({ isActive }) => (
+        <div className="flex items-center gap-3 px-4">
+          <div className="flex h-[48px] w-[48px] shrink-0 items-center justify-center">
+            {icon(isActive)}
+          </div>
+
+          <span
+            className={[
+              "text-[15px] transition",
+              isActive
+                ? "font-semibold text-[#2F2AD9]"
+                : "font-medium text-[#2F2AD9]",
+            ].join(" ")}
+          >
+            {label}
+          </span>
+        </div>
+      )}
+    </NavLink>
+  );
+}
+
 export default function Sidebar({ open, onClose }) {
   const nav = useNavigate();
+  const { pathname } = useLocation();
+
+  const logoutPath = pathname.startsWith("/admin")
+    ? "/login/admin"
+    : "/login/student";
 
   return (
     <>
-      {/* overlay */}
       <div
         onClick={onClose}
         className={[
-          "fixed inset-0 bg-black/30 z-40 lg:hidden transition",
-          open ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none",
+          "fixed inset-0 z-40 cursor-pointer bg-black/30 transition lg:hidden",
+          open
+            ? "pointer-events-auto opacity-100"
+            : "pointer-events-none opacity-0",
         ].join(" ")}
       />
 
       <aside
         className={[
-          "fixed lg:static z-50 top-0 left-0 h-full w-[320px] bg-[#F5F6FF]",
-          "transition-transform lg:translate-x-0",
+          "fixed left-0 top-0 z-50 h-screen w-[270px] shrink-0 bg-[#F4F6FF] transition-transform lg:static lg:translate-x-0 xl:w-[280px]",
           open ? "translate-x-0" : "-translate-x-full",
         ].join(" ")}
       >
-        {/* Rounded container like design */}
-        <div className="h-full px-6 py-8">
-          <div className="h-full rounded-[28px] bg-[#F5F6FF] flex flex-col">
-            {/* Brand */}
-            <div className="px-6 pt-8">
-              <div className="text-[44px] leading-none font-extrabold text-[#2C14DD]">
+        <div className="flex h-full flex-col px-4 py-5">
+          <div className="rounded-[28px] bg-[#F4F6FF] pb-4 pt-2">
+            <div className="px-4 pt-4">
+              <div className="text-[40px] leading-none font-extrabold tracking-[-0.04em] text-[#2C14DD]">
                 Edu<span className="font-light text-[#2C14DD]/70">Pay</span>
               </div>
             </div>
 
-            {/* Nav */}
-            <nav className="mt-10 px-4">
-              <NavLink to="/dashboard" end className={({ isActive }) => getLinkClass(isActive)}>
-                {({ isActive }) => (
-                  <>
-                    <IconBox active={isActive}>
-                      <DashboardIcon active={isActive} />
-                    </IconBox>
-                    <span className="text-[15px]">Dashboard</span>
-                  </>
-                )}
-              </NavLink>
+            <nav className="mt-8">
+              <SidebarLink
+                to="/dashboard"
+                end
+                label="Dashboard"
+                icon={(active) => <DashboardIcon active={active} />}
+              />
 
-              <div className="my-3 h-px bg-[#D9DDF3]" />
+              <ItemSeparator />
 
-              <NavLink to="/dashboard/payments" className={({ isActive }) => getLinkClass(isActive)}>
-                {({ isActive }) => (
-                  <>
-                    <IconBox active={isActive}>
-                      <PaymentsIcon active={isActive} />
-                    </IconBox>
-                    <span className="text-[15px]">Payments</span>
-                  </>
-                )}
-              </NavLink>
+              <SidebarLink
+                to="/dashboard/payments"
+                label="Payments"
+                icon={(active) => <PaymentsIcon active={active} />}
+              />
 
-              <div className="my-3 h-px bg-[#D9DDF3]" />
+              <ItemSeparator />
 
-              <NavLink to="/dashboard/bookstore" className={({ isActive }) => getLinkClass(isActive)}>
-                {({ isActive }) => (
-                  <>
-                    <IconBox active={isActive}>
-                      <BookstoreIcon active={isActive} />
-                    </IconBox>
-                    <span className="text-[15px]">Bookstore</span>
-                  </>
-                )}
-              </NavLink>
+              <SidebarLink
+                to="/dashboard/bookstore"
+                label="Bookstore"
+                icon={(active) => <BookstoreIcon  active={active}/>}
+              />
 
-              <div className="my-3 h-px bg-[#D9DDF3]" />
+              <ItemSeparator />
 
-              {/* ✅ Active for /dashboard/account and ALL nested account pages */}
-              <NavLink to="/dashboard/account" className={({ isActive }) => getLinkClass(isActive)}>
-                {({ isActive }) => (
-                  <>
-                    <IconBox active={isActive}>
-                      <AccountIcon active={isActive} />
-                    </IconBox>
-                    <span className="text-[15px]">Account</span>
-                  </>
-                )}
-              </NavLink>
+              <SidebarLink
+                to="/dashboard/account"
+                label="Account"
+                icon={(active) => <AccountIcon active={active} />}
+              />
             </nav>
+          </div>
 
-            {/* Logout button like design */}
-            <div className="mt-auto px-6 pb-8">
-              <button
-                type="button"
-                onClick={() => {
-                  localStorage.removeItem("token");
-                  nav("/login", { replace: true });
-                }}
-                className="w-full h-12 rounded-full border border-[#D9DDF3] bg-[#F5F6FF] text-[#2C14DD] font-semibold hover:bg-white/50 transition"
-              >
-                Logout
-              </button>
-            </div>
+          <div className="mt-auto px-2 pb-2">
+            <button
+              type="button"
+              onClick={() => {
+                localStorage.removeItem("token");
+                localStorage.removeItem("role");
+                nav(logoutPath, { replace: true });
+              }}
+              className="h-[56px] w-full cursor-pointer rounded-full border border-[#D7DCF0] bg-[#F8F9FF] text-[16px] font-semibold text-[#2F2AD9] transition hover:bg-white"
+            >
+              Logout
+            </button>
           </div>
         </div>
       </aside>

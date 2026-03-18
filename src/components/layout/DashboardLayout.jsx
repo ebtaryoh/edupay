@@ -1,31 +1,19 @@
 import { useState } from "react";
 import { Outlet } from "react-router-dom";
 import Sidebar from "../dashboard/Sidebar";
-import Topbar from "../dashboard/Topbar";
 
 export default function DashboardLayout() {
   const [open, setOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-[#F6F7FF]  ">
-      {/* Mobile topbar
-      <div className="lg:hidden sticky top-0 z-40 bg-[#F6F7FF]">
-        <Topbar onMenu={() => setOpen(true)} />
-      </div> */}
-
-      <div className="flex">
+    <div className="min-h-screen overflow-x-hidden bg-[#FAFAFD]">
+      <div className="mx-auto flex min-h-screen w-full max-w-[1536px] overflow-x-hidden">
         {/* Sidebar */}
         <Sidebar open={open} onClose={() => setOpen(false)} />
 
         {/* Main content */}
-        <main className="flex-1 min-h-screen bg-white">
-          {/* Desktop topbar
-          <div className="hidden lg:block sticky top-0 z-30 bg-[#F6F7FF]">
-            <Topbar />
-          </div> */}
-
-          {/* Page container spacing (matches screenshot feel) */}
-          <div className="px-4 sm:px-6 lg:px-10 py-6 lg:py-8">
+        <main className="min-w-0 flex-1 overflow-x-hidden bg-[#FAFAFD]">
+          <div className="px-4 py-5 sm:px-6 lg:px-8 lg:py-6 xl:px-10">
             <Outlet />
           </div>
         </main>

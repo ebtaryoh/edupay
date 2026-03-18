@@ -1,14 +1,50 @@
 import { useLocation, useNavigate } from "react-router-dom";
 
-function CircleBtn({ children, onClick }) {
+function CircleButton({ onClick, children, className = "" }) {
   return (
     <button
-      onClick={onClick}
-      className="w-12 h-12 rounded-full bg-[#2C14DD] text-white flex items-center justify-center hover:brightness-110 active:scale-[0.99] transition"
       type="button"
+      onClick={onClick}
+      className={[
+        "flex h-[54px] w-[54px] cursor-pointer items-center justify-center rounded-full transition",
+        className,
+      ].join(" ")}
     >
       {children}
     </button>
+  );
+}
+
+function BellTopIcon() {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path
+        d="M17.5 15.5h-11c1-1.1 1.6-2.7 1.6-4.5 0-2.5 1.7-4.4 3.9-4.4s3.9 1.9 3.9 4.4c0 1.8.6 3.4 1.6 4.5z"
+        stroke="white"
+        strokeWidth="1.9"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M10.5 18.4a1.8 1.8 0 0 0 3 0"
+        stroke="white"
+        strokeWidth="1.9"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
+function SearchTopIcon() {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <circle cx="11" cy="11" r="6.4" stroke="white" strokeWidth="2" />
+      <path
+        d="M16 16l3.6 3.6"
+        stroke="white"
+        strokeWidth="2"
+        strokeLinecap="round"
+      />
+    </svg>
   );
 }
 
@@ -16,90 +52,71 @@ export default function Topbar({ onMenu }) {
   const nav = useNavigate();
   const { pathname } = useLocation();
 
-  const titleMap = {
-    "/dashboard": "Dashboard",
-    "/dashboard/payments": "Payments",
-    "/dashboard/payments/tuition-healthcare": "Payments",
-    "/dashboard/payments/overdue": "Overdue",
-    "/dashboard/transactions": "Transactions",
-    "/dashboard/notifications": "Notifications",
-    "/dashboard/payments/airtime": "Buy Airtime & Data",
-    "/dashboard/payments/data": "Buy Airtime & Data",
-    "/dashboard/transactions/t1": "Transaction Details",
-  };
+  let title = "Dashboard";
 
-  const title = titleMap[pathname] || "Dashboard";
+  if (pathname.startsWith("/dashboard/bookstore")) title = "Bookstore";
+  else if (pathname.startsWith("/dashboard/payments/data")) title = "Buy Data";
+  else if (pathname.startsWith("/dashboard/payments/airtime")) title = "Buy Airtime";
+  else if (pathname.startsWith("/dashboard/payments/overdue")) title = "Overdue";
+  else if (pathname.startsWith("/dashboard/payments")) title = "Payments";
+  else if (pathname.startsWith("/dashboard/transaction/")) title = "Transaction Details";
+  else if (pathname.startsWith("/dashboard/transactions")) title = "Transactions";
+  else if (pathname.startsWith("/dashboard/notifications")) title = "Notifications";
+  else if (pathname.startsWith("/dashboard/account")) title = "Account";
+  else if (pathname.startsWith("/admin/dashboard")) title = "Dashboard";
 
   return (
-    <div className="h-[86px] px-4 md:px-8 flex items-center justify-between bg-[#F6F7FF]">
-      <div className="flex items-center gap-3">
+    <header className="flex h-[72px] items-center justify-between overflow-x-hidden">
+      <div className="flex min-w-0 items-center gap-4">
         {onMenu ? (
           <button
             type="button"
             onClick={onMenu}
-            className="lg:hidden w-11 h-11 rounded-2xl bg-white border border-[#E7E9FF] flex items-center justify-center"
+            className="flex h-[50px] w-[50px] cursor-pointer items-center justify-center rounded-[16px] border border-[#E6E8F5] bg-white lg:hidden"
           >
-            <div className="space-y-1">
-              <span className="block w-5 h-[2px] bg-[#2C14DD]" />
-              <span className="block w-5 h-[2px] bg-[#2C14DD]" />
-              <span className="block w-5 h-[2px] bg-[#2C14DD]" />
+            <div className="space-y-1.5">
+              <span className="block h-[2px] w-5 rounded-full bg-[#2F2AD9]" />
+              <span className="block h-[2px] w-5 rounded-full bg-[#2F2AD9]" />
+              <span className="block h-[2px] w-5 rounded-full bg-[#2F2AD9]" />
             </div>
           </button>
-        ) : (
-          <div className="w-11 h-11" />
-        )}
+        ) : null}
 
-        <button
-          type="button"
+        <CircleButton
           onClick={() => nav(-1)}
-          className="w-12 h-12 rounded-full bg-white border border-[#E7E9FF] flex items-center justify-center"
+          className="bg-[#F3F4FA] text-[#14143A] hover:bg-white"
         >
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
             <path
               d="M15 18l-6-6 6-6"
-              stroke="#14143A"
-              strokeWidth="2"
+              stroke="#1F1F34"
+              strokeWidth="2.1"
               strokeLinecap="round"
               strokeLinejoin="round"
             />
           </svg>
-        </button>
+        </CircleButton>
 
-        <h1 className="text-[20px] md:text-[22px] font-semibold text-[#14143A]">
+        <h1 className="truncate text-[20px] font-semibold text-[#1B1C34] md:text-[22px]">
           {title}
         </h1>
       </div>
 
-      <div className="hidden lg:flex items-center gap-3">
-        <CircleBtn onClick={() => nav("/dashboard/notifications")}>
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-            <path
-              d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 7h18s-3 0-3-7"
-              stroke="white"
-              strokeWidth="2"
-              strokeLinejoin="round"
-            />
-            <path
-              d="M13.73 21a2 2 0 0 1-3.46 0"
-              stroke="white"
-              strokeWidth="2"
-              strokeLinecap="round"
-            />
-          </svg>
-        </CircleBtn>
+      <div className="flex shrink-0 items-center gap-4">
+        <CircleButton
+          onClick={() => nav("/dashboard/notifications")}
+          className="bg-[#2F2AD9] hover:brightness-110"
+        >
+          <BellTopIcon />
+        </CircleButton>
 
-        <CircleBtn onClick={() => {}}>
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-            <circle cx="11" cy="11" r="7" stroke="white" strokeWidth="2" />
-            <path
-              d="M20 20l-3.2-3.2"
-              stroke="white"
-              strokeWidth="2"
-              strokeLinecap="round"
-            />
-          </svg>
-        </CircleBtn>
+        <CircleButton
+          onClick={() => {}}
+          className="bg-[#2F2AD9] hover:brightness-110"
+        >
+          <SearchTopIcon />
+        </CircleButton>
       </div>
-    </div>
+    </header>
   );
 }
