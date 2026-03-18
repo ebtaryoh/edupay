@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import ob1 from "../../assets/Rectangle.png";
 import ob2 from "../../assets/book-3d-icon-png-download-8027322 1.png";
 import ob3 from "../../assets/Illustrations.png";
@@ -123,30 +123,30 @@ function SplashScreenText() {
 
 function OnboardingScreen({ screen, index, total, onSkip, onNext, isLast }) {
   return (
-    <div className="relative min-h-screen px-4 py-6 sm:px-6 sm:py-8 md:px-10 lg:px-12">
+    <div className="relative min-h-screen overflow-x-hidden px-4 py-5 sm:px-6 sm:py-6 md:px-8 lg:px-10 xl:px-12">
       {index !== total - 1 && (
         <button
           onClick={onSkip}
           type="button"
-          className="absolute right-4 top-5 z-50 cursor-pointer rounded-full bg-white/10 px-6 py-2.5 text-sm font-medium text-white backdrop-blur transition hover:bg-white/15 sm:right-6 sm:top-6 sm:px-8 md:right-10 md:top-7"
+          className="absolute right-4 top-4 z-50 cursor-pointer rounded-full bg-white/10 px-5 py-2 text-sm font-medium text-white backdrop-blur transition hover:bg-white/15 sm:right-6 sm:top-6 sm:px-7 sm:py-2.5 md:right-8 lg:right-10"
         >
           Skip
         </button>
       )}
 
-      <div className="mx-auto flex min-h-[calc(100vh-3rem)] max-w-7xl items-center justify-center">
-        <div className="grid w-full items-center gap-8 lg:grid-cols-[minmax(0,430px)_minmax(0,1fr)] lg:gap-0">
-          <div className="order-2 mx-auto w-full max-w-[430px] lg:order-1 lg:mx-0 lg:justify-self-end">
-            <div className="rounded-[30px] bg-white px-6 pb-8 pt-8 shadow-[0_30px_80px_rgba(18,18,58,0.18)] sm:rounded-[36px] sm:px-8 sm:pb-10 sm:pt-10 md:px-10 md:pb-12 md:pt-11 lg:rounded-[42px] lg:px-10 lg:pt-10">
-              <h1 className="text-center text-[28px] font-bold leading-tight text-[#12123A] whitespace-pre-line sm:text-[32px] md:text-[34px] lg:text-[30px] xl:text-[34px]">
+      <div className="mx-auto flex min-h-[calc(100vh-2.5rem)] max-w-7xl items-center justify-center">
+        <div className="grid w-full items-center gap-6 sm:gap-8 lg:grid-cols-[minmax(0,430px)_minmax(0,1fr)] lg:gap-6 xl:grid-cols-[minmax(0,460px)_minmax(0,1fr)] xl:gap-10">
+          <div className="order-2 mx-auto w-full max-w-[460px] lg:order-1 lg:mx-0 lg:justify-self-end">
+            <div className="rounded-[28px] bg-white px-6 pb-8 pt-8 shadow-[0_30px_80px_rgba(18,18,58,0.18)] sm:rounded-[34px] sm:px-8 sm:pb-10 sm:pt-10 md:px-10 md:pb-11 md:pt-11 lg:rounded-[40px] lg:px-10 lg:pb-12">
+              <h1 className="text-center text-[26px] font-bold leading-tight text-[#12123A] whitespace-pre-line sm:text-[30px] md:text-[32px] lg:text-[30px] xl:text-[34px]">
                 {screen.title}
               </h1>
 
-              <p className="mt-4 text-center text-[15px] leading-7 text-[#3B3B57] whitespace-pre-line sm:mt-5 sm:text-[16px] md:text-[17px]">
+              <p className="mt-4 text-center text-[14px] leading-6 text-[#3B3B57] whitespace-pre-line sm:mt-5 sm:text-[15px] sm:leading-7 md:text-[16px]">
                 {screen.description}
               </p>
 
-              <div className="mt-8 flex items-center justify-center gap-2 sm:mt-9">
+              <div className="mt-7 flex items-center justify-center gap-2 sm:mt-8">
                 {Array.from({ length: total }).map((_, i) => (
                   <span
                     key={i}
@@ -161,24 +161,24 @@ function OnboardingScreen({ screen, index, total, onSkip, onNext, isLast }) {
               <button
                 onClick={onNext}
                 type="button"
-                className="mx-auto mt-10 flex h-[52px] w-full max-w-[280px] cursor-pointer items-center justify-center rounded-full bg-[#2C14DD] px-6 text-base font-semibold text-white shadow-[0_20px_50px_rgba(47,42,217,0.35)] transition hover:brightness-110 active:scale-[0.99] sm:mt-12 sm:h-[56px] sm:text-lg"
+                className="mx-auto mt-10 flex h-[50px] w-full max-w-[280px] cursor-pointer items-center justify-center rounded-full bg-[#2C14DD] px-6 text-[15px] font-semibold text-white shadow-[0_20px_50px_rgba(47,42,217,0.35)] transition hover:brightness-110 active:scale-[0.99] sm:mt-11 sm:h-[54px] sm:text-base"
               >
                 {isLast ? "Get Started" : "Next"}
               </button>
             </div>
           </div>
 
-          <div className="order-1 flex items-center justify-center lg:order-2 lg:min-h-[560px] lg:justify-start">
+          <div className="order-1 flex items-center justify-center lg:order-2 lg:min-h-[520px] lg:justify-start">
             <img
               src={screen.image}
               alt="Onboarding Illustration"
-              className="h-auto w-full max-w-[250px] object-contain drop-shadow-2xl sm:max-w-[300px] md:max-w-[360px] lg:max-w-[500px] xl:max-w-[560px]"
+              className="h-auto w-full max-w-[230px] object-contain drop-shadow-2xl sm:max-w-[280px] md:max-w-[340px] lg:max-w-[480px] xl:max-w-[560px]"
             />
           </div>
         </div>
       </div>
 
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-48 bg-black/10 blur-3xl opacity-20 sm:h-64" />
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-44 bg-black/10 blur-3xl opacity-20 sm:h-56" />
     </div>
   );
 }
