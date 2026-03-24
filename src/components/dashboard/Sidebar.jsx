@@ -14,21 +14,17 @@ function DashboardIcon({ active }) {
   );
 }
 
-function PaymentsIcon({ active }) {
+function PaymentsIcon() {
   return (
     <svg width="36" height="36" viewBox="0 0 38 38" fill="none" aria-hidden="true">
       <path
         d="M19 8.5a10.5 10.5 0 1 0 10.5 10.5"
-                fill={active ? "#2F2AD9" : "none"}
-
         stroke="#2F2AD9"
         strokeWidth="2.4"
         strokeLinecap="round"
       />
       <path
         d="M19 8.5v10.5h10.5"
-                        fill={active ? "#2F2AD9" : "none"}
-
         stroke="#2F2AD9"
         strokeWidth="2.4"
         strokeLinecap="round"
@@ -45,7 +41,7 @@ function PaymentsIcon({ active }) {
   );
 }
 
-function BookstoreIcon({ active }) {
+function BookstoreIcon() {
   return (
     <svg width="36" height="36" viewBox="0 0 38 38" fill="none" aria-hidden="true">
       <rect
@@ -59,24 +55,18 @@ function BookstoreIcon({ active }) {
       />
       <path
         d="M14 25V16"
-                fill={active ? "#2F2AD9" : "none"}
-
         stroke="#2F2AD9"
         strokeWidth="2.4"
         strokeLinecap="round"
       />
       <path
         d="M19 25V13"
-                        fill={active ? "#2F2AD9" : "none"}
-
         stroke="#2F2AD9"
         strokeWidth="2.4"
         strokeLinecap="round"
       />
       <path
         d="M24 25v-6"
-                        fill={active ? "#2F2AD9" : "none"}
-
         stroke="#2F2AD9"
         strokeWidth="2.4"
         strokeLinecap="round"
@@ -85,14 +75,12 @@ function BookstoreIcon({ active }) {
   );
 }
 
-function AccountIcon({ active }) {
+function AccountIcon() {
   return (
     <svg width="36" height="36" viewBox="0 0 38 38" fill="none" aria-hidden="true">
       <circle cx="19" cy="13.4" r="5.4" stroke="#2F2AD9" strokeWidth="2.4" />
       <path
         d="M9.4 30c1.7-4.8 5.2-7.2 9.6-7.2s7.9 2.4 9.6 7.2"
-                fill={active ? "#2F2AD9" : "none"}
-
         stroke="#2F2AD9"
         strokeWidth="2.4"
         strokeLinecap="round"
@@ -134,9 +122,9 @@ export default function Sidebar({ open, onClose }) {
   const nav = useNavigate();
   const { pathname } = useLocation();
 
-  const logoutPath = pathname.startsWith("/admin")
-    ? "/login/admin"
-    : "/login/student";
+  const isAdmin = pathname.startsWith("/admin");
+  const basePath = isAdmin ? "/admin/dashboard" : "/dashboard";
+  const logoutPath = isAdmin ? "/login/admin" : "/login/student";
 
   return (
     <>
@@ -159,14 +147,22 @@ export default function Sidebar({ open, onClose }) {
         <div className="flex h-full flex-col px-4 py-5">
           <div className="rounded-[28px] bg-[#F4F6FF] pb-4 pt-2">
             <div className="px-4 pt-4">
-              <div className="text-[40px] leading-none font-extrabold tracking-[-0.04em] text-[#2C14DD]">
-                Edu<span className="font-light text-[#2C14DD]/70">Pay</span>
+              <div className="flex items-end gap-2">
+                <div className="text-[40px] leading-none font-extrabold tracking-[-0.04em] text-[#2C14DD]">
+                  Edu<span className="font-light text-[#2C14DD]/70">Pay</span>
+                </div>
+
+                {isAdmin ? (
+                  <span className="pb-1 text-[15px] font-semibold text-[#2C14DD]">
+                    Admin
+                  </span>
+                ) : null}
               </div>
             </div>
 
             <nav className="mt-8">
               <SidebarLink
-                to="/dashboard"
+                to={basePath}
                 end
                 label="Dashboard"
                 icon={(active) => <DashboardIcon active={active} />}
@@ -175,25 +171,25 @@ export default function Sidebar({ open, onClose }) {
               <ItemSeparator />
 
               <SidebarLink
-                to="/dashboard/payments"
+                to={`${basePath}/payments`}
                 label="Payments"
-                icon={(active) => <PaymentsIcon active={active} />}
+                icon={() => <PaymentsIcon />}
               />
 
               <ItemSeparator />
 
               <SidebarLink
-                to="/dashboard/bookstore"
+                to={`${basePath}/bookstore`}
                 label="Bookstore"
-                icon={(active) => <BookstoreIcon  active={active}/>}
+                icon={() => <BookstoreIcon />}
               />
 
               <ItemSeparator />
 
               <SidebarLink
-                to="/dashboard/account"
+                to={`${basePath}/account`}
                 label="Account"
-                icon={(active) => <AccountIcon active={active} />}
+                icon={() => <AccountIcon />}
               />
             </nav>
           </div>
@@ -204,6 +200,8 @@ export default function Sidebar({ open, onClose }) {
               onClick={() => {
                 localStorage.removeItem("token");
                 localStorage.removeItem("role");
+                localStorage.removeItem("studentId");
+                localStorage.removeItem("matricNo");
                 nav(logoutPath, { replace: true });
               }}
               className="h-[56px] w-full cursor-pointer rounded-full border border-[#D7DCF0] bg-[#F8F9FF] text-[16px] font-semibold text-[#2F2AD9] transition hover:bg-white"

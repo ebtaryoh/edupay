@@ -31,4 +31,15 @@ export const authApi = {
 
   googleLogin: (payload) =>
     post("/api/Auth/google", payload, { skipAuth: true }),
+
+  changeStudentPassword: (payload) =>
+    post("/api/Student/change-password", payload),
+
+  confirmStudentPasswordReset: (payload) =>
+    post("/api/Student/confirm-reset-password", payload, { skipAuth: true }),
+
+  forgotPasswordByEmail: (emailAddress) =>
+    get(`/api/Student/forget-password/${encodeURIComponent(emailAddress)}`, {
+      skipAuth: true,
+    }),
 };

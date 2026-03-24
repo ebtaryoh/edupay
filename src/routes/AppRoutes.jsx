@@ -9,6 +9,8 @@ import AdminSignup from "../pages/auth/AdminSignup";
 import Signup from "../pages/auth/Signup";
 import LoginSuccess from "../pages/auth/LoginSuccess";
 import RegisterSuccess from "../pages/auth/RegisterSuccess";
+import ForgotPassword from "../pages/auth/ForgotPassword";
+import ConfirmResetPassword from "../pages/auth/ConfirmResetPassword";
 
 import ProtectedRoute from "./ProtectedRoute";
 import DashboardLayout from "../components/layout/DashboardLayout";
@@ -79,6 +81,8 @@ export default function AppRoutes() {
       <Route path="/login/admin" element={<AdminLogin />} />
       <Route path="/signup/student" element={<Signup />} />
       <Route path="/signup/admin" element={<AdminSignup />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
+<Route path="/confirm-reset-password" element={<ConfirmResetPassword />} />
 
       <Route path="/login-success" element={<LoginSuccess />} />
       <Route path="/register-success" element={<RegisterSuccess />} />

@@ -12,14 +12,14 @@ function ActionShell({ label, onClick, icon, showDot = false }) {
         {icon}
       </div>
 
-      <span className="mt-3 text-[14px] font-medium text-[#3A3793]">
+      <span className="mt-3 text-center text-[13px] font-medium leading-5 text-[#3A3793] sm:text-[14px]">
         {label}
       </span>
     </button>
   );
 }
 
-function PayFeesIcon() {
+function PaymentCentreIcon() {
   return (
     <svg width="31" height="31" viewBox="0 0 24 24" fill="none" aria-hidden="true">
       <rect x="3.5" y="6" width="17" height="12.5" rx="2.5" stroke="white" strokeWidth="1.9" />
@@ -51,10 +51,15 @@ function CartIcon() {
   );
 }
 
-function AirtimeIcon() {
+function UsersIcon() {
   return (
     <svg width="31" height="31" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <path d="M5.5 7.5a2.5 2.5 0 0 1 2.5-2.5h8a2.5 2.5 0 0 1 2.5 2.5v5a2.5 2.5 0 0 1-2.5 2.5H11l-3.7 2.8V15H8a2.5 2.5 0 0 1-2.5-2.5v-5z" stroke="white" strokeWidth="1.9" strokeLinejoin="round" />
+      <path
+        d="M5.5 7.5a2.5 2.5 0 0 1 2.5-2.5h8a2.5 2.5 0 0 1 2.5 2.5v5a2.5 2.5 0 0 1-2.5 2.5H11l-3.7 2.8V15H8a2.5 2.5 0 0 1-2.5-2.5v-5z"
+        stroke="white"
+        strokeWidth="1.9"
+        strokeLinejoin="round"
+      />
       <path d="M9.2 9.6h5.6" stroke="white" strokeWidth="1.9" strokeLinecap="round" />
     </svg>
   );
@@ -112,23 +117,41 @@ export default function QuickActions({
   onNotifications,
   onSupport,
   onSettings,
+  onPaymentCentre,
+  onUsers,
+  onReports,
   variant = "dashboard",
 }) {
   if (variant === "payments") {
     return (
       <div className="grid grid-cols-2 gap-8">
-        <ActionShell label="Overdue" onClick={onPayFees} icon={<PayFeesIcon />} showDot />
+        <ActionShell label="Overdue" onClick={onPayFees} icon={<PaymentCentreIcon />} showDot />
         <ActionShell label="History" onClick={onHistory} icon={<HistoryIcon />} showDot />
+      </div>
+    );
+  }
+
+  if (variant === "admin") {
+    return (
+      <div className="grid grid-cols-2 gap-x-6 gap-y-8 sm:grid-cols-4">
+        <ActionShell label="Payment Centre" onClick={onPaymentCentre} icon={<PaymentCentreIcon />} showDot />
+        <ActionShell label="History" onClick={onHistory} icon={<HistoryIcon />} showDot />
+        <ActionShell label="Bookstore" onClick={onBookstore} icon={<CartIcon />} showDot />
+        <ActionShell label="Users" onClick={onUsers} icon={<UsersIcon />} />
+        <ActionShell label="Reports" onClick={onReports} icon={<GlobeIcon />} />
+        <ActionShell label="Notifications" onClick={onNotifications} icon={<BellIcon />} showDot />
+        <ActionShell label="Support" onClick={onSupport} icon={<SupportIcon />} />
+        <ActionShell label="Settings" onClick={onSettings} icon={<SettingsIcon />} />
       </div>
     );
   }
 
   return (
     <div className="grid grid-cols-2 gap-x-6 gap-y-8 sm:grid-cols-4">
-      <ActionShell label="Pay Fees" onClick={onPayFees} icon={<PayFeesIcon />} showDot />
+      <ActionShell label="Pay Fees" onClick={onPayFees} icon={<PaymentCentreIcon />} showDot />
       <ActionShell label="History" onClick={onHistory} icon={<HistoryIcon />} showDot />
       <ActionShell label="Bookstore" onClick={onBookstore} icon={<CartIcon />} showDot />
-      <ActionShell label="Buy Airtime" onClick={onBuyAirtime} icon={<AirtimeIcon />} />
+      <ActionShell label="Buy Airtime" onClick={onBuyAirtime} icon={<UsersIcon />} />
       <ActionShell label="Buy Data" onClick={onBuyData} icon={<GlobeIcon />} />
       <ActionShell label="Notifications" onClick={onNotifications} icon={<BellIcon />} showDot />
       <ActionShell label="Support" onClick={onSupport} icon={<SupportIcon />} />

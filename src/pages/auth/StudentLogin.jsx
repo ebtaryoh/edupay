@@ -134,42 +134,37 @@ export default function StudentLogin() {
     },
     onError: () => setSubmitError("Google login failed."),
   });
-async function onSubmit(e) {
-  e.preventDefault();
-  setSubmitError("");
 
-  const errors = validateForm(form);
-  setFieldErrors(errors);
+  async function onSubmit(e) {
+    e.preventDefault();
+    setSubmitError("");
 
-  if (Object.keys(errors).length > 0) {
-    return;
+    const errors = validateForm(form);
+    setFieldErrors(errors);
+
+    if (Object.keys(errors).length > 0) {
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      const payload = {
+        emailAddress: form.emailAddress.trim(),
+        password: form.password.trim(),
+        loginIP: "127.0.0.1",
+      };
+
+      const response = await authApi.studentLogin(payload);
+      await persistAuth(response, "student");
+
+      nav("/login-success?role=student", { replace: true });
+    } catch (error) {
+      setSubmitError(error?.message || "Login failed.");
+    } finally {
+      setLoading(false);
+    }
   }
-
-  try {
-    setLoading(true);
-
-    const payload = {
-      emailAddress: form.emailAddress.trim(),
-      password: form.password.trim(),
-      loginIP: "127.0.0.1",
-    };
-
-    console.log("LOGIN PAYLOAD:", payload);
-
-    const response = await authApi.studentLogin(payload);
-
-    console.log("LOGIN RESPONSE:", response);
-
-    await persistAuth(response, "student");
-
-    nav("/login-success?role=student", { replace: true });
-  } catch (error) {
-    console.error("LOGIN ERROR:", error);
-    setSubmitError(error?.message || "Login failed.");
-  } finally {
-    setLoading(false);
-  }
-}
 
   return (
     <SplitAuthLayout
@@ -210,7 +205,11 @@ async function onSubmit(e) {
           </div>
 
           <div className="text-right text-sm text-[#33334E]">
-            <button type="button" className="hover:underline">
+            <button
+              type="button"
+              onClick={() => nav("/forgot-password")}
+              className="cursor-pointer hover:underline"
+            >
               Forgot Password?
             </button>
           </div>
@@ -229,7 +228,7 @@ async function onSubmit(e) {
             type="button"
             onClick={() => googleLogin()}
             disabled={loading}
-            className="w-full h-[58px] rounded-full flex items-center justify-center gap-3 font-semibold text-white hover:brightness-110 active:scale-[0.99] transition disabled:opacity-60"
+            className="flex h-[58px] w-full cursor-pointer items-center justify-center gap-3 rounded-full font-semibold text-white transition hover:brightness-110 active:scale-[0.99] disabled:opacity-60"
             style={{ backgroundColor: "rgba(14, 4, 34, 1)" }}
           >
             <GoogleIcon />
@@ -241,7 +240,7 @@ async function onSubmit(e) {
             <button
               type="button"
               onClick={() => nav("/signup/student")}
-              className="font-semibold text-[#D359FF] hover:underline"
+              className="cursor-pointer font-semibold text-[#D359FF] hover:underline"
             >
               Sign Up
             </button>
@@ -251,7 +250,7 @@ async function onSubmit(e) {
             <button
               type="button"
               onClick={() => nav("/quickpay")}
-              className="font-semibold text-[#2F2AD9] hover:underline"
+              className="cursor-pointer font-semibold text-[#2F2AD9] hover:underline"
             >
               Try QuickPay (no account)
             </button>

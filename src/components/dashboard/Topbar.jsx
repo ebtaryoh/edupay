@@ -48,22 +48,40 @@ function SearchTopIcon() {
   );
 }
 
-export default function Topbar({ onMenu }) {
+export default function Topbar({ onMenu, title }) {
   const nav = useNavigate();
   const { pathname } = useLocation();
 
-  let title = "Dashboard";
+  const isAdmin = pathname.startsWith("/admin");
+  const notificationPath = isAdmin
+    ? "/admin/dashboard/notifications"
+    : "/dashboard/notifications";
 
-  if (pathname.startsWith("/dashboard/bookstore")) title = "Bookstore";
-  else if (pathname.startsWith("/dashboard/payments/data")) title = "Buy Data";
-  else if (pathname.startsWith("/dashboard/payments/airtime")) title = "Buy Airtime";
-  else if (pathname.startsWith("/dashboard/payments/overdue")) title = "Overdue";
-  else if (pathname.startsWith("/dashboard/payments")) title = "Payments";
-  else if (pathname.startsWith("/dashboard/transaction/")) title = "Transaction Details";
-  else if (pathname.startsWith("/dashboard/transactions")) title = "Transactions";
-  else if (pathname.startsWith("/dashboard/notifications")) title = "Notifications";
-  else if (pathname.startsWith("/dashboard/account")) title = "Account";
-  else if (pathname.startsWith("/admin/dashboard")) title = "Dashboard";
+  let derivedTitle = isAdmin ? "Admin Dashboard" : "Dashboard";
+
+  if (pathname.startsWith("/dashboard/bookstore")) derivedTitle = "Bookstore";
+  else if (pathname.startsWith("/dashboard/payments/data")) derivedTitle = "Buy Data";
+  else if (pathname.startsWith("/dashboard/payments/airtime")) derivedTitle = "Buy Airtime";
+  else if (pathname.startsWith("/dashboard/payments/overdue")) derivedTitle = "Overdue";
+  else if (pathname.startsWith("/dashboard/payments")) derivedTitle = "Payments";
+  else if (pathname.startsWith("/dashboard/transaction/")) derivedTitle = "Transaction Details";
+  else if (pathname.startsWith("/dashboard/transactions")) derivedTitle = "Transactions";
+  else if (pathname.startsWith("/dashboard/notifications")) derivedTitle = "Notifications";
+  else if (pathname.startsWith("/dashboard/account")) derivedTitle = "Account";
+  else if (pathname.startsWith("/admin/dashboard/transaction/")) derivedTitle = "Transaction Details";
+  else if (pathname.startsWith("/admin/dashboard/transactions")) derivedTitle = "Transactions";
+  else if (pathname.startsWith("/admin/dashboard/notifications")) derivedTitle = "Notifications";
+  else if (pathname.startsWith("/admin/dashboard/payment-centre")) derivedTitle = "Payment Centre";
+  else if (pathname.startsWith("/admin/dashboard/history")) derivedTitle = "History";
+  else if (pathname.startsWith("/admin/dashboard/bookstore")) derivedTitle = "Bookstore";
+  else if (pathname.startsWith("/admin/dashboard/users")) derivedTitle = "Users";
+  else if (pathname.startsWith("/admin/dashboard/reports")) derivedTitle = "Reports";
+  else if (pathname.startsWith("/admin/dashboard/support")) derivedTitle = "Support";
+  else if (pathname.startsWith("/admin/dashboard/settings")) derivedTitle = "Settings";
+  else if (pathname.startsWith("/admin/dashboard/account")) derivedTitle = "Account";
+  else if (pathname.startsWith("/admin/dashboard")) derivedTitle = "Admin Dashboard";
+
+  const resolvedTitle = title || derivedTitle;
 
   return (
     <header className="flex h-[72px] items-center justify-between overflow-x-hidden">
@@ -98,13 +116,13 @@ export default function Topbar({ onMenu }) {
         </CircleButton>
 
         <h1 className="truncate text-[20px] font-semibold text-[#1B1C34] md:text-[22px]">
-          {title}
+          {resolvedTitle}
         </h1>
       </div>
 
       <div className="flex shrink-0 items-center gap-4">
         <CircleButton
-          onClick={() => nav("/dashboard/notifications")}
+          onClick={() => nav(notificationPath)}
           className="bg-[#2F2AD9] hover:brightness-110"
         >
           <BellTopIcon />
