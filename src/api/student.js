@@ -35,9 +35,15 @@ export const studentApi = {
   getStudentProfile: (studentId) =>
     get(`/api/Student/profile/${studentId}`),
 
+  logoutStudent: (studentId) =>
+    get(`/api/Student/logout/${studentId}`),
+
   updateStudentBio: (payload) =>
     put("/api/Student/update-student-bio", payload),
 
   updateStudentInstitution: (payload) =>
     put("/api/Student/update-student-institution", payload),
+
+  updateStudentImage: (formData) =>
+    put("/api/Student/update-student-image", formData),
 };

@@ -143,6 +143,7 @@ function getProfileCompletion(profile) {
     profile?.institutionName || profile?.institution || profile?.institutionText,
     profile?.departmentName || profile?.department,
     profile?.level,
+    profile?.photo || profile?.photoUrl || profile?.imageUrl || profile?.profileImage,
   ];
 
   const completed = fields.filter(Boolean).length;
@@ -195,6 +196,13 @@ export default function DashboardHome() {
       ? `${profile.level} Level`
       : "300 Level";
 
+  const profileImage =
+    profile?.photo ||
+    profile?.photoUrl ||
+    profile?.imageUrl ||
+    profile?.profileImage ||
+    "";
+
   const completion = getProfileCompletion(profile);
   const initials = getInitials(profile?.firstName, profile?.lastName);
 
@@ -235,9 +243,17 @@ export default function DashboardHome() {
           <section className="overflow-hidden rounded-[24px] border border-[#DCD8FF] bg-white px-4 py-4 shadow-[0_10px_30px_rgba(44,20,221,0.04)] sm:rounded-[26px] sm:px-5 sm:py-5 lg:rounded-[28px]">
             <div className="flex min-w-0 flex-col gap-4 sm:flex-row sm:items-start sm:gap-5">
               <div className="mx-auto h-[88px] w-[88px] shrink-0 overflow-hidden rounded-full border-[4px] border-[#F3E4D7] bg-[radial-gradient(circle_at_50%_30%,#D5B08D_0%,#A86E45_62%,#8A5636_100%)] sm:mx-0 sm:h-[96px] sm:w-[96px] lg:h-[106px] lg:w-[106px]">
-                <div className="flex h-full w-full items-center justify-center text-[30px] font-bold text-white/95 sm:text-[32px] lg:text-[34px]">
-                  {loadingProfile ? "..." : initials}
-                </div>
+                {profileImage ? (
+                  <img
+                    src={profileImage}
+                    alt="Student profile"
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <div className="flex h-full w-full items-center justify-center text-[30px] font-bold text-white/95 sm:text-[32px] lg:text-[34px]">
+                    {loadingProfile ? "..." : initials}
+                  </div>
+                )}
               </div>
 
               <div className="min-w-0 flex-1 pt-0 text-center sm:pt-2 sm:text-left">

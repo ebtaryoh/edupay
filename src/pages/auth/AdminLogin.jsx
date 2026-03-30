@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useGoogleLogin } from "@react-oauth/google";
 
@@ -33,11 +33,90 @@ function GoogleIcon() {
   );
 }
 
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+function extractToken(response) {
+  return (
+    response?.token ||
+    response?.accessToken ||
+    response?.data?.token ||
+    response?.data?.accessToken ||
+    null
+  );
+}
+
 export default function AdminLogin() {
   const nav = useNavigate();
-  const [form, setForm] = useState({ identifier: "", password: "" });
+
+  const [institutions, setInstitutions] = useState([]);
+  const [loadingInstitutions, setLoadingInstitutions] = useState(true);
+
+  const [form, setForm] = useState({
+    emailAddress: "",
+    password: "",
+    institutionId: "",
+  });
+
+  const [fieldErrors, setFieldErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState("");
+
+  useEffect(() => {
+    async function loadInstitutions() {
+      try {
+        const response = await authApi.getInstitutionsForDropdown();
+        setInstitutions(response?.data || response || []);
+      } catch (error) {
+        console.error("FAILED TO LOAD INSTITUTIONS:", error);
+      } finally {
+        setLoadingInstitutions(false);
+      }
+    }
+
+    loadInstitutions();
+  }, []);
+
+  const isFormFilled = useMemo(() => {
+    return (
+      form.emailAddress.trim() &&
+      form.password.trim() &&
+      form.institutionId.trim()
+    );
+  }, [form]);
+
+  function handleChange(field, value) {
+    setForm((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+
+    setFieldErrors((prev) => ({
+      ...prev,
+      [field]: "",
+    }));
+
+    setErr("");
+  }
+
+  function validateForm(values) {
+    const errors = {};
+
+    if (!values.emailAddress.trim()) {
+      errors.emailAddress = "Email address is required.";
+    } else if (!emailRegex.test(values.emailAddress.trim())) {
+      errors.emailAddress = "Enter a valid email address.";
+    }
+
+    if (!values.password.trim()) {
+      errors.password = "Password is required.";
+    }
+
+    if (!values.institutionId.trim()) {
+      errors.institutionId = "Please select an institution.";
+    }
+
+    return errors;
+  }
 
   const googleLogin = useGoogleLogin({
     flow: "auth-code",
@@ -47,11 +126,12 @@ export default function AdminLogin() {
         setLoading(true);
 
         const data = await authApi.googleLogin({ code });
+        const token = extractToken(data);
 
-        if (data?.token) localStorage.setItem("token", data.token);
+        if (token) localStorage.setItem("token", token);
         localStorage.setItem("role", "admin");
 
-        nav("/admin/dashboard");
+        nav("/admin/dashboard", { replace: true });
       } catch (e) {
         setErr(e?.message || "Google login failed");
       } finally {
@@ -64,19 +144,30 @@ export default function AdminLogin() {
   async function onSubmit(e) {
     e.preventDefault();
     setErr("");
+
+    const errors = validateForm(form);
+    setFieldErrors(errors);
+
+    if (Object.keys(errors).length > 0) return;
+
     setLoading(true);
 
     try {
       const data = await authApi.adminLogin({
-        email: form.identifier,
-        password: form.password,
+        emailAddress: form.emailAddress.trim(),
+        password: form.password.trim(),
+        institutionId: form.institutionId.trim(),
+        systemIP: window.location.hostname || "127.0.0.1",
       });
 
-      if (data?.token) localStorage.setItem("token", data.token);
+      const token = extractToken(data);
+
+      if (token) localStorage.setItem("token", token);
       localStorage.setItem("role", "admin");
 
       nav("/login-success?role=admin");
     } catch (e) {
+      console.error("ADMIN LOGIN ERROR:", e);
       setErr(e?.message || "Admin login failed");
     } finally {
       setLoading(false);
@@ -93,33 +184,81 @@ export default function AdminLogin() {
       <div className="max-w-xl">
         <h1 className="text-3xl font-bold text-[#14143A]">Welcome Back</h1>
 
-        <form onSubmit={onSubmit} className="mt-8 space-y-5">
-          <Input
-            placeholder="Admin Email"
-            value={form.identifier}
-            onChange={(e) =>
-              setForm((s) => ({ ...s, identifier: e.target.value }))
-            }
-          />
+        <form onSubmit={onSubmit} className="mt-8 space-y-5" noValidate>
+          <div>
+            <Input
+              placeholder="Admin Email"
+              type="email"
+              value={form.emailAddress}
+              onChange={(e) => handleChange("emailAddress", e.target.value)}
+            />
+            {fieldErrors.emailAddress ? (
+              <p className="mt-1 text-sm text-red-600">{fieldErrors.emailAddress}</p>
+            ) : null}
+          </div>
 
-          <Input
-            placeholder="Password"
-            type="password"
-            value={form.password}
-            onChange={(e) =>
-              setForm((s) => ({ ...s, password: e.target.value }))
-            }
-          />
+          <div>
+            <Input
+              placeholder="Password"
+              type="password"
+              value={form.password}
+              onChange={(e) => handleChange("password", e.target.value)}
+            />
+            {fieldErrors.password ? (
+              <p className="mt-1 text-sm text-red-600">{fieldErrors.password}</p>
+            ) : null}
+          </div>
+
+          <div>
+            <div className="relative">
+              <select
+                value={form.institutionId}
+                onChange={(e) => handleChange("institutionId", e.target.value)}
+                disabled={loadingInstitutions}
+                className={`h-[58px] w-full cursor-pointer appearance-none rounded-[18px] border bg-white px-5 pr-12 text-sm outline-none transition md:text-base ${
+                  fieldErrors.institutionId
+                    ? "border-red-500 focus:border-red-500"
+                    : "border-[#8E8E93] focus:border-[#3C22F2]"
+                }`}
+              >
+                <option value="">
+                  {loadingInstitutions ? "Loading institutions..." : "Select Institution"}
+                </option>
+
+                {institutions.map((item) => (
+                  <option key={item.value} value={item.value}>
+                    {item.text}
+                  </option>
+                ))}
+              </select>
+
+              <span className="pointer-events-none absolute inset-y-0 right-4 flex items-center text-[#8E8E93]">
+                <svg width="18" height="18" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                  <path
+                    d="M5 7.5L10 12.5L15 7.5"
+                    stroke="currentColor"
+                    strokeWidth="1.8"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </span>
+            </div>
+
+            {fieldErrors.institutionId ? (
+              <p className="mt-1 text-sm text-red-600">{fieldErrors.institutionId}</p>
+            ) : null}
+          </div>
 
           <div className="text-right text-sm text-[#33334E]">
-            <button type="button" className="hover:underline">
+            <button type="button" className="cursor-pointer hover:underline">
               Forgot Password?
             </button>
           </div>
 
-          {err ? <p className="text-red-600 text-sm">{err}</p> : null}
+          {err ? <p className="text-sm text-red-600">{err}</p> : null}
 
-          <Button disabled={loading}>
+          <Button disabled={loading || loadingInstitutions || !isFormFilled}>
             {loading ? "Logging in..." : "Login"}
           </Button>
 
@@ -129,29 +268,29 @@ export default function AdminLogin() {
             type="button"
             onClick={() => googleLogin()}
             disabled={loading}
-            className="w-full h-[58px] rounded-full flex items-center justify-center gap-3 font-semibold text-white hover:brightness-110 active:scale-[0.99] transition disabled:opacity-60"
+            className="flex h-[58px] w-full cursor-pointer items-center justify-center gap-3 rounded-full font-semibold text-white transition hover:brightness-110 active:scale-[0.99] disabled:opacity-60"
             style={{ backgroundColor: "rgba(14, 4, 34, 1)" }}
           >
             <GoogleIcon />
             Continue with Google
           </button>
 
-          <p className="text-center text-sm text-[#8E8EA8] mt-6">
+          <p className="mt-6 text-center text-sm text-[#8E8EA8]">
             Not yet registered?{" "}
             <button
               type="button"
               onClick={() => nav("/signup/admin")}
-              className="text-[#D359FF] font-semibold hover:underline"
+              className="cursor-pointer font-semibold text-[#D359FF] hover:underline"
             >
               Sign Up
             </button>
           </p>
 
-          <div className="pt-4 flex justify-center">
+          <div className="flex justify-center pt-4">
             <button
               type="button"
               onClick={() => nav("/quickpay")}
-              className="text-[#2F2AD9] font-semibold hover:underline"
+              className="cursor-pointer font-semibold text-[#2F2AD9] hover:underline"
             >
               Try QuickPay (no account)
             </button>

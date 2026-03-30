@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useGoogleLogin } from "@react-oauth/google";
 
@@ -33,17 +33,106 @@ function GoogleIcon() {
   );
 }
 
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+function extractToken(response) {
+  return (
+    response?.token ||
+    response?.accessToken ||
+    response?.data?.token ||
+    response?.data?.accessToken ||
+    null
+  );
+}
+
 export default function AdminSignup() {
   const nav = useNavigate();
+
+  const [institutions, setInstitutions] = useState([]);
+  const [loadingInstitutions, setLoadingInstitutions] = useState(true);
+
   const [form, setForm] = useState({
     firstName: "",
+    middleName: "",
     lastName: "",
     email: "",
     password: "",
+    institutionId: "",
     agree: false,
   });
+
+  const [fieldErrors, setFieldErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState("");
+
+  useEffect(() => {
+    async function loadInstitutions() {
+      try {
+        const response = await authApi.getInstitutionsForDropdown();
+        setInstitutions(response?.data || response || []);
+      } catch (error) {
+        console.error("FAILED TO LOAD INSTITUTIONS:", error);
+      } finally {
+        setLoadingInstitutions(false);
+      }
+    }
+
+    loadInstitutions();
+  }, []);
+
+  const isFormFilled = useMemo(() => {
+    return (
+      form.firstName.trim() &&
+      form.lastName.trim() &&
+      form.email.trim() &&
+      form.password.trim() &&
+      form.institutionId.trim() &&
+      form.agree
+    );
+  }, [form]);
+
+  function handleChange(field, value) {
+    setForm((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+
+    setFieldErrors((prev) => ({
+      ...prev,
+      [field]: "",
+    }));
+
+    setErr("");
+  }
+
+  function validateForm(values) {
+    const errors = {};
+
+    if (!values.firstName.trim()) errors.firstName = "First name is required.";
+    if (!values.lastName.trim()) errors.lastName = "Last name is required.";
+
+    if (!values.email.trim()) {
+      errors.email = "Email is required.";
+    } else if (!emailRegex.test(values.email.trim())) {
+      errors.email = "Enter a valid email address.";
+    }
+
+    if (!values.password.trim()) {
+      errors.password = "Password is required.";
+    } else if (values.password.trim().length < 6) {
+      errors.password = "Password must be at least 6 characters.";
+    }
+
+    if (!values.institutionId.trim()) {
+      errors.institutionId = "Please select an institution.";
+    }
+
+    if (!values.agree) {
+      errors.agree = "Please agree to the terms to continue.";
+    }
+
+    return errors;
+  }
 
   const googleSignup = useGoogleLogin({
     flow: "auth-code",
@@ -53,8 +142,9 @@ export default function AdminSignup() {
         setLoading(true);
 
         const data = await authApi.googleLogin({ code });
+        const token = extractToken(data);
 
-        if (data?.token) localStorage.setItem("token", data.token);
+        if (token) localStorage.setItem("token", token);
         localStorage.setItem("role", "admin");
 
         nav("/admin/dashboard", { replace: true });
@@ -71,23 +161,26 @@ export default function AdminSignup() {
     e.preventDefault();
     setErr("");
 
-    if (!form.agree) {
-      setErr("Please agree to the terms to continue.");
-      return;
-    }
+    const errors = validateForm(form);
+    setFieldErrors(errors);
+
+    if (Object.keys(errors).length > 0) return;
 
     setLoading(true);
 
     try {
       await authApi.adminSignup({
-        firstName: form.firstName,
-        lastName: form.lastName,
-        email: form.email,
-        password: form.password,
+        firstName: form.firstName.trim(),
+        middleName: form.middleName.trim(),
+        lastName: form.lastName.trim(),
+        email: form.email.trim(),
+        password: form.password.trim(),
+        institutionId: form.institutionId.trim(),
       });
 
       nav("/register-success?role=admin");
     } catch (e) {
+      console.error("ADMIN SIGNUP ERROR:", e);
       setErr(e?.message || "Admin signup failed");
     } finally {
       setLoading(false);
@@ -106,53 +199,121 @@ export default function AdminSignup() {
           It only takes a minute to create your admin account
         </p>
 
-        <form onSubmit={onSubmit} className="mt-6 space-y-5">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            <Input
-              placeholder="First Name"
-              value={form.firstName}
-              onChange={(e) =>
-                setForm((s) => ({ ...s, firstName: e.target.value }))
-              }
-            />
+        <form onSubmit={onSubmit} className="mt-6 space-y-5" noValidate>
+          <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+            <div>
+              <Input
+                placeholder="First Name"
+                value={form.firstName}
+                onChange={(e) => handleChange("firstName", e.target.value)}
+              />
+              {fieldErrors.firstName ? (
+                <p className="mt-1 text-sm text-red-600">{fieldErrors.firstName}</p>
+              ) : null}
+            </div>
+
+            <div>
+              <Input
+                placeholder="Middle Name"
+                value={form.middleName}
+                onChange={(e) => handleChange("middleName", e.target.value)}
+              />
+            </div>
+          </div>
+
+          <div>
             <Input
               placeholder="Last Name"
               value={form.lastName}
-              onChange={(e) =>
-                setForm((s) => ({ ...s, lastName: e.target.value }))
-              }
+              onChange={(e) => handleChange("lastName", e.target.value)}
             />
+            {fieldErrors.lastName ? (
+              <p className="mt-1 text-sm text-red-600">{fieldErrors.lastName}</p>
+            ) : null}
           </div>
 
-          <Input
-            placeholder="Admin Email"
-            value={form.email}
-            onChange={(e) => setForm((s) => ({ ...s, email: e.target.value }))}
-          />
+          <div>
+            <Input
+              placeholder="Admin Email"
+              type="email"
+              value={form.email}
+              onChange={(e) => handleChange("email", e.target.value)}
+            />
+            {fieldErrors.email ? (
+              <p className="mt-1 text-sm text-red-600">{fieldErrors.email}</p>
+            ) : null}
+          </div>
 
-          <Input
-            placeholder="Password"
-            type="password"
-            value={form.password}
-            onChange={(e) =>
-              setForm((s) => ({ ...s, password: e.target.value }))
-            }
-          />
+          <div>
+            <Input
+              placeholder="Password"
+              type="password"
+              value={form.password}
+              onChange={(e) => handleChange("password", e.target.value)}
+            />
+            {fieldErrors.password ? (
+              <p className="mt-1 text-sm text-red-600">{fieldErrors.password}</p>
+            ) : null}
+          </div>
 
-          <label className="flex items-center gap-3 text-[10px] text-[#8E8E93]">
+          <div>
+            <div className="relative">
+              <select
+                value={form.institutionId}
+                onChange={(e) => handleChange("institutionId", e.target.value)}
+                disabled={loadingInstitutions}
+                className={`h-[58px] w-full cursor-pointer appearance-none rounded-[18px] border bg-white px-5 pr-12 text-sm outline-none transition md:text-base ${
+                  fieldErrors.institutionId
+                    ? "border-red-500 focus:border-red-500"
+                    : "border-[#8E8E93] focus:border-[#3C22F2]"
+                }`}
+              >
+                <option value="">
+                  {loadingInstitutions ? "Loading institutions..." : "Select Institution"}
+                </option>
+
+                {institutions.map((item) => (
+                  <option key={item.value} value={item.value}>
+                    {item.text}
+                  </option>
+                ))}
+              </select>
+
+              <span className="pointer-events-none absolute inset-y-0 right-4 flex items-center text-[#8E8E93]">
+                <svg width="18" height="18" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                  <path
+                    d="M5 7.5L10 12.5L15 7.5"
+                    stroke="currentColor"
+                    strokeWidth="1.8"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </span>
+            </div>
+
+            {fieldErrors.institutionId ? (
+              <p className="mt-1 text-sm text-red-600">{fieldErrors.institutionId}</p>
+            ) : null}
+          </div>
+
+          <label className="flex cursor-pointer items-start gap-3 text-[10px] text-[#8E8E93]">
             <input
               type="checkbox"
               checked={form.agree}
-              onChange={(e) =>
-                setForm((s) => ({ ...s, agree: e.target.checked }))
-              }
+              onChange={(e) => handleChange("agree", e.target.checked)}
+              className="mt-0.5 cursor-pointer"
             />
-            I agree to EduPay’s Terms of Services and Privacy Policy.
+            <span>I agree to EduPay’s Terms of Services and Privacy Policy.</span>
           </label>
 
-          {err ? <p className="text-red-600 text-sm">{err}</p> : null}
+          {fieldErrors.agree ? (
+            <p className="text-sm text-red-600">{fieldErrors.agree}</p>
+          ) : null}
 
-          <Button disabled={loading}>
+          {err ? <p className="text-sm text-red-600">{err}</p> : null}
+
+          <Button disabled={loading || loadingInstitutions || !isFormFilled}>
             {loading ? "Signing up..." : "Sign Up"}
           </Button>
 
@@ -162,19 +323,19 @@ export default function AdminSignup() {
             type="button"
             onClick={() => googleSignup()}
             disabled={loading}
-            className="w-full h-[58px] rounded-full flex items-center justify-center gap-3 font-semibold text-white hover:brightness-110 active:scale-[0.99] transition disabled:opacity-60"
+            className="flex h-[58px] w-full cursor-pointer items-center justify-center gap-3 rounded-full font-semibold text-white transition hover:brightness-110 active:scale-[0.99] disabled:opacity-60"
             style={{ backgroundColor: "rgba(14, 4, 34, 1)" }}
           >
             <GoogleIcon />
             Continue with Google
           </button>
 
-          <p className="text-center text-sm text-[#8E8EA8] mt-6">
+          <p className="mt-6 text-center text-sm text-[#8E8EA8]">
             Already registered?{" "}
             <button
               type="button"
               onClick={() => nav("/login/admin")}
-              className="text-[#D359FF] font-semibold hover:underline"
+              className="cursor-pointer font-semibold text-[#D359FF] hover:underline"
             >
               Sign In
             </button>

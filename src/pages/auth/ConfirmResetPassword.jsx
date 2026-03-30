@@ -10,8 +10,9 @@ export default function ConfirmResetPassword() {
   const nav = useNavigate();
   const { state } = useLocation();
 
+  const emailAddress = state?.emailAddress || "";
+
   const [form, setForm] = useState({
-    matricNo: "",
     otp: "",
     newPassword: "",
     confirmPassword: "",
@@ -24,12 +25,12 @@ export default function ConfirmResetPassword() {
 
   const isFormFilled = useMemo(() => {
     return (
-      form.matricNo.trim() &&
+      emailAddress.trim() &&
       form.otp.trim() &&
       form.newPassword.trim() &&
       form.confirmPassword.trim()
     );
-  }, [form]);
+  }, [emailAddress, form]);
 
   function handleChange(field, value) {
     setForm((prev) => ({
@@ -49,8 +50,8 @@ export default function ConfirmResetPassword() {
   function validateForm(values) {
     const errors = {};
 
-    if (!values.matricNo.trim()) {
-      errors.matricNo = "Matric number is required.";
+    if (!emailAddress.trim()) {
+      errors.emailAddress = "Missing email address. Please restart the forgot password process.";
     }
 
     if (!values.otp.trim()) {
@@ -86,22 +87,27 @@ export default function ConfirmResetPassword() {
       setLoading(true);
 
       const payload = {
-        matricNo: form.matricNo.trim(),
+        emailAddress: emailAddress.trim(),
         otp: form.otp.trim(),
         newPassword: form.newPassword.trim(),
       };
 
       console.log("CONFIRM RESET PASSWORD PAYLOAD:", payload);
 
-      await authApi.confirmStudentPasswordReset(payload);
+      const response = await authApi.confirmStudentPasswordReset(payload);
 
-      setSuccessMessage("Password reset successful. Redirecting to login...");
+      console.log("CONFIRM RESET PASSWORD RESPONSE:", response);
+
+      setSuccessMessage("Password reset successful. You can now log in with your new password.");
 
       setTimeout(() => {
         nav("/login/student", { replace: true });
-      }, 1200);
+      }, 1500);
     } catch (error) {
       console.error("CONFIRM RESET PASSWORD ERROR:", error);
+      console.error("CONFIRM RESET PASSWORD ERROR STATUS:", error?.status);
+      console.error("CONFIRM RESET PASSWORD ERROR PAYLOAD:", error?.payload || error?.data);
+
       setSubmitError(error?.message || "Password confirmation failed.");
     } finally {
       setLoading(false);
@@ -118,22 +124,15 @@ export default function ConfirmResetPassword() {
         <h1 className="text-3xl font-bold text-[#14143A]">Reset Password</h1>
 
         <p className="mt-3 text-sm text-[#6B6B85]">
-          {state?.emailAddress
-            ? `We sent an OTP to ${state.emailAddress}. Enter your matric number, OTP, and new password below.`
-            : "Enter your matric number, OTP, and new password to complete the reset."}
+          {emailAddress
+            ? `We sent an OTP to ${emailAddress}. Enter the OTP and your new password below.`
+            : "Enter the OTP and your new password below."}
         </p>
 
         <form onSubmit={handleSubmit} className="mt-8 space-y-5" noValidate>
-          <div>
-            <Input
-              placeholder="Matric Number"
-              value={form.matricNo}
-              onChange={(e) => handleChange("matricNo", e.target.value)}
-            />
-            {fieldErrors.matricNo ? (
-              <p className="mt-1 text-sm text-red-600">{fieldErrors.matricNo}</p>
-            ) : null}
-          </div>
+          {fieldErrors.emailAddress ? (
+            <p className="text-sm text-red-600">{fieldErrors.emailAddress}</p>
+          ) : null}
 
           <div>
             <Input

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import AccountShell from "../../../components/dashboard/AccountShell";
 import { studentApi } from "../../../api/student";
@@ -12,6 +12,18 @@ function formatDateForInput(value) {
   return date.toISOString().split("T")[0];
 }
 
+function getStudentPhoto(student) {
+  return (
+    student?.photo ||
+    student?.photoUrl ||
+    student?.imageUrl ||
+    student?.profileImage ||
+    student?.studentImage ||
+    student?.passport ||
+    ""
+  );
+}
+
 function EditableField({
   label,
   value,
@@ -20,6 +32,7 @@ function EditableField({
   placeholder,
   error,
   disabled = false,
+  readOnly = false,
 }) {
   return (
     <div className="rounded-[16px] bg-white px-6 py-5">
@@ -29,8 +42,9 @@ function EditableField({
         value={value}
         onChange={onChange}
         disabled={disabled}
+        readOnly={readOnly}
         placeholder={placeholder}
-        className="mt-2 w-full bg-transparent text-[16px] font-semibold text-[#14143A] outline-none placeholder:text-[#B8BDD0] disabled:cursor-not-allowed disabled:text-[#7E849A]"
+        className="mt-2 w-full bg-transparent text-[16px] font-semibold text-[#14143A] outline-none placeholder:text-[#B8BDD0] disabled:cursor-not-allowed disabled:text-[#7E849A] read-only:cursor-default"
       />
       {error ? <p className="mt-2 text-sm text-red-600">{error}</p> : null}
     </div>
@@ -58,8 +72,69 @@ function SelectField({ label, value, onChange, options, error }) {
   );
 }
 
+function AvatarUploader({
+  imageUrl,
+  initials,
+  onPickImage,
+  onUploadImage,
+  uploadingImage,
+  disabled = false,
+}) {
+  return (
+    <div className="mb-6 flex flex-col gap-4 rounded-[18px] bg-white px-6 py-5 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex items-center gap-4">
+        <div className="h-[84px] w-[84px] overflow-hidden rounded-full border-[4px] border-[#F3E4D7] bg-[radial-gradient(circle_at_50%_30%,#D5B08D_0%,#A86E45_62%,#8A5636_100%)]">
+          {imageUrl ? (
+            <img
+              src={imageUrl}
+              alt="Student profile"
+              className="h-full w-full object-cover"
+            />
+          ) : (
+            <div className="flex h-full w-full items-center justify-center text-[28px] font-bold text-white/95">
+              {initials}
+            </div>
+          )}
+        </div>
+
+        <div>
+          <p className="text-[16px] font-semibold text-[#14143A]">Profile Photo</p>
+          <p className="mt-1 text-sm text-[#8D93A6]">
+            Upload a clear passport-style image.
+          </p>
+        </div>
+      </div>
+
+      <div className="flex flex-wrap gap-3">
+        <button
+          type="button"
+          onClick={onPickImage}
+          disabled={disabled}
+          className="h-11 cursor-pointer rounded-full border border-[#D7DCF0] bg-white px-5 text-sm font-semibold text-[#2C14DD] transition hover:bg-[#F8F9FF] disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          Choose Photo
+        </button>
+
+        <button
+          type="button"
+          onClick={onUploadImage}
+          disabled={uploadingImage || disabled}
+          className="h-11 cursor-pointer rounded-full bg-[#EDEFFF] px-5 text-sm font-semibold text-[#2C14DD] transition hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          {uploadingImage ? "Uploading..." : "Upload Photo"}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function getInitials(firstName = "", lastName = "") {
+  return `${firstName?.[0] || ""}${lastName?.[0] || ""}`.toUpperCase() || "AS";
+}
+
 export default function MyAccountPersonal() {
   const nav = useNavigate();
+  const fileInputRef = useRef(null);
   const studentId = localStorage.getItem("studentId") || "";
 
   const [form, setForm] = useState({
@@ -72,43 +147,62 @@ export default function MyAccountPersonal() {
     dateOfBirth: "",
   });
 
+  const [profileImage, setProfileImage] = useState(localStorage.getItem("studentPhoto") || "");
+  const [selectedPhoto, setSelectedPhoto] = useState(null);
+
   const [fieldErrors, setFieldErrors] = useState({});
   const [submitError, setSubmitError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
+  const [imageError, setImageError] = useState("");
+  const [imageSuccess, setImageSuccess] = useState("");
   const [loadingProfile, setLoadingProfile] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
 
-  useEffect(() => {
-    async function loadProfile() {
-      if (!studentId) {
-        setLoadingProfile(false);
-        return;
-      }
-
-      try {
-        const response = await studentApi.getStudentProfile(studentId);
-        const student = response?.data || response || {};
-
-        setForm({
-          matricNo:
-            student?.matricNo ||
-            localStorage.getItem("matricNo") ||
-            "",
-          firstName: student?.firstName || "",
-          lastName: student?.lastName || "",
-          emailAddress: student?.emailAddress || student?.email || "",
-          phoneNo: student?.phoneNo || student?.phoneNumber || "",
-          gender: student?.gender || "",
-          dateOfBirth: formatDateForInput(student?.dateOfBirth),
-        });
-      } catch (error) {
-        console.error("FAILED TO LOAD STUDENT PROFILE:", error);
-        setSubmitError("Unable to load profile information.");
-      } finally {
-        setLoadingProfile(false);
-      }
+  async function loadProfile() {
+    if (!studentId) {
+      setLoadingProfile(false);
+      return;
     }
 
+    try {
+      const response = await studentApi.getStudentProfile(studentId);
+      const student = response?.data || response || {};
+
+      const resolvedMatricNo =
+        student?.matricNo ||
+        localStorage.getItem("matricNo") ||
+        "";
+
+      setForm({
+        matricNo: resolvedMatricNo,
+        firstName: student?.firstName || "",
+        lastName: student?.lastName || "",
+        emailAddress: student?.emailAddress || student?.email || "",
+        phoneNo: student?.phoneNo || student?.phoneNumber || "",
+        gender: student?.gender || "",
+        dateOfBirth: formatDateForInput(student?.dateOfBirth),
+      });
+
+      if (resolvedMatricNo) {
+        localStorage.setItem("matricNo", resolvedMatricNo);
+      }
+
+      const latestPhoto = getStudentPhoto(student);
+      if (latestPhoto) {
+        const cacheBustedPhoto = `${latestPhoto}${latestPhoto.includes("?") ? "&" : "?"}t=${Date.now()}`;
+        setProfileImage(cacheBustedPhoto);
+        localStorage.setItem("studentPhoto", cacheBustedPhoto);
+      }
+    } catch (error) {
+      console.error("FAILED TO LOAD STUDENT PROFILE:", error);
+      setSubmitError("Unable to load profile information.");
+    } finally {
+      setLoadingProfile(false);
+    }
+  }
+
+  useEffect(() => {
     loadProfile();
   }, [studentId]);
 
@@ -125,6 +219,28 @@ export default function MyAccountPersonal() {
 
     setSubmitError("");
     setSuccessMessage("");
+  }
+
+  function handleChoosePhoto() {
+    fileInputRef.current?.click();
+  }
+
+  function handlePhotoChange(e) {
+    const file = e.target.files?.[0];
+
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      setImageError("Please choose a valid image file.");
+      return;
+    }
+
+    setSelectedPhoto(file);
+    setImageError("");
+    setImageSuccess("");
+
+    const previewUrl = URL.createObjectURL(file);
+    setProfileImage(previewUrl);
   }
 
   function validate(values) {
@@ -145,6 +261,58 @@ export default function MyAccountPersonal() {
     if (!values.dateOfBirth.trim()) errors.dateOfBirth = "Date of birth is required.";
 
     return errors;
+  }
+
+  async function handleUploadImage() {
+    setImageError("");
+    setImageSuccess("");
+
+    const actualMatricNo =
+      localStorage.getItem("matricNo") ||
+      form.matricNo.trim();
+
+    if (!actualMatricNo) {
+      setImageError("Matric number is required before uploading image.");
+      return;
+    }
+
+    if (!selectedPhoto) {
+      setImageError("Please choose a photo first.");
+      return;
+    }
+
+    try {
+      setUploadingImage(true);
+
+      const formData = new FormData();
+      formData.append("MatricNo", actualMatricNo);
+      formData.append("Photo", selectedPhoto);
+
+      console.log("UPDATE STUDENT IMAGE PAYLOAD:", {
+        MatricNo: actualMatricNo,
+        Photo: selectedPhoto?.name,
+      });
+
+      const response = await studentApi.updateStudentImage(formData);
+      console.log("UPDATE STUDENT IMAGE RESPONSE:", response);
+
+      localStorage.setItem("matricNo", actualMatricNo);
+
+      await loadProfile();
+
+      setSelectedPhoto(null);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+
+      setImageSuccess("Profile image updated successfully.");
+    } catch (error) {
+      console.error("UPDATE STUDENT IMAGE ERROR:", error);
+      console.error("UPDATE STUDENT IMAGE ERROR PAYLOAD:", error?.payload || error?.data);
+      setImageError(error?.message || "Failed to update profile image.");
+    } finally {
+      setUploadingImage(false);
+    }
   }
 
   async function handleSave() {
@@ -183,6 +351,8 @@ export default function MyAccountPersonal() {
     }
   }
 
+  const initials = getInitials(form.firstName, form.lastName);
+
   return (
     <div className="min-h-[calc(100vh-24px)] rounded-[28px] bg-[#2C14DD] p-6 md:p-10">
       <AccountShell
@@ -205,69 +375,96 @@ export default function MyAccountPersonal() {
               </button>
             </div>
 
-            <div className="mt-6 max-w-[620px] space-y-4">
-              <EditableField
-                label="Matric Number"
-                value={form.matricNo}
-                onChange={(e) => handleChange("matricNo", e.target.value)}
-                placeholder="Enter matric number"
-                error={fieldErrors.matricNo}
+            <div className="mt-6 max-w-[620px]">
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handlePhotoChange}
+                className="hidden"
+              />
+
+              <AvatarUploader
+                imageUrl={profileImage}
+                initials={initials}
+                onPickImage={handleChoosePhoto}
+                onUploadImage={handleUploadImage}
+                uploadingImage={uploadingImage}
                 disabled={loadingProfile}
               />
 
-              <EditableField
-                label="First Name"
-                value={form.firstName}
-                onChange={(e) => handleChange("firstName", e.target.value)}
-                placeholder="Enter first name"
-                error={fieldErrors.firstName}
-                disabled={loadingProfile}
-              />
+              {imageError ? (
+                <p className="mb-4 text-sm text-red-200">{imageError}</p>
+              ) : null}
 
-              <EditableField
-                label="Last Name"
-                value={form.lastName}
-                onChange={(e) => handleChange("lastName", e.target.value)}
-                placeholder="Enter last name"
-                error={fieldErrors.lastName}
-                disabled={loadingProfile}
-              />
+              {imageSuccess ? (
+                <p className="mb-4 text-sm text-green-200">{imageSuccess}</p>
+              ) : null}
 
-              <EditableField
-                label="Email Address"
-                type="email"
-                value={form.emailAddress}
-                onChange={(e) => handleChange("emailAddress", e.target.value)}
-                placeholder="Enter email address"
-                error={fieldErrors.emailAddress}
-                disabled={loadingProfile}
-              />
+              <div className="space-y-4">
+                <EditableField
+                  label="Matric Number"
+                  value={form.matricNo}
+                  placeholder="Matric number"
+                  error={fieldErrors.matricNo}
+                  disabled={loadingProfile}
+                  readOnly
+                />
 
-              <EditableField
-                label="Phone Number"
-                value={form.phoneNo}
-                onChange={(e) => handleChange("phoneNo", e.target.value)}
-                placeholder="Enter phone number"
-                error={fieldErrors.phoneNo}
-                disabled={loadingProfile}
-              />
+                <EditableField
+                  label="First Name"
+                  value={form.firstName}
+                  onChange={(e) => handleChange("firstName", e.target.value)}
+                  placeholder="Enter first name"
+                  error={fieldErrors.firstName}
+                  disabled={loadingProfile}
+                />
 
-              <SelectField
-                label="Gender"
-                value={form.gender}
-                onChange={(e) => handleChange("gender", e.target.value)}
-                options={["Male", "Female"]}
-                error={fieldErrors.gender}
-              />
+                <EditableField
+                  label="Last Name"
+                  value={form.lastName}
+                  onChange={(e) => handleChange("lastName", e.target.value)}
+                  placeholder="Enter last name"
+                  error={fieldErrors.lastName}
+                  disabled={loadingProfile}
+                />
 
-              <EditableField
-                label="Date of Birth"
-                type="date"
-                value={form.dateOfBirth}
-                onChange={(e) => handleChange("dateOfBirth", e.target.value)}
-                error={fieldErrors.dateOfBirth}
-                disabled={loadingProfile}
-              />
+                <EditableField
+                  label="Email Address"
+                  type="email"
+                  value={form.emailAddress}
+                  onChange={(e) => handleChange("emailAddress", e.target.value)}
+                  placeholder="Enter email address"
+                  error={fieldErrors.emailAddress}
+                  disabled={loadingProfile}
+                />
+
+                <EditableField
+                  label="Phone Number"
+                  value={form.phoneNo}
+                  onChange={(e) => handleChange("phoneNo", e.target.value)}
+                  placeholder="Enter phone number"
+                  error={fieldErrors.phoneNo}
+                  disabled={loadingProfile}
+                />
+
+                <SelectField
+                  label="Gender"
+                  value={form.gender}
+                  onChange={(e) => handleChange("gender", e.target.value)}
+                  options={["Male", "Female"]}
+                  error={fieldErrors.gender}
+                />
+
+                <EditableField
+                  label="Date of Birth"
+                  type="date"
+                  value={form.dateOfBirth}
+                  onChange={(e) => handleChange("dateOfBirth", e.target.value)}
+                  error={fieldErrors.dateOfBirth}
+                  disabled={loadingProfile}
+                />
+              </div>
             </div>
 
             {submitError ? (

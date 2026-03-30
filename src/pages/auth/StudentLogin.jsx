@@ -54,6 +54,27 @@ function extractToken(response) {
   );
 }
 
+function extractStudentId(response) {
+  return (
+    response?.studentId ||
+    response?.data?.studentId ||
+    response?.id ||
+    response?.data?.id ||
+    response?.data?.student?.studentId ||
+    response?.data?.student?.id ||
+    ""
+  );
+}
+
+function extractMatricNo(response) {
+  return (
+    response?.matricNo ||
+    response?.data?.matricNo ||
+    response?.data?.student?.matricNo ||
+    ""
+  );
+}
+
 export default function StudentLogin() {
   const nav = useNavigate();
 
@@ -111,8 +132,23 @@ export default function StudentLogin() {
       throw new Error("Server returned an invalid token.");
     }
 
+    const studentId = extractStudentId(response);
+    const matricNo = extractMatricNo(response);
+
+    console.log("STUDENT LOGIN RESPONSE:", response);
+    console.log("EXTRACTED STUDENT ID:", studentId);
+    console.log("EXTRACTED MATRIC NO:", matricNo);
+
     localStorage.setItem("token", token);
     localStorage.setItem("role", role);
+
+    if (studentId) {
+      localStorage.setItem("studentId", String(studentId));
+    }
+
+    if (matricNo) {
+      localStorage.setItem("matricNo", String(matricNo));
+    }
   }
 
   const googleLogin = useGoogleLogin({
@@ -160,6 +196,7 @@ export default function StudentLogin() {
 
       nav("/login-success?role=student", { replace: true });
     } catch (error) {
+      console.error("STUDENT LOGIN ERROR:", error);
       setSubmitError(error?.message || "Login failed.");
     } finally {
       setLoading(false);

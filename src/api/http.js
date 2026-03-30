@@ -6,9 +6,12 @@ function isJwt(token) {
 
 export async function request(path, options = {}) {
   const token = localStorage.getItem("token");
+  const isFormData = options.body instanceof FormData;
 
   const headers = {
-    ...(options.body !== undefined ? { "Content-Type": "application/json" } : {}),
+    ...(!isFormData && options.body !== undefined
+      ? { "Content-Type": "application/json" }
+      : {}),
     ...(options.headers || {}),
   };
 
@@ -19,7 +22,12 @@ export async function request(path, options = {}) {
   const res = await fetch(`${BASE_URL}${path}`, {
     method: options.method || "GET",
     headers,
-    body: options.body !== undefined ? JSON.stringify(options.body) : undefined,
+    body:
+      options.body === undefined
+        ? undefined
+        : isFormData
+          ? options.body
+          : JSON.stringify(options.body),
   });
 
   let data = null;
@@ -46,6 +54,7 @@ export async function request(path, options = {}) {
     const error = new Error(message);
     error.status = res.status;
     error.payload = data;
+    error.data = data;
     throw error;
   }
 

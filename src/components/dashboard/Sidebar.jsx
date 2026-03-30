@@ -1,4 +1,5 @@
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
+import { studentApi } from "../../api/student";
 
 function DashboardIcon({ active }) {
   return (
@@ -126,6 +127,24 @@ export default function Sidebar({ open, onClose }) {
   const basePath = isAdmin ? "/admin/dashboard" : "/dashboard";
   const logoutPath = isAdmin ? "/login/admin" : "/login/student";
 
+  async function handleLogout() {
+    const studentId = localStorage.getItem("studentId") || "";
+
+    try {
+      if (!isAdmin && studentId) {
+        await studentApi.logoutStudent(studentId);
+      }
+    } catch (error) {
+      console.error("STUDENT LOGOUT ERROR:", error);
+    } finally {
+      localStorage.removeItem("token");
+      localStorage.removeItem("role");
+      localStorage.removeItem("studentId");
+      localStorage.removeItem("matricNo");
+      nav(logoutPath, { replace: true });
+    }
+  }
+
   return (
     <>
       <div
@@ -197,13 +216,7 @@ export default function Sidebar({ open, onClose }) {
           <div className="mt-auto px-2 pb-2">
             <button
               type="button"
-              onClick={() => {
-                localStorage.removeItem("token");
-                localStorage.removeItem("role");
-                localStorage.removeItem("studentId");
-                localStorage.removeItem("matricNo");
-                nav(logoutPath, { replace: true });
-              }}
+              onClick={handleLogout}
               className="h-[56px] w-full cursor-pointer rounded-full border border-[#D7DCF0] bg-[#F8F9FF] text-[16px] font-semibold text-[#2F2AD9] transition hover:bg-white"
             >
               Logout

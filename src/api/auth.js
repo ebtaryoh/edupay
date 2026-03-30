@@ -24,10 +24,10 @@ export const authApi = {
     post("/api/Student/register", payload, { skipAuth: true }),
 
   adminLogin: (payload) =>
-    post("/api/Admin/login", payload, { skipAuth: true }),
+    post("/api/Admin/admin-login", payload, { skipAuth: true }),
 
   adminSignup: (payload) =>
-    post("/api/Admin/create-admin-user", payload, { skipAuth: true }),
+    post("/api/Admin/register-new-admin", payload, { skipAuth: true }),
 
   googleLogin: (payload) =>
     post("/api/Auth/google", payload, { skipAuth: true }),
@@ -35,11 +35,15 @@ export const authApi = {
   changeStudentPassword: (payload) =>
     post("/api/Student/change-password", payload),
 
+  requestStudentPasswordReset: (payload) =>
+    post("/api/Student/reset-password-request", payload, { skipAuth: true }),
+
   confirmStudentPasswordReset: (payload) =>
     post("/api/Student/confirm-reset-password", payload, { skipAuth: true }),
 
   forgotPasswordByEmail: (emailAddress) =>
-    get(`/api/Student/forget-password/${encodeURIComponent(emailAddress)}`, {
+    request(`/api/Student/forget-password/${encodeURIComponent(emailAddress)}`, {
+      method: "GET",
       skipAuth: true,
     }),
 };

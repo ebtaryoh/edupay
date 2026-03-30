@@ -41,8 +41,6 @@ export default function AdminDashboardHome() {
   const nav = useNavigate();
 
   const adminProfile = {
-    firstName: "Uti",
-    lastName: "Chike",
     fullName: "Uti Chike",
     matricNo: "CSC/2021/001",
     institutionName: "UNILAG",
@@ -53,7 +51,13 @@ export default function AdminDashboardHome() {
 
   return (
     <div className="min-w-0 space-y-5 overflow-x-hidden sm:space-y-6 xl:space-y-7">
-      <Topbar title="Admin Dashboard" />
+      <Topbar
+        title="Admin Dashboard"
+        showNotification
+        showSearch
+        notificationPath="/admin/dashboard/notifications"
+        onSearchClick={() => {}}
+      />
 
       <div className="grid min-w-0 grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_460px] 2xl:grid-cols-[minmax(0,1fr)_520px] 2xl:gap-8">
         <div className="min-w-0 space-y-6 xl:space-y-7">
@@ -120,7 +124,7 @@ export default function AdminDashboardHome() {
 
             <button
               type="button"
-              onClick={() => nav("/admin/dashboard/transactions")}
+              onClick={() => nav("/admin/dashboard/payments/transactions")}
               className="inline-flex h-[50px] w-full cursor-pointer items-center justify-center gap-3 rounded-[16px] bg-[#4735F5] px-6 text-[15px] font-semibold shadow-[inset_0_0_0_1px_rgba(255,255,255,0.05)] transition hover:brightness-110 active:scale-[0.99] sm:w-auto sm:rounded-[18px] sm:px-7 sm:text-[16px]"
             >
               See All
@@ -144,11 +148,11 @@ export default function AdminDashboardHome() {
             <div className="mt-5">
               <QuickActions
                 variant="admin"
-                onPaymentCentre={() => nav("/admin/dashboard/payment-centre")}
-                onHistory={() => nav("/admin/dashboard/history")}
-                onBookstore={() => nav("/admin/dashboard/bookstore")}
+                onPaymentCentre={() => nav("/admin/dashboard/payments")}
+                onHistory={() => nav("/admin/dashboard/payments/transactions")}
+                onBookstore={() => nav("/admin/dashboard/payments/bookstore")}
                 onUsers={() => nav("/admin/dashboard/users")}
-                onReports={() => nav("/admin/dashboard/reports")}
+                onReports={() => nav("/admin/dashboard/payments/reports")}
                 onNotifications={() => nav("/admin/dashboard/notifications")}
                 onSupport={() => nav("/admin/dashboard/support")}
                 onSettings={() => nav("/admin/dashboard/settings")}
@@ -159,8 +163,8 @@ export default function AdminDashboardHome() {
 
         <div className="min-w-0 xl:sticky xl:top-7 xl:h-fit">
           <RecentTransactions
-            onViewAll={() => nav("/admin/dashboard/transactions")}
-            onViewItem={(id) => nav(`/admin/dashboard/transaction/${id}`)}
+            onViewAll={() => nav("/admin/dashboard/payments/transactions")}
+            onViewItem={(id) => nav(`/admin/dashboard/payments/transaction/${id}`)}
           />
         </div>
       </div>
