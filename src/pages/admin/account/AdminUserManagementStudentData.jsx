@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { ChevronDown } from "lucide-react";
 import AdminAccountShell from "../../../components/admin/account/AdminAccountShell";
 import {
   AccountTabs,
@@ -54,7 +55,7 @@ export default function AdminUserManagementStudentData() {
             <div className="mt-8 space-y-10">
               {isInstitution ? (
                 <>
-                  <DataRow label="Institution in Attendance" value="University of Lagos, Nigeria (UNILAG)" trailing={<span className="flex h-[46px] w-[46px] items-center justify-center rounded-full bg-[#F3F4FA] text-[#9BA0B4]">⌄</span>} />
+                  <DataRow label="Institution in Attendance" value="University of Lagos, Nigeria (UNILAG)" trailing={<span className="flex h-[46px] w-[46px] items-center justify-center rounded-full bg-[#F3F4FA] text-[#9BA0B4]"><ChevronDown size={20} strokeWidth={2.5} /></span>} />
                   <DataRow label="Department/Level" value="Computer Science/300 Level" />
                   <DataRow label="Matriculation No:" value="CSC/2021/001" />
                 </>

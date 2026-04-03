@@ -1,42 +1,19 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { ChevronRight, BadgeCheck } from "lucide-react";
 import QuickActions from "../../components/dashboard/QuickActions";
 import RecentTransactions from "../../components/dashboard/RecentTransactions";
 import Topbar from "../../components/dashboard/Topbar";
 import { studentApi } from "../../api/student";
+import { billApi } from "../../api/bill";
+import { dashboardApi } from "../../api/dashboard";
 
 function ProgressArrow() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <path
-        d="M9 6l6 6-6 6"
-        stroke="#8D7CFF"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
+  return <ChevronRight size={16} color="#8D7CFF" strokeWidth={2.5} />;
 }
 
 function BadgeFeeIcon() {
-  return (
-    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <path
-        d="M12 3.25l2.42 2.01 3.11-.12.86 2.99 2.61 1.69-1.1 2.91.87 2.99-2.64 1.58-.94 2.97-3.1-.21L12 20.75l-2.42-2.01-3.11.12-.86-2.99-2.61-1.69 1.1-2.91-.87-2.99 2.64-1.58.94-2.97 3.1.21L12 3.25z"
-        stroke="white"
-        strokeWidth="1.7"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M8.25 12.15l2.05 2.05 5-5"
-        stroke="white"
-        strokeWidth="1.9"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
+  return <BadgeCheck size={28} color="white" strokeWidth={2} />;
 }
 
 function QuickPayArt() {
@@ -157,25 +134,45 @@ export default function DashboardHome() {
   const [profile, setProfile] = useState(null);
   const [loadingProfile, setLoadingProfile] = useState(true);
 
+  const [debtCount, setDebtCount] = useState(0);
+  const [debtTotal, setDebtTotal] = useState(0);
+  const [recentTxs, setRecentTxs] = useState([]);
+  const [loadingTxs, setLoadingTxs] = useState(true);
+
   useEffect(() => {
-    async function loadProfile() {
+    async function loadDashboardData() {
       if (!studentId) {
         setLoadingProfile(false);
         return;
       }
 
       try {
-        const response = await studentApi.getStudentProfile(studentId);
-        const student = response?.data || response || {};
+        const [profileRes, debtRes, txRes] = await Promise.all([
+          studentApi.getStudentProfile(studentId).catch(() => null),
+          billApi.getStudentDebt(studentId).catch(() => null),
+          dashboardApi.recentTransactions().catch(() => null),
+        ]);
+
+        const student = profileRes?.data || profileRes || {};
         setProfile(student);
+
+        // Map debt response. Check property structure safely.
+        const debtData = debtRes?.data || debtRes || {};
+        setDebtCount(debtData.count || debtData.totalBills || 0);
+        setDebtTotal(debtData.totalAmount || debtData.amount || 0);
+
+        // Map transactions response. Treat payload as array if possible
+        const txData = txRes?.data || txRes || [];
+        setRecentTxs(Array.isArray(txData) ? txData.slice(0, 8) : []);
       } catch (error) {
-        console.error("FAILED TO LOAD DASHBOARD PROFILE:", error);
+        console.error("FAILED TO LOAD DASHBOARD DATA:", error);
       } finally {
         setLoadingProfile(false);
+        setLoadingTxs(false);
       }
     }
 
-    loadProfile();
+    loadDashboardData();
   }, [studentId]);
 
   const displayName = useMemo(() => {
@@ -235,10 +232,10 @@ export default function DashboardHome() {
   }
 
   return (
-    <div className="min-w-0 space-y-5 overflow-x-hidden sm:space-y-6 xl:space-y-7">
+    <div className="min-w-0 xl:min-w-[1440px] space-y-5 overflow-x-auto sm:space-y-6 xl:space-y-7 pb-10">
       <Topbar />
 
-      <div className="grid min-w-0 grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_460px] 2xl:grid-cols-[minmax(0,1fr)_520px] 2xl:gap-8">
+      <div className="grid grid-cols-1 xl:grid-cols-[1fr_1.1fr] gap-10">
         <div className="min-w-0 space-y-6 xl:space-y-7">
           <section className="overflow-hidden rounded-[24px] border border-[#DCD8FF] bg-white px-4 py-4 shadow-[0_10px_30px_rgba(44,20,221,0.04)] sm:rounded-[26px] sm:px-5 sm:py-5 lg:rounded-[28px]">
             <div className="flex min-w-0 flex-col gap-4 sm:flex-row sm:items-start sm:gap-5">
@@ -301,11 +298,11 @@ export default function DashboardHome() {
 
               <div className="min-w-0">
                 <p className="text-[14px] text-white/90 sm:text-[15px]">
-                  You have <span className="font-extrabold text-[#FF6A6A]">3</span>{" "}
+                  You have <span className="font-extrabold text-[#FF6A6A]">{debtCount}</span>{" "}
                   Outstanding Fees
                 </p>
                 <h3 className="mt-1 text-[30px] font-extrabold leading-none tracking-[-0.02em] sm:text-[34px] xl:text-[36px]">
-                  ₦345,000
+                  ₦{debtTotal.toLocaleString()}
                 </h3>
               </div>
             </div>
@@ -316,15 +313,7 @@ export default function DashboardHome() {
               className="inline-flex h-[50px] w-full cursor-pointer items-center justify-center gap-3 rounded-[16px] bg-[#4735F5] px-6 text-[15px] font-semibold shadow-[inset_0_0_0_1px_rgba(255,255,255,0.05)] transition hover:brightness-110 active:scale-[0.99] sm:w-auto sm:rounded-[18px] sm:px-7 sm:text-[16px]"
             >
               Pay Now
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <path
-                  d="M9 6l6 6-6 6"
-                  stroke="white"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
+              <ChevronRight size={20} color="white" strokeWidth={2.5} />
             </button>
           </section>
 
@@ -341,7 +330,7 @@ export default function DashboardHome() {
                 onBuyAirtime={() => nav("/dashboard/payments/airtime")}
                 onBuyData={() => nav("/dashboard/payments/data")}
                 onNotifications={() => nav("/dashboard/notifications")}
-                onSupport={() => {}}
+                onSupport={() => nav("/dashboard/account/contact-admin")}
                 onSettings={() => nav("/dashboard/account/settings")}
               />
             </div>
@@ -381,6 +370,8 @@ export default function DashboardHome() {
 
         <div className="min-w-0 xl:sticky xl:top-7 xl:h-fit">
           <RecentTransactions
+            transactions={recentTxs}
+            loading={loadingTxs}
             onViewAll={() => nav("/dashboard/transactions")}
             onViewItem={(id) => nav(`/dashboard/transaction/${id}`)}
           />

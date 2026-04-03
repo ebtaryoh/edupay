@@ -54,7 +54,7 @@ export default function SettingsLanding() {
                 title="Privacy Policy"
                 subtitle="Choose what data you share with us"
                 onClick={() =>
-                  nav("/admin/dashboard/account/settings/privacy-policy")
+                  nav("/dashboard/account/settings/privacy-policy")
                 }
               />
             </div>

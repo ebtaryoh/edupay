@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import SplitAuthLayout from "../../components/layout/SplitAuthLayout";
 import Input from "../../components/ui/Input";
@@ -11,38 +11,53 @@ export default function ConfirmResetPassword() {
   const { state } = useLocation();
 
   const emailAddress = state?.emailAddress || "";
+  const isAdmin = state?.isAdmin || false;
 
   const [form, setForm] = useState({
     otp: "",
     newPassword: "",
     confirmPassword: "",
+    institutionId: "",
   });
+
+  const [institutions, setInstitutions] = useState([]);
+  const [loadingInstitutions, setLoadingInstitutions] = useState(false);
 
   const [fieldErrors, setFieldErrors] = useState({});
   const [submitError, setSubmitError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
+  useEffect(() => {
+    if (!isAdmin) return;
+
+    async function loadInst() {
+      try {
+        setLoadingInstitutions(true);
+        const response = await authApi.getInstitutionsForDropdown();
+        setInstitutions(response?.data || response || []);
+      } catch (err) {
+        console.error("Failed to load institutions", err);
+      } finally {
+        setLoadingInstitutions(false);
+      }
+    }
+    loadInst();
+  }, [isAdmin]);
+
   const isFormFilled = useMemo(() => {
     return (
       emailAddress.trim() &&
       form.otp.trim() &&
       form.newPassword.trim() &&
-      form.confirmPassword.trim()
+      form.confirmPassword.trim() &&
+      (!isAdmin || form.institutionId)
     );
-  }, [emailAddress, form]);
+  }, [emailAddress, form, isAdmin]);
 
   function handleChange(field, value) {
-    setForm((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
-
-    setFieldErrors((prev) => ({
-      ...prev,
-      [field]: "",
-    }));
-
+    setForm((prev) => ({ ...prev, [field]: value }));
+    setFieldErrors((prev) => ({ ...prev, [field]: "" }));
     setSubmitError("");
     setSuccessMessage("");
   }
@@ -52,6 +67,10 @@ export default function ConfirmResetPassword() {
 
     if (!emailAddress.trim()) {
       errors.emailAddress = "Missing email address. Please restart the forgot password process.";
+    }
+
+    if (isAdmin && !values.institutionId) {
+      errors.institutionId = "Institution is required for admin reset.";
     }
 
     if (!values.otp.trim()) {
@@ -86,28 +105,28 @@ export default function ConfirmResetPassword() {
     try {
       setLoading(true);
 
-      const payload = {
-        emailAddress: emailAddress.trim(),
-        otp: form.otp.trim(),
-        newPassword: form.newPassword.trim(),
-      };
-
-      console.log("CONFIRM RESET PASSWORD PAYLOAD:", payload);
-
-      const response = await authApi.confirmStudentPasswordReset(payload);
-
-      console.log("CONFIRM RESET PASSWORD RESPONSE:", response);
+      if (isAdmin) {
+        await authApi.confirmAdminPasswordReset({
+          emailAddress: emailAddress.trim(),
+          institutionId: form.institutionId,
+          otp: form.otp.trim(),
+          newPassword: form.newPassword.trim(),
+        });
+      } else {
+        await authApi.confirmStudentPasswordReset({
+          emailAddress: emailAddress.trim(),
+          otp: form.otp.trim(),
+          newPassword: form.newPassword.trim(),
+        });
+      }
 
       setSuccessMessage("Password reset successful. You can now log in with your new password.");
 
       setTimeout(() => {
-        nav("/login/student", { replace: true });
+        nav(isAdmin ? "/login/admin" : "/login/student", { replace: true });
       }, 1500);
     } catch (error) {
       console.error("CONFIRM RESET PASSWORD ERROR:", error);
-      console.error("CONFIRM RESET PASSWORD ERROR STATUS:", error?.status);
-      console.error("CONFIRM RESET PASSWORD ERROR PAYLOAD:", error?.payload || error?.data);
-
       setSubmitError(error?.message || "Password confirmation failed.");
     } finally {
       setLoading(false);
@@ -119,6 +138,7 @@ export default function ConfirmResetPassword() {
       imageSrc={loginImg}
       onBack={() => nav(-1)}
       imageWrapperClassName="rounded-l-[80px]"
+      role={isAdmin ? "Admin" : "Student"}
     >
       <div className="max-w-xl">
         <h1 className="text-3xl font-bold text-[#14143A]">Reset Password</h1>
@@ -132,6 +152,40 @@ export default function ConfirmResetPassword() {
         <form onSubmit={handleSubmit} className="mt-8 space-y-5" noValidate>
           {fieldErrors.emailAddress ? (
             <p className="text-sm text-red-600">{fieldErrors.emailAddress}</p>
+          ) : null}
+
+          {isAdmin ? (
+            <div>
+              <div className="relative">
+                <select
+                  value={form.institutionId}
+                  onChange={(e) => handleChange("institutionId", e.target.value)}
+                  disabled={loadingInstitutions}
+                  className={`h-[58px] w-full cursor-pointer appearance-none rounded-[18px] border bg-white px-5 pr-12 text-sm outline-none transition md:text-base ${
+                    fieldErrors.institutionId
+                      ? "border-red-500 focus:border-red-500"
+                      : "border-[#8E8E93] focus:border-[#3C22F2]"
+                  }`}
+                >
+                  <option value="">
+                    {loadingInstitutions ? "Loading institutions..." : "Select Institution"}
+                  </option>
+                  {institutions.map((item) => (
+                    <option key={item.value || item.id} value={item.value || item.id}>
+                      {item.text || item.name}
+                    </option>
+                  ))}
+                </select>
+                <span className="pointer-events-none absolute inset-y-0 right-4 flex items-center text-[#8E8E93]">
+                  <svg width="18" height="18" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                    <path d="M5 7.5L10 12.5L15 7.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </span>
+              </div>
+              {fieldErrors.institutionId ? (
+                <p className="mt-1 text-sm text-red-600">{fieldErrors.institutionId}</p>
+              ) : null}
+            </div>
           ) : null}
 
           <div>

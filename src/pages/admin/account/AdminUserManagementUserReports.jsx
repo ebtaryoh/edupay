@@ -1,3 +1,4 @@
+import { Calendar, Filter, LayoutGrid } from "lucide-react";
 import AdminAccountShell from "../../../components/admin/account/AdminAccountShell";
 
 function StatCard({ title, value, tag }) {
@@ -51,14 +52,16 @@ function OverviewBlock({ heading }) {
 
       <div className="mt-4 flex flex-wrap items-center gap-3">
         <button className="flex h-[44px] items-center gap-2 rounded-[10px] border border-[#E8EAF5] bg-white px-4 text-[14px] text-[#697087]">
-          <span>🗓️</span>
+          <Calendar size={14} color="#697087" strokeWidth={2.5} />
           15 May 2024 - 24 May 2025
         </button>
         <button className="flex h-[44px] items-center gap-2 rounded-[10px] border border-[#E8EAF5] bg-white px-4 text-[14px] text-[#697087]">
-          <span>⎚</span>
+          <Filter size={14} color="#697087" strokeWidth={2.5} />
           Filter
         </button>
-        <button className="flex h-[44px] w-[44px] items-center justify-center rounded-[10px] bg-[#4E68F0] text-white">▦</button>
+        <button className="flex h-[44px] w-[44px] shrink-0 items-center justify-center rounded-[10px] bg-[#4E68F0] text-white">
+          <LayoutGrid size={20} strokeWidth={2.5} />
+        </button>
       </div>
 
       <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-3">

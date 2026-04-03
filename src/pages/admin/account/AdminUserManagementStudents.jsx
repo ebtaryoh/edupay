@@ -1,27 +1,17 @@
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import {
+  List,
+  LayoutGrid,
+  ArrowUpDown,
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  Plus
+} from "lucide-react";
 import AdminAccountShell from "../../../components/admin/account/AdminAccountShell";
+import { studentApi } from "../../../api/student";
 
-const people = [
-  "Johnny\nSurname",
-  "Angela\nSurname",
-  "Angela\nSurname",
-  "Adam\nSurname",
-  "David\nSurname",
-  "Abraham\nSurname",
-  "Xerxus\nSurname",
-  "Nomad\nSurname",
-  "Naveen\nSurname",
-  "David\nSurname",
-  "Abraham\nSurname",
-  "Xerxus\nSurname",
-  "Nomad\nSurname",
-  "Naveen\nSurname",
-  "David\nSurname",
-  "Abraham\nSurname",
-  "Xerxus\nSurname",
-  "Nomad\nSurname",
-  "Naveen\nSurname",
-];
 
 function Avatar({ label, add = false, onClick }) {
   const [first, second] = label.split("\n");
@@ -41,7 +31,9 @@ function Avatar({ label, add = false, onClick }) {
         )}
 
         {add ? (
-          <span className="absolute bottom-[-2px] right-[-2px] flex h-[26px] w-[26px] items-center justify-center rounded-full bg-[#3724E9] text-[20px] leading-none text-white">+</span>
+          <span className="absolute bottom-[-2px] right-[-2px] flex h-[26px] w-[26px] items-center justify-center rounded-full bg-[#3724E9] text-white">
+            <Plus size={16} strokeWidth={3} />
+          </span>
         ) : null}
       </div>
       <p className="mt-3 whitespace-pre-line text-[14px] leading-[1.15] text-[#6D7387]">{label}</p>
@@ -51,6 +43,26 @@ function Avatar({ label, add = false, onClick }) {
 
 export default function AdminUserManagementStudents() {
   const nav = useNavigate();
+  const [students, setStudents] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
+
+  useEffect(() => {
+    async function load() {
+      try {
+        setLoading(true);
+        const res = await studentApi.getStudentList({ Name: search, PageNo: page, PageSize: 20 });
+        const data = res?.data || res || [];
+        setStudents(Array.isArray(data) ? data : []);
+      } catch (err) {
+        console.error("FAILED TO LOAD STUDENTS:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    load();
+  }, [search, page]);
 
   return (
     <AdminAccountShell
@@ -62,17 +74,25 @@ export default function AdminUserManagementStudents() {
             <div className="flex flex-wrap items-center gap-3">
               <input
                 placeholder="Search Students"
+                value={search}
+                onChange={e => setSearch(e.target.value)}
                 className="h-[44px] w-[150px] rounded-[8px] border border-[#E8EAF5] bg-white px-3 text-[14px] outline-none placeholder:text-[#7C8090]"
               />
 
               <div className="flex rounded-[8px] border border-[#E8EAF5] bg-white p-1">
-                <button className="flex h-[34px] w-[34px] items-center justify-center rounded-[6px] text-[#C0C3D0]">☷</button>
-                <button className="flex h-[34px] w-[34px] items-center justify-center rounded-[6px] bg-[#4E68F0] text-white">▦</button>
+                <button className="flex h-[34px] w-[34px] items-center justify-center rounded-[6px] text-[#C0C3D0]">
+                  <List size={18} strokeWidth={2.5} />
+                </button>
+                <button className="flex h-[34px] w-[34px] items-center justify-center rounded-[6px] bg-[#4E68F0] text-white">
+                  <LayoutGrid size={18} strokeWidth={2.5} />
+                </button>
               </div>
             </div>
 
-            <button className="h-[44px] rounded-[8px] border border-[#E8EAF5] bg-white px-4 text-[14px] text-[#687089]">
-              ⇅ Sort By A-Z ⌄
+            <button className="flex h-[44px] items-center gap-2 rounded-[8px] border border-[#E8EAF5] bg-white px-4 text-[14px] text-[#687089]">
+              <ArrowUpDown size={14} strokeWidth={2.5} />
+              Sort By A-Z
+              <ChevronDown size={14} strokeWidth={2.5} />
             </button>
           </div>
 
@@ -80,29 +100,42 @@ export default function AdminUserManagementStudents() {
             <Avatar
               label="Add User"
               add
-              onClick={() => nav("/admin/dashboard/account/user-management/add-user/personal")}
+              onClick={() => nav("/admin/dashboard/account/user-management/students/add-user")}
             />
-            {people.map((person, index) => (
-              <Avatar
-                key={`${person}-${index}`}
-                label={person}
-                onClick={() => nav(`/admin/dashboard/account/user-management/students/student-${index + 1}`)}
-              />
-            ))}
+            {loading ? (
+              <p className="col-span-full text-sm text-gray-400">Loading students...</p>
+            ) : students.length === 0 ? (
+              <p className="col-span-full text-sm text-gray-400">No students found.</p>
+            ) : (
+              students.map((s) => {
+                const label = `${s.firstName || ""} \n${s.lastName || ""}`;
+                return (
+                  <Avatar
+                    key={s.id || s.studentId}
+                    label={label.trim() || "Student"}
+                    onClick={() => nav(`/admin/dashboard/account/user-management/students/${s.id || s.studentId}`)}
+                  />
+                );
+              })
+            )}
           </div>
 
           <div className="mt-16 flex items-center justify-center gap-5 text-[13px] text-[#B1B3C0]">
-            <button>‹ Previous</button>
-            <div className="flex items-center gap-3">
-              <span>1</span>
-              <span>2</span>
-              <span>3</span>
-              <span>4</span>
-              <span className="font-semibold text-[#171C34]">5</span>
-              <span>6</span>
-              <span>7</span>
-            </div>
-            <button>Next ›</button>
+            <button
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              className="flex items-center gap-1 hover:text-[#171C34]"
+            >
+              <ChevronLeft size={16} strokeWidth={2.5} />
+              Previous
+            </button>
+            <span className="font-semibold text-[#171C34]">{page}</span>
+            <button
+              onClick={() => setPage((p) => p + 1)}
+              className="flex items-center gap-1 hover:text-[#171C34]"
+            >
+              Next
+              <ChevronRight size={16} strokeWidth={2.5} />
+            </button>
           </div>
         </div>
       }

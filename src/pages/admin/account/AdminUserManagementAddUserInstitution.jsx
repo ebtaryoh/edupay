@@ -1,21 +1,82 @@
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import AdminAccountShell from "../../../components/admin/account/AdminAccountShell";
 import { PurpleSaveButton } from "../../../components/admin/account/AdminAccountBlocks";
+import { adminApi } from "../../../api/admin";
+import { institutionApi } from "../../../api/fees";
 
-function LineField({ label, value, dropdown = false }) {
+function LineField({ label, value, onChange, type = "text", dropdown = false, children }) {
   return (
     <div>
       <p className="text-[13px] text-[#8E92A4]">{label}</p>
-      <div className="mt-3 flex items-center justify-between gap-4 border-b border-transparent pb-3 text-[17px] font-medium text-[#171C34]">
-        <span>{value}</span>
-        {dropdown ? <span className="text-[28px] leading-none text-[#171C34]">⌄</span> : null}
-      </div>
+      {dropdown ? (
+        <div className="mt-3 flex items-center justify-between gap-4 border-b border-[#E8EAF5] pb-3">
+          <select
+            value={value}
+            onChange={e => onChange(e.target.value)}
+            className="w-full bg-transparent text-[17px] font-medium text-[#171C34] outline-none"
+          >
+            {children}
+          </select>
+        </div>
+      ) : (
+        <input
+          type={type}
+          value={value}
+          onChange={e => onChange(e.target.value)}
+          placeholder={label}
+          className="mt-3 w-full border-b border-[#E8EAF5] bg-transparent pb-3 text-[17px] font-medium text-[#171C34] outline-none placeholder:text-[#C0C3D0]"
+        />
+      )}
     </div>
   );
 }
 
 export default function AdminUserManagementAddUserInstitution() {
   const nav = useNavigate();
+  const { state } = useLocation();
+  const personal = state?.personal || {};
+
+  const [form, setForm] = useState({ institutionId: "", department: "", staffId: "", role: "", password: "", confirmPassword: "" });
+  const [institutions, setInstitutions] = useState([]);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    institutionApi.getInstitutionDropdown()
+      .then(res => setInstitutions(res?.data || res || []))
+      .catch(() => {});
+  }, []);
+
+  function set(key) { return v => setForm(f => ({ ...f, [key]: v })); }
+
+  async function handleAddUser() {
+    setError("");
+    if (form.password !== form.confirmPassword) {
+      setError("Passwords do not match.");
+      return;
+    }
+    try {
+      setSubmitting(true);
+      await adminApi.createAdminUser({
+        firstName: personal.firstName,
+        lastName: personal.lastName,
+        emailAddress: personal.email,
+        phoneNo: personal.phone,
+        gender: personal.gender,
+        institutionId: form.institutionId,
+        department: form.department,
+        staffId: form.staffId,
+        role: form.role,
+        password: form.password,
+      });
+      nav("/admin/dashboard/account/user-management/students/add-user/success");
+    } catch (err) {
+      setError(err?.message || "Failed to create user. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
+  }
 
   return (
     <AdminAccountShell
@@ -29,20 +90,32 @@ export default function AdminUserManagementAddUserInstitution() {
           </div>
 
           <div className="space-y-8">
-            <LineField label="Institution" value="Select Institution" dropdown />
-            <LineField label="Department/Office" value="Enter Last Name" />
-            <LineField label="Staff ID/Mat. No." value="Enter Staff ID/Mat. No." />
-            <LineField label="Select User Role" value="Select Role" />
-            <LineField label="Create Password" value="Create Password" />
-            <LineField label="Re-enter Password" value="Re-enter Password" />
+            <LineField label="Institution" value={form.institutionId} onChange={set("institutionId")} dropdown>
+              <option value="">Select Institution</option>
+              {institutions.map(inst => (
+                <option key={inst.id || inst.value} value={inst.id || inst.value}>
+                  {inst.name || inst.label || inst.institutionName}
+                </option>
+              ))}
+            </LineField>
+            <LineField label="Department/Office" value={form.department} onChange={set("department")} />
+            <LineField label="Staff ID / Mat. No." value={form.staffId} onChange={set("staffId")} />
+            <LineField label="Select User Role" value={form.role} onChange={set("role")} dropdown>
+              <option value="">Select Role</option>
+              <option value="Admin">Admin</option>
+              <option value="SuperAdmin">Super Admin</option>
+              <option value="Finance">Finance Officer</option>
+            </LineField>
+            <LineField label="Create Password" value={form.password} onChange={set("password")} type="password" />
+            <LineField label="Re-enter Password" value={form.confirmPassword} onChange={set("confirmPassword")} type="password" />
           </div>
 
+          {error && <p className="text-sm text-red-600">{error}</p>}
+
           <div className="pt-4">
-            <PurpleSaveButton
-              children="Add User"
-              className="w-full max-w-[380px]"
-              onClick={() => nav("/admin/dashboard/account/user-management/add-user/success")}
-            />
+            <PurpleSaveButton className="w-full max-w-[380px]" onClick={handleAddUser} disabled={submitting}>
+              {submitting ? "Adding User..." : "Add User"}
+            </PurpleSaveButton>
           </div>
         </div>
       }

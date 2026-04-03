@@ -1,92 +1,48 @@
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { studentApi } from "../../api/student";
+import { LayoutDashboard, Wallet, BookOpen, User } from "lucide-react";
 
 function DashboardIcon({ active }) {
   return (
-    <svg width="36" height="36" viewBox="0 0 38 38" fill="none" aria-hidden="true">
-      <path
-        d="M8.7 17.3L19 8.5l10.3 8.8V28c0 2.1-1.7 3.8-3.8 3.8h-5.1v-8.5h-2.8v8.5h-5.1A3.8 3.8 0 0 1 8.7 28V17.3z"
-        fill={active ? "#2F2AD9" : "none"}
-        stroke="#2F2AD9"
-        strokeWidth="2.2"
-        strokeLinejoin="round"
-      />
-    </svg>
+    <LayoutDashboard
+      size={28}
+      strokeWidth={active ? 2.5 : 2}
+      color="#2F2AD9"
+      className={`transition-all duration-200 ${active ? "opacity-100" : "opacity-75"}`}
+    />
   );
 }
 
-function PaymentsIcon() {
+function PaymentsIcon({ active }) {
   return (
-    <svg width="36" height="36" viewBox="0 0 38 38" fill="none" aria-hidden="true">
-      <path
-        d="M19 8.5a10.5 10.5 0 1 0 10.5 10.5"
-        stroke="#2F2AD9"
-        strokeWidth="2.4"
-        strokeLinecap="round"
-      />
-      <path
-        d="M19 8.5v10.5h10.5"
-        stroke="#2F2AD9"
-        strokeWidth="2.4"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M10.2 15.2A8.6 8.6 0 0 1 19 10.4"
-        stroke="#2F2AD9"
-        strokeWidth="2.4"
-        strokeLinecap="round"
-        opacity="0.75"
-      />
-    </svg>
+    <Wallet
+      size={28}
+      strokeWidth={active ? 2.5 : 2}
+      color="#2F2AD9"
+      className={`transition-all duration-200 ${active ? "opacity-100" : "opacity-75"}`}
+    />
   );
 }
 
-function BookstoreIcon() {
+function BookstoreIcon({ active }) {
   return (
-    <svg width="36" height="36" viewBox="0 0 38 38" fill="none" aria-hidden="true">
-      <rect
-        x="8.5"
-        y="8.5"
-        width="21"
-        height="21"
-        rx="5.5"
-        stroke="#2F2AD9"
-        strokeWidth="2.4"
-      />
-      <path
-        d="M14 25V16"
-        stroke="#2F2AD9"
-        strokeWidth="2.4"
-        strokeLinecap="round"
-      />
-      <path
-        d="M19 25V13"
-        stroke="#2F2AD9"
-        strokeWidth="2.4"
-        strokeLinecap="round"
-      />
-      <path
-        d="M24 25v-6"
-        stroke="#2F2AD9"
-        strokeWidth="2.4"
-        strokeLinecap="round"
-      />
-    </svg>
+    <BookOpen
+      size={28}
+      strokeWidth={active ? 2.5 : 2}
+      color="#2F2AD9"
+      className={`transition-all duration-200 ${active ? "opacity-100" : "opacity-75"}`}
+    />
   );
 }
 
-function AccountIcon() {
+function AccountIcon({ active }) {
   return (
-    <svg width="36" height="36" viewBox="0 0 38 38" fill="none" aria-hidden="true">
-      <circle cx="19" cy="13.4" r="5.4" stroke="#2F2AD9" strokeWidth="2.4" />
-      <path
-        d="M9.4 30c1.7-4.8 5.2-7.2 9.6-7.2s7.9 2.4 9.6 7.2"
-        stroke="#2F2AD9"
-        strokeWidth="2.4"
-        strokeLinecap="round"
-      />
-    </svg>
+    <User
+      size={28}
+      strokeWidth={active ? 2.5 : 2}
+      color="#2F2AD9"
+      className={`transition-all duration-200 ${active ? "opacity-100" : "opacity-75"}`}
+    />
   );
 }
 
@@ -94,37 +50,15 @@ function ItemSeparator() {
   return <div className="mx-3 my-3.5 h-px bg-[#D7DCF0]" />;
 }
 
-function SidebarLink({ to, end = false, label, icon }) {
-  return (
-    <NavLink to={to} end={end} className="block cursor-pointer">
-      {({ isActive }) => (
-        <div className="flex items-center gap-3 px-4">
-          <div className="flex h-[48px] w-[48px] shrink-0 items-center justify-center">
-            {icon(isActive)}
-          </div>
-
-          <span
-            className={[
-              "text-[15px] transition",
-              isActive
-                ? "font-semibold text-[#2F2AD9]"
-                : "font-medium text-[#2F2AD9]",
-            ].join(" ")}
-          >
-            {label}
-          </span>
-        </div>
-      )}
-    </NavLink>
-  );
-}
-
 export default function Sidebar({ open, onClose }) {
   const nav = useNavigate();
   const { pathname } = useLocation();
 
   const isAdmin = pathname.startsWith("/admin");
-  const basePath = isAdmin ? "/admin/dashboard" : "/dashboard";
+  const dashboardPath = isAdmin ? "/admin/dashboard" : "/dashboard";
+  const paymentsPath = `${dashboardPath}/payments`;
+  const bookstorePath = `${dashboardPath}/bookstore`;
+  const accountPath = `${dashboardPath}/account`;
   const logoutPath = isAdmin ? "/login/admin" : "/login/student";
 
   async function handleLogout() {
@@ -141,8 +75,15 @@ export default function Sidebar({ open, onClose }) {
       localStorage.removeItem("role");
       localStorage.removeItem("studentId");
       localStorage.removeItem("matricNo");
+      localStorage.removeItem("studentPhoto");
+      localStorage.removeItem("adminPhoto");
+      onClose?.();
       nav(logoutPath, { replace: true });
     }
+  }
+
+  function handleLinkClick() {
+    onClose?.();
   }
 
   return (
@@ -159,65 +100,58 @@ export default function Sidebar({ open, onClose }) {
 
       <aside
         className={[
-          "fixed left-0 top-0 z-50 h-screen w-[270px] shrink-0 bg-[#F4F6FF] transition-transform lg:static lg:translate-x-0 xl:w-[280px]",
-          open ? "translate-x-0" : "-translate-x-full",
+          "fixed left-0 top-0 z-40 h-screen w-[260px] bg-[#F4F6FF] transition-transform lg:static lg:translate-x-0 lg:border-r lg:border-[#D7DCF0]",
+          open ? "translate-x-0 shadow-2xl" : "-translate-x-full lg:translate-x-0",
         ].join(" ")}
       >
-        <div className="flex h-full flex-col px-4 py-5">
-          <div className="rounded-[28px] bg-[#F4F6FF] pb-4 pt-2">
-            <div className="px-4 pt-4">
-              <div className="flex items-end gap-2">
-                <div className="text-[40px] leading-none font-extrabold tracking-[-0.04em] text-[#2C14DD]">
-                  Edu<span className="font-light text-[#2C14DD]/70">Pay</span>
-                </div>
-
-                {isAdmin ? (
-                  <span className="pb-1 text-[15px] font-semibold text-[#2C14DD]">
-                    Admin
-                  </span>
-                ) : null}
+        <div className="flex h-full flex-col px-4 py-8">
+          <div className="px-4">
+            <div className="flex items-end gap-2">
+              <div className="text-[38px] font-extrabold leading-none tracking-[-0.04em] text-[#2C14DD]">
+                Edu<span className="font-light text-[#2C14DD]/70">Pay</span>
               </div>
+
+              {isAdmin ? (
+                <span className="pb-1 text-[15px] font-semibold text-[#2C14DD]">
+                  Admin
+                </span>
+              ) : null}
             </div>
-
-            <nav className="mt-8">
-              <SidebarLink
-                to={basePath}
-                end
-                label="Dashboard"
-                icon={(active) => <DashboardIcon active={active} />}
-              />
-
-              <ItemSeparator />
-
-              <SidebarLink
-                to={`${basePath}/payments`}
-                label="Payments"
-                icon={() => <PaymentsIcon />}
-              />
-
-              <ItemSeparator />
-
-              <SidebarLink
-                to={`${basePath}/bookstore`}
-                label="Bookstore"
-                icon={() => <BookstoreIcon />}
-              />
-
-              <ItemSeparator />
-
-              <SidebarLink
-                to={`${basePath}/account`}
-                label="Account"
-                icon={() => <AccountIcon />}
-              />
-            </nav>
           </div>
 
-          <div className="mt-auto px-2 pb-2">
+          <nav className="mt-8 space-y-2">
+            <SidebarLink
+              to={dashboardPath}
+              label="Dashboard"
+              icon={(active) => <DashboardIcon active={active} />}
+              end
+              onClick={handleLinkClick}
+            />
+            <SidebarLink
+              to={paymentsPath}
+              label="Payments"
+              icon={(active) => <PaymentsIcon active={active} />}
+              onClick={handleLinkClick}
+            />
+            <SidebarLink
+              to={bookstorePath}
+              label="Bookstore"
+              icon={(active) => <BookstoreIcon active={active} />}
+              onClick={handleLinkClick}
+            />
+            <SidebarLink
+              to={accountPath}
+              label="Account"
+              icon={(active) => <AccountIcon active={active} />}
+              onClick={handleLinkClick}
+            />
+          </nav>
+
+          <div className="mt-auto px-4">
             <button
               type="button"
               onClick={handleLogout}
-              className="h-[56px] w-full cursor-pointer rounded-full border border-[#D7DCF0] bg-[#F8F9FF] text-[16px] font-semibold text-[#2F2AD9] transition hover:bg-white"
+              className="flex h-[52px] w-full cursor-pointer items-center justify-center rounded-full bg-[#E7E9FB] text-[15px] font-bold text-[#2C14DD] transition hover:bg-[#DDE0F8]"
             >
               Logout
             </button>
@@ -225,5 +159,33 @@ export default function Sidebar({ open, onClose }) {
         </div>
       </aside>
     </>
+  );
+}
+
+function SidebarLink({ to, end = false, label, icon, onClick }) {
+  return (
+    <NavLink to={to} end={end} className="block cursor-pointer outline-none" onClick={onClick}>
+      {({ isActive }) => (
+        <div
+          className={[
+            "flex h-[54px] items-center gap-3 px-4 transition-all duration-200",
+            isActive ? "rounded-full bg-white shadow-sm" : "bg-transparent",
+          ].join(" ")}
+        >
+          <div className="flex h-[32px] w-[32px] shrink-0 items-center justify-center">
+            {icon(isActive)}
+          </div>
+
+          <span
+            className={[
+              "text-[15px] transition-colors",
+              isActive ? "font-bold text-[#2C14DD]" : "font-medium text-[#2C14DD]/80",
+            ].join(" ")}
+          >
+            {label}
+          </span>
+        </div>
+      )}
+    </NavLink>
   );
 }

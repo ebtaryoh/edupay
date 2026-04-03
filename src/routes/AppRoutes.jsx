@@ -1,6 +1,7 @@
 import { Navigate, Route, Routes } from "react-router-dom";
 
 import OnboardingFlow from "../components/onboarding/OnboardingFlow";
+import WelcomePage from "../pages/WelcomePage";
 
 // Auth
 import StudentLogin from "../pages/auth/StudentLogin";
@@ -30,7 +31,6 @@ import AdminSettlementHistory from "../pages/admin/AdminSettlementHistory";
 import AdminSettlementSettings from "../pages/admin/AdminSettlementSettings";
 import AdminRecentTransactions from "../pages/admin/AdminRecentTransactions";
 import AdminPaymentsReports from "../pages/admin/AdminPaymentsReports";
-import AdminManageBookstore from "../pages/admin/AdminManageBookstore";
 import AdminManageFees from "../pages/admin/AdminManageFees";
 import AdminViewFees from "../pages/admin/AdminViewFees";
 import AdminCreateFee from "../pages/admin/AdminCreateFee";
@@ -43,6 +43,12 @@ import AdminEditFeeDurationStart from "../pages/admin/AdminEditFeeDurationStart"
 import AdminEditFeeDurationEnd from "../pages/admin/AdminEditFeeDurationEnd";
 import AdminDeleteFeeSuccess from "../pages/admin/AdminDeleteFeeSuccess";
 import AdminRoutePlaceholder from "../pages/admin/AdminRoutePlaceholder";
+
+/** Admin Bookstore pages */
+import AdminBookstoreLanding from "../pages/admin/bookstore/AdminBookstoreLanding";
+import AdminBookstoreAddBook from "../pages/admin/bookstore/AdminBookstoreAddBook";
+import AdminBookstoreBookDetails from "../pages/admin/bookstore/AdminBookstoreBookDetails";
+import AdminBookstoreEditBook from "../pages/admin/bookstore/AdminBookstoreEditBook";
 
 /** Admin Account pages */
 import AdminAccountLanding from "../pages/admin/account/AdminAccountLanding";
@@ -64,35 +70,37 @@ import AdminUserManagementAdministrators from "../pages/admin/account/AdminUserM
 import AdminUserManagementAdministratorData from "../pages/admin/account/AdminUserManagementAdministratorData";
 import AdminUserManagementAdministratorModules from "../pages/admin/account/AdminUserManagementAdministratorModules";
 import AdminUserManagementUserReports from "../pages/admin/account/AdminUserManagementUserReports";
-import AdminUserManagementAddUserInstitution from "../pages/admin/account/AdminUserManagementAddUserInstitution";
 import AdminUserManagementAddUserPersonal from "../pages/admin/account/AdminUserManagementAddUserPersonal";
+import AdminUserManagementAddUserInstitution from "../pages/admin/account/AdminUserManagementAddUserInstitution";
 import AdminUserManagementAddUserSuccess from "../pages/admin/account/AdminUserManagementAddUserSuccess";
 
-/** Payments flow (student dashboard) */
+/** Student Payments flow */
 import PaymentsLanding from "../pages/dashboard/Payments";
 import TuitionHealthcare from "../pages/dashboard/TuitionHealthcare";
 import OverduePayments from "../pages/dashboard/Overdue";
 
-/** Airtime / Data (student dashboard) */
+/** Student Airtime / Data */
 import AirtimePurchase from "../pages/dashboard/AirtimePurchase";
 import DataPurchase from "../pages/dashboard/DataPurchase";
 
-/** Notifications (student dashboard) */
+/** Student Notifications */
 import Notifications from "../pages/dashboard/Notifications";
 
-/** Transactions (student dashboard) */
+/** Student Transactions */
 import Transactions from "../pages/dashboard/Transactions";
 import TransactionDetails from "../pages/dashboard/TransactionDetails";
 
-/** Checkout (student dashboard) */
+/** Student Checkout */
 import PaystackCheckout from "../pages/dashboard/PaystackCheckout";
 import PaymentSuccess from "../pages/dashboard/PaymentSuccess";
 
-/** QuickPay (standalone) */
-import QuickPayHome from "../pages/quickpay/QuickPayHome";
+/** QuickPay */
 import QuickPayPayments from "../pages/quickpay/Payments";
+import QuickPayCheckout from "../pages/quickpay/PaystackCheckout";
+import QuickPaySuccess from "../pages/quickpay/PaymentSuccess";
+import QuickPayTransaction from "../pages/quickpay/TransactionDetail";
 
-/** Account Section (student dashboard) */
+/** Student Account */
 import AccountLanding from "../pages/dashboard/account/AccountLanding";
 import MyAccountPersonal from "../pages/dashboard/account/MyAccountPersonal";
 import MyAccountInstitution from "../pages/dashboard/account/MyAccountInstitution";
@@ -104,7 +112,7 @@ import AccountPrivacyPolicy from "../pages/dashboard/account/AccountPrivacyPolic
 import FAQs from "../pages/dashboard/account/FAQs";
 import ContactAdmin from "../pages/dashboard/account/ContactAdmin";
 
-/** Bookstore (student dashboard) */
+/** Student Bookstore */
 import BookstoreLanding from "../pages/dashboard/bookstore/BookstoreLanding";
 import BookDetails from "../pages/dashboard/bookstore/BookDetails";
 import BookstorePayment from "../pages/dashboard/bookstore/BookstorePayment";
@@ -117,12 +125,14 @@ export default function AppRoutes() {
       <Route
         path="/"
         element={
-          onboarded ? <QuickPayHome /> : <Navigate to="/onboarding" replace />
+          onboarded ? <Navigate to="/welcome" replace /> : <Navigate to="/onboarding" replace />
         }
       />
 
       <Route path="/onboarding" element={<OnboardingFlow />} />
+      <Route path="/welcome" element={<WelcomePage />} />
 
+      {/* Auth */}
       <Route path="/login/student" element={<StudentLogin />} />
       <Route path="/login/admin" element={<AdminLogin />} />
       <Route path="/signup/student" element={<Signup />} />
@@ -133,14 +143,19 @@ export default function AppRoutes() {
       <Route path="/login-success" element={<LoginSuccess />} />
       <Route path="/register-success" element={<RegisterSuccess />} />
 
-      <Route path="/quickpay" element={<QuickPayHome />} />
+      {/* QuickPay – /quickpay goes directly to payments form (Welcome page is the home) */}
+      <Route path="/quickpay" element={<Navigate to="/quickpay/payments" replace />} />
       <Route path="/quickpay/payments" element={<QuickPayPayments />} />
+      <Route path="/quickpay/checkout" element={<QuickPayCheckout />} />
+      <Route path="/quickpay/success" element={<QuickPaySuccess />} />
+      <Route path="/quickpay/transaction/:id" element={<QuickPayTransaction />} />
 
       <Route element={<ProtectedRoute />}>
         {/* STUDENT DASHBOARD */}
         <Route path="/dashboard" element={<DashboardLayout />}>
           <Route index element={<DashboardHome />} />
 
+          {/* Payments */}
           <Route path="payments" element={<PaymentsLanding />} />
           <Route
             path="payments/category/tuition-healthcare"
@@ -150,14 +165,18 @@ export default function AppRoutes() {
           <Route path="payments/airtime" element={<AirtimePurchase />} />
           <Route path="payments/data" element={<DataPurchase />} />
 
+          {/* Notifications */}
           <Route path="notifications" element={<Notifications />} />
 
+          {/* Transactions */}
           <Route path="transactions" element={<Transactions />} />
           <Route path="transaction/:id" element={<TransactionDetails />} />
 
+          {/* Checkout */}
           <Route path="checkout" element={<PaystackCheckout />} />
           <Route path="success" element={<PaymentSuccess />} />
 
+          {/* Account */}
           <Route path="account" element={<AccountLanding />} />
           <Route path="account/my-account" element={<MyAccountPersonal />} />
           <Route
@@ -186,6 +205,7 @@ export default function AppRoutes() {
           <Route path="account/faqs" element={<FAQs />} />
           <Route path="account/contact-admin" element={<ContactAdmin />} />
 
+          {/* Bookstore */}
           <Route path="bookstore" element={<BookstoreLanding />} />
           <Route path="bookstore/:bookId" element={<BookDetails />} />
           <Route
@@ -235,7 +255,6 @@ export default function AppRoutes() {
             element={<AdminRoutePlaceholder title="Transaction Details" />}
           />
           <Route path="payments/reports" element={<AdminPaymentsReports />} />
-          <Route path="payments/bookstore" element={<AdminManageBookstore />} />
           <Route path="payments/manage-fees" element={<AdminManageFees />} />
 
           <Route path="payments/fees" element={<AdminViewFees />} />
@@ -266,6 +285,24 @@ export default function AppRoutes() {
           <Route
             path="payments/fees/:id/delete-success"
             element={<AdminDeleteFeeSuccess />}
+          />
+
+          {/* Admin Bookstore */}
+          <Route path="bookstore" element={<AdminBookstoreLanding />} />
+          <Route path="bookstore/add" element={<AdminBookstoreAddBook />} />
+          <Route
+            path="bookstore/:bookId"
+            element={<AdminBookstoreBookDetails />}
+          />
+          <Route
+            path="bookstore/:bookId/edit"
+            element={<AdminBookstoreEditBook />}
+          />
+
+          {/* Legacy redirect – payments/bookstore → bookstore */}
+          <Route
+            path="payments/bookstore"
+            element={<Navigate to="/admin/dashboard/bookstore" replace />}
           />
 
           {/* Admin Account */}
@@ -306,6 +343,18 @@ export default function AppRoutes() {
             element={<AdminUserManagementStudents />}
           />
           <Route
+            path="account/user-management/students/add-user"
+            element={<AdminUserManagementAddUserPersonal />}
+          />
+          <Route
+            path="account/user-management/students/add-user/institution"
+            element={<AdminUserManagementAddUserInstitution />}
+          />
+          <Route
+            path="account/user-management/students/add-user/success"
+            element={<AdminUserManagementAddUserSuccess />}
+          />
+          <Route
             path="account/user-management/students/:studentId"
             element={<AdminUserManagementStudentData />}
           />
@@ -313,6 +362,7 @@ export default function AppRoutes() {
             path="account/user-management/students/:studentId/transactions"
             element={<AdminUserManagementStudentTransactions />}
           />
+
           <Route
             path="account/user-management/administrators"
             element={<AdminUserManagementAdministrators />}
@@ -325,28 +375,29 @@ export default function AppRoutes() {
             path="account/user-management/administrators/:adminId/modules"
             element={<AdminUserManagementAdministratorModules />}
           />
+
           <Route
             path="account/user-management/reports"
             element={<AdminUserManagementUserReports />}
           />
-          <Route
-            path="account/user-management/add-user/institution"
-            element={<AdminUserManagementAddUserInstitution />}
-          />
-          <Route
-            path="account/user-management/add-user/personal"
-            element={<AdminUserManagementAddUserPersonal />}
-          />
-          <Route
-            path="account/user-management/add-user/success"
-            element={<AdminUserManagementAddUserSuccess />}
-          />
 
           <Route path="account/contact-admin" element={<AdminContactAdmin />} />
 
-          {/* Shortcut routes used by quick actions */}
+          {/* Quick action shortcut routes */}
           <Route path="users" element={<AdminUserManagementLanding />} />
           <Route path="users/students" element={<AdminUserManagementStudents />} />
+          <Route
+            path="users/students/add-user"
+            element={<AdminUserManagementAddUserPersonal />}
+          />
+          <Route
+            path="users/students/add-user/institution"
+            element={<AdminUserManagementAddUserInstitution />}
+          />
+          <Route
+            path="users/students/add-user/success"
+            element={<AdminUserManagementAddUserSuccess />}
+          />
           <Route
             path="users/students/:studentId"
             element={<AdminUserManagementStudentData />}
@@ -368,18 +419,6 @@ export default function AppRoutes() {
             element={<AdminUserManagementAdministratorModules />}
           />
           <Route path="users/reports" element={<AdminUserManagementUserReports />} />
-          <Route
-            path="users/add-user/institution"
-            element={<AdminUserManagementAddUserInstitution />}
-          />
-          <Route
-            path="users/add-user/personal"
-            element={<AdminUserManagementAddUserPersonal />}
-          />
-          <Route
-            path="users/add-user/success"
-            element={<AdminUserManagementAddUserSuccess />}
-          />
 
           <Route path="support" element={<AdminContactAdmin />} />
           <Route path="settings" element={<AdminSettingsLanding />} />

@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { ChevronLeft } from "lucide-react";
 import AccountMenu from "./AccountMenu";
 
 export default function AccountShell({
@@ -12,7 +13,7 @@ export default function AccountShell({
   const isBlue = variant === "blue";
 
   return (
-    <div className="w-full">
+    <div className="w-full min-w-[1440px]">
       {/* Header row */}
       <div className="flex items-center gap-4 mb-6">
         <button
@@ -24,7 +25,7 @@ export default function AccountShell({
           ].join(" ")}
           aria-label="Go back"
         >
-          <span className="text-2xl leading-none">‹</span>
+          <ChevronLeft size={24} strokeWidth={2.5} />
         </button>
 
         <h1
@@ -39,8 +40,8 @@ export default function AccountShell({
 
       {/* Big rounded panel like the images */}
       <div className="bg-[#DFDCFA] rounded-[34px] p-6 md:p-10">
-        {/* EXACT 50/50 split on xl */}
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 xl:gap-10">
+        {/* Balanced split on xl */}
+        <div className="grid grid-cols-[1fr_1.1fr] gap-8 xl:gap-12">
           {/* LEFT half */}
           <div className="min-w-0">
             <AccountMenu activeKey={activeKey} />

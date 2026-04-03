@@ -35,9 +35,6 @@ export const authApi = {
   changeStudentPassword: (payload) =>
     post("/api/Student/change-password", payload),
 
-  requestStudentPasswordReset: (payload) =>
-    post("/api/Student/reset-password-request", payload, { skipAuth: true }),
-
   confirmStudentPasswordReset: (payload) =>
     post("/api/Student/confirm-reset-password", payload, { skipAuth: true }),
 
@@ -46,4 +43,13 @@ export const authApi = {
       method: "GET",
       skipAuth: true,
     }),
+
+  adminForgotPasswordByEmail: (emailAddress) =>
+    request(`/api/Admin/forget-password/${encodeURIComponent(emailAddress)}`, {
+      method: "GET",
+      skipAuth: true,
+    }),
+
+  confirmAdminPasswordReset: (payload) =>
+    post("/api/Admin/confirm-reset-password", payload, { skipAuth: true }),
 };

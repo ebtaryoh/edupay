@@ -1,62 +1,26 @@
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
+import {
+  Eye,
+  EyeOff,
+  ChevronRight as ChevronRightLucide,
+  BookOpen,
+  Settings,
+  BarChart3,
+  CreditCard
+} from "lucide-react";
 import Topbar from "../dashboard/Topbar";
 
 function EyeOpenIcon() {
-  return (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <path
-        d="M2 12s3.8-6.5 10-6.5S22 12 22 12s-3.8 6.5-10 6.5S2 12 2 12z"
-        stroke="white"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <circle cx="12" cy="12" r="2.8" stroke="white" strokeWidth="2" />
-    </svg>
-  );
+  return <Eye size={24} color="white" strokeWidth={2} />;
 }
 
 function EyeClosedIcon() {
-  return (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <path d="M3 3l18 18" stroke="white" strokeWidth="2" strokeLinecap="round" />
-      <path
-        d="M9.4 9.4A3.7 3.7 0 0 0 8.3 12c0 2 1.7 3.7 3.7 3.7.95 0 1.82-.36 2.46-.96"
-        stroke="white"
-        strokeWidth="2"
-        strokeLinecap="round"
-      />
-      <path
-        d="M6.55 6.55C3.96 8.12 2.5 10.62 2.5 12c0 0 3.8 6.5 9.5 6.5 1.83 0 3.42-.45 4.8-1.14"
-        stroke="white"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M10.9 5.58c.36-.05.72-.08 1.1-.08 5.7 0 9.5 6.5 9.5 6.5-.64 1.09-1.85 2.77-3.63 4.18"
-        stroke="white"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
+  return <EyeOff size={24} color="white" strokeWidth={2} />;
 }
 
 function ChevronRight({ color = "#CFCFDB" }) {
-  return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <path
-        d="M9 6l6 6-6 6"
-        stroke={color}
-        strokeWidth="2.4"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
+  return <ChevronRightLucide size={20} color={color} strokeWidth={2.5} />;
 }
 
 function WalletActionButton({ label, onClick, dark = false }) {
@@ -127,51 +91,19 @@ function WalletCard() {
 }
 
 function BookstoreIcon() {
-  return (
-    <svg width="30" height="30" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <circle cx="12" cy="8" r="3.1" fill="#7369EA" />
-      <path d="M6.8 17.3c.9-2.5 2.7-3.9 5.2-3.9s4.3 1.4 5.2 3.9" fill="#7369EA" />
-    </svg>
-  );
+  return <BookOpen size={30} color="#7369EA" strokeWidth={2.5} />;
 }
 
 function ManageFeesIcon() {
-  return (
-    <svg width="30" height="30" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <path
-        d="M12 15.2a3.2 3.2 0 1 0 0-6.4 3.2 3.2 0 0 0 0 6.4z"
-        stroke="#7369EA"
-        strokeWidth="1.9"
-      />
-      <path
-        d="M19.2 13.2l1.1-.8-1-2.9-1.4.1a6.6 6.6 0 0 0-1.3-1.3l.1-1.4-2.9-1-1 .9a7 7 0 0 0-1.8 0l-1-.9-2.9 1 .1 1.4c-.5.4-.9.8-1.3 1.3l-1.4-.1-1 2.9 1.1.8a7 7 0 0 0 0 1.8l-1.1.8 1 2.9 1.4-.1c.4.5.8.9 1.3 1.3l-.1 1.4 2.9 1 1-.9a7 7 0 0 0 1.8 0l1 .9 2.9-1-.1-1.4c.5-.4.9-.8 1.3-1.3l1.4.1 1-2.9-1.1-.8a7 7 0 0 0 0-1.8z"
-        stroke="#7369EA"
-        strokeWidth="1.5"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
+  return <Settings size={30} color="#7369EA" strokeWidth={2.5} />;
 }
 
 function ReportsIcon() {
-  return (
-    <svg width="30" height="30" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <circle cx="12" cy="12" r="4.2" fill="#7369EA" />
-      <path d="M12 10v4" stroke="white" strokeWidth="2" strokeLinecap="round" />
-      <circle cx="12" cy="8.2" r="0.9" fill="white" />
-    </svg>
-  );
+  return <BarChart3 size={30} color="#7369EA" strokeWidth={2.5} />;
 }
 
 function SettlementIcon() {
-  return (
-    <svg width="30" height="30" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <path
-        d="M9.2 7.2c.5 2.1 1.6 4.1 3.2 5.7 1.6 1.6 3.6 2.7 5.7 3.2l1.6-2a1.5 1.5 0 0 0-.2-2l-2-1.6a1.5 1.5 0 0 0-1.8 0l-1.2.9c-.8-.4-1.7-1.1-2.6-2-.9-.9-1.6-1.8-2-2.6l.9-1.2a1.5 1.5 0 0 0 0-1.8l-1.6-2a1.5 1.5 0 0 0-2-.2l-2 1.6z"
-        fill="#7369EA"
-      />
-    </svg>
-  );
+  return <CreditCard size={30} color="#7369EA" strokeWidth={2.5} />;
 }
 
 function MenuRow({ icon, label, active = false, onClick, hasBorder = true }) {
@@ -211,10 +143,10 @@ export default function AdminPaymentsShell({
   const nav = useNavigate();
 
   return (
-    <div className="min-w-0 space-y-5 overflow-x-hidden sm:space-y-6 xl:space-y-7">
+    <div className="min-w-0 xl:min-w-[1440px] space-y-5 overflow-x-auto sm:space-y-6 xl:space-y-7 pb-10">
       <Topbar title={title} />
 
-      <div className="grid min-w-0 grid-cols-1 gap-8 xl:grid-cols-[420px_minmax(0,1fr)] xl:gap-12 2xl:grid-cols-[430px_minmax(0,1fr)]">
+      <div className="grid grid-cols-1 xl:grid-cols-[1fr_1.1fr] gap-12 xl:gap-16 2xl:gap-20">
         <div className="min-w-0">
           <WalletCard />
 

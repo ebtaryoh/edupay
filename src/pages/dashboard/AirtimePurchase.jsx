@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Smartphone, Globe, ChevronRight, ChevronDown } from "lucide-react";
 import Input from "../../components/ui/Input";
 
 function LeftTab({ active, title, icon }) {
@@ -11,7 +12,9 @@ function LeftTab({ active, title, icon }) {
         </div>
         <div className="font-semibold text-[#14143A]">{title}</div>
       </div>
-      <span className="text-[#9AA0B4] text-xl">›</span>
+      <span className="text-[#9AA0B4]">
+        <ChevronRight size={18} strokeWidth={2.5} />
+      </span>
     </div>
   );
 }
@@ -26,21 +29,11 @@ export default function AirtimePurchase() {
           <LeftTab
             active
             title="Airtime Recharge"
-            icon={
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-                <path d="M20 21a8 8 0 1 0-16 0" stroke="#2C14DD" strokeWidth="2" strokeLinecap="round" />
-                <path d="M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4z" stroke="#2C14DD" strokeWidth="2" />
-              </svg>
-            }
+            icon={<Smartphone size={22} strokeWidth={2.5} />}
           />
           <LeftTab
             title="Buy Data"
-            icon={
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-                <path d="M12 2v20" stroke="#2C14DD" strokeWidth="2" strokeLinecap="round" />
-                <path d="M5 7h14" stroke="#2C14DD" strokeWidth="2" strokeLinecap="round" />
-              </svg>
-            }
+            icon={<Globe size={22} strokeWidth={2.5} />}
           />
         </div>
 
@@ -71,7 +64,7 @@ export default function AirtimePurchase() {
               onClick={() => setNetwork(network ? "" : "MTN")}
               className="w-12 h-12 rounded-full bg-white border border-[#E7E9FF] flex items-center justify-center"
             >
-              <span className="text-[#9AA0B4] text-xl">˅</span>
+              <ChevronDown size={20} color="#9AA0B4" strokeWidth={2.5} />
             </button>
           </div>
 

@@ -1,28 +1,23 @@
-import { useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { Search, ChevronRight as ChevronRightLucide } from "lucide-react";
 import AdminPaymentsShell from "../../components/admin/AdminPaymentsShell";
+import { feesApi } from "../../api/fees";
 
 function SearchIcon() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <circle cx="11" cy="11" r="6.4" stroke="#9EB0F4" strokeWidth="2.2" />
-      <path d="M16 16l3.6 3.6" stroke="#9EB0F4" strokeWidth="2.2" strokeLinecap="round" />
-    </svg>
-  );
+  return <Search size={20} color="#9EB0F4" strokeWidth={2.5} />;
 }
 
 function ChevronRight({ color = "white" }) {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <path d="M9 6l6 6-6 6" stroke={color} strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
+  return <ChevronRightLucide size={18} color={color} strokeWidth={2.5} />;
 }
 
 function FeeRow({ item, onManage }) {
   return (
-    <div className="flex items-center gap-4 rounded-[18px] bg-[#F3F1FE] px-5 py-5">
-      <div className="min-w-0 flex-1">
+    <div className="min-w-0 xl:min-w-[1440px] space-y-5 overflow-x-auto sm:space-y-6 xl:space-y-7 pb-10">
+      <Topbar title="Payments" />
+
+      <div className="grid grid-cols-1 xl:grid-cols-[1fr_1.1fr] gap-12 xl:gap-16 2xl:gap-20">
         <p className="truncate text-[16px] font-medium text-[#31313B]">
           {item.title}
         </p>
@@ -50,29 +45,26 @@ function FeeRow({ item, onManage }) {
 export default function AdminViewFees() {
   const nav = useNavigate();
   const [search, setSearch] = useState("");
+  const [fees, setFees] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const sections = useMemo(
-    () => [
-      {
-        title: "Created Today",
-        items: Array.from({ length: 5 }).map((_, i) => ({
-          id: `today-${i}`,
-          title: "SUG Dues (25/26) Academic...",
-          expiry: "23rd September 2025",
-          amount: "₦86,890.00",
-        })),
-      },
-      {
-        title: "Created Yesterday",
-        items: Array.from({ length: 2 }).map((_, i) => ({
-          id: `yesterday-${i}`,
-          title: "SUG Dues (25/26) Academic...",
-          expiry: "23rd September 2025",
-          amount: "₦86,890.00",
-        })),
-      },
-    ],
-    []
+  useEffect(() => {
+    async function loadFees() {
+      try {
+        const res = await feesApi.getAllFeeStructures();
+        const data = res?.data || res || [];
+        setFees(Array.isArray(data) ? data : []);
+      } catch (err) {
+        console.error("FAILED TO LOAD FEES:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadFees();
+  }, []);
+
+  const filtered = fees.filter(f =>
+    (f.feeName || f.title || "").toLowerCase().includes(search.toLowerCase())
   );
 
   return (
@@ -99,23 +91,29 @@ export default function AdminViewFees() {
         </div>
 
         <div className="mt-10 space-y-12">
-          {sections.map((section) => (
-            <div key={section.title}>
-              <h3 className="text-[22px] font-medium text-[#A1A7BC]">
-                {section.title}
-              </h3>
-
+          {loading ? (
+            <p className="text-sm text-gray-400">Loading fee structures...</p>
+          ) : filtered.length === 0 ? (
+            <p className="text-sm text-gray-400">No fee structures found.</p>
+          ) : (
+            <div>
+              <h3 className="text-[22px] font-medium text-[#A1A7BC]">All Fees</h3>
               <div className="mt-4 space-y-4">
-                {section.items.map((item) => (
+                {filtered.map((fee) => (
                   <FeeRow
-                    key={item.id}
-                    item={item}
-                    onManage={() => nav("/admin/dashboard/payments/fees/1")}
+                    key={fee.id}
+                    item={{
+                      id: fee.id,
+                      title: fee.feeName || fee.title || "Fee",
+                      expiry: fee.endDate || fee.expiryDate || "N/A",
+                      amount: fee.amount ? `₦${Number(fee.amount).toLocaleString()}` : fee.amountText || "N/A",
+                    }}
+                    onManage={() => nav(`/admin/dashboard/payments/fees/${fee.id}`)}
                   />
                 ))}
               </div>
             </div>
-          ))}
+          )}
         </div>
       </div>
     </AdminPaymentsShell>

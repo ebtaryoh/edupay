@@ -1,19 +1,18 @@
+import { Bell, ChevronRight } from "lucide-react";
+
 function NoticeRow({ title, desc }) {
   return (
     <div className="w-full flex items-center justify-between px-5 py-5 rounded-[22px] bg-white border border-[#E7E9FF]">
       <div className="flex items-center gap-4">
         <div className="w-14 h-14 rounded-2xl bg-[#EEF0FF] flex items-center justify-center text-[#2C14DD]">
-          <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
-            <path d="M20 21a8 8 0 1 0-16 0" stroke="#2C14DD" strokeWidth="2" strokeLinecap="round"/>
-            <path d="M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4z" stroke="#2C14DD" strokeWidth="2"/>
-          </svg>
+          <Bell size={26} strokeWidth={2} />
         </div>
         <div>
           <p className="font-semibold text-[#14143A]">{title}</p>
           <p className="text-sm text-[#6B6B85] mt-1">{desc}</p>
         </div>
       </div>
-      <span className="text-[#9AA0B4] text-xl">›</span>
+      <ChevronRight size={22} color="#9AA0B4" strokeWidth={2.5} />
     </div>
   );
 }

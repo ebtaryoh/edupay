@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { Calendar, Filter, LayoutGrid, ChevronRight } from "lucide-react";
 import AdminAccountShell from "../../../components/admin/account/AdminAccountShell";
 import { AccountPhoneIcon, AccountSettingsIcon, AccountUserIcon } from "../../../components/admin/account/AdminAccountShell";
 
@@ -58,9 +59,7 @@ function PeopleRow({ icon, title, onClick }) {
       </div>
       <span className="text-[18px] font-medium text-[#171C34]">{title}</span>
       <span className="ml-auto">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-          <path d="M9 6l6 6-6 6" stroke="#C9C8D6" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
+        <ChevronRight size={22} color="#C9C8D6" strokeWidth={2.5} />
       </span>
     </button>
   );
@@ -80,14 +79,16 @@ export default function AdminUserManagementLanding() {
 
             <div className="mt-6 flex flex-wrap items-center gap-3">
               <button className="flex h-[44px] items-center gap-2 rounded-[10px] border border-[#E8EAF5] bg-white px-4 text-[14px] text-[#697087]">
-                <span>🗓️</span>
+                <Calendar size={14} color="#697087" strokeWidth={2.5} />
                 15 May 2024 - 24 May 2025
               </button>
               <button className="flex h-[44px] items-center gap-2 rounded-[10px] border border-[#E8EAF5] bg-white px-4 text-[14px] text-[#697087]">
-                <span>⎚</span>
+                <Filter size={14} color="#697087" strokeWidth={2.5} />
                 Filter
               </button>
-              <button className="flex h-[44px] w-[44px] items-center justify-center rounded-[10px] bg-[#4E68F0] text-white">▦</button>
+              <button className="flex h-[44px] w-[44px] shrink-0 items-center justify-center rounded-[10px] bg-[#4E68F0] text-white">
+                <LayoutGrid size={20} strokeWidth={2.5} />
+              </button>
             </div>
 
             <div className="mt-5 grid grid-cols-1 gap-4 md:grid-cols-3">
@@ -106,7 +107,7 @@ export default function AdminUserManagementLanding() {
               <h3 className="text-[20px] font-semibold text-[#181D36]">People</h3>
               <button
                 type="button"
-                onClick={() => nav("/admin/dashboard/account/user-management/add-user/personal")}
+                onClick={() => nav("/admin/dashboard/account/user-management/students/add-user")}
                 className="text-[16px] font-semibold text-[#111]"
               >
                 + Add User

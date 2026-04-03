@@ -1,109 +1,8 @@
-// import { useNavigate } from "react-router-dom";
-
-// export default function Payments() {
-//   const nav = useNavigate();
-
-//   // mock data for now (backend already done, we’ll wire later)
-//   const transactions = [
-//     {
-//       id: "1",
-//       title: "School of Medicine Tuition Fee - 2025/2026 Academic Session",
-//       amount: "₦86,890.00",
-//       date: "23rd September 2025 at 12:03 AM",
-//     },
-//     {
-//       id: "2",
-//       title: "Non-Medical Students Tuition Fee - 2025/2026 Academic Session",
-//       amount: "₦66,390.00",
-//       date: "23rd September 2025 at 12:03 AM",
-//     },
-//     {
-//       id: "3",
-//       title: "Healthcare Fee - 2025/2026 Academic Session",
-//       amount: "₦11,890.00",
-//       date: "23rd September 2025 at 12:03 AM",
-//     },
-//     {
-//       id: "4",
-//       title: "Library Fee Renewal - 2025/2026 Academic Session",
-//       amount: "₦7,890.00",
-//       date: "23rd September 2025 at 12:03 AM",
-//     },
-//   ];
-
-//   return (
-//     <div className="p-6 md:p-10">
-//       {/* Header */}
-//       <div className="flex items-center justify-between mb-8">
-//         <h1 className="text-2xl md:text-3xl font-extrabold text-[#14143A]">
-//           Transactions
-//         </h1>
-//       </div>
-
-//       {/* Search */}
-//       <div className="mb-8">
-//         <input
-//           type="text"
-//           placeholder="Search transactions"
-//           className="w-full md:max-w-md rounded-full border border-[#E6E7F2]
-//                      px-5 py-3 text-sm outline-none
-//                      focus:ring-2 focus:ring-[#2F2AD9]/40"
-//         />
-//       </div>
-
-//       {/* Transactions List */}
-//       <div className="space-y-4">
-//         {transactions.map((tx) => (
-//           <div
-//             key={tx.id}
-//             className="flex flex-col md:flex-row md:items-center md:justify-between
-//                        bg-[#F7F8FE] rounded-2xl p-5 gap-4"
-//           >
-//             {/* Left */}
-//             <div>
-//               <p className="font-semibold text-[#14143A] leading-snug">
-//                 {tx.title}
-//               </p>
-//               <p className="text-sm text-[#6B6F93] mt-1">{tx.date}</p>
-//             </div>
-
-//             {/* Right */}
-//             <div className="flex items-center gap-4">
-//               <span className="bg-[#EEF0FF] text-[#2F2AD9]
-//                                px-4 py-2 rounded-full font-semibold text-sm">
-//                 {tx.amount}
-//               </span>
-
-//               <button
-//                 onClick={() => nav(`/dashboard/transaction/${tx.id}`)}
-//                 className="bg-[#2F2AD9] text-white
-//                            px-5 py-2 rounded-full text-sm font-semibold
-//                            hover:brightness-110 transition"
-//               >
-//                 View →
-//               </button>
-//             </div>
-//           </div>
-//         ))}
-//       </div>
-
-//       {/* Load more */}
-//       <div className="flex justify-center mt-10">
-//         <button
-//           className="bg-[#2F2AD9] text-white
-//                      px-10 py-3 rounded-full font-semibold
-//                      hover:brightness-110 transition"
-//         >
-//           Load More...
-//         </button>
-//       </div>
-//     </div>
-//   );
-// }
-
 import { useNavigate } from "react-router-dom";
+import { Activity, Users, Home, Library, ChevronRight } from "lucide-react";
 import Input from "../../components/ui/Input";
 import QuickActions from "../../components/dashboard/QuickActions";
+
 
 function CategoryItem({ icon, title, onClick, active }) {
   return (
@@ -125,7 +24,9 @@ function CategoryItem({ icon, title, onClick, active }) {
         </div>
       </div>
 
-      <span className="text-[#9AA0B4] text-xl">›</span>
+      <span className="text-[#9AA0B4]">
+        <ChevronRight size={20} strokeWidth={2.5} />
+      </span>
     </button>
   );
 }
@@ -134,7 +35,7 @@ export default function Payments() {
   const nav = useNavigate();
 
   return (
-    <div className="grid grid-cols-1 xl:grid-cols-[420px_1fr] gap-10">
+    <div className="min-w-0 xl:min-w-[1440px] grid grid-cols-1 xl:grid-cols-[1fr_1.1fr] gap-12">
       <div>
         <div className="max-w-[520px]">
           <Input placeholder="Search fees" className="bg-[#F6F7FF]" />
@@ -142,64 +43,36 @@ export default function Payments() {
 
         <h3 className="mt-10 text-[#9AA0B4] font-medium">Category</h3>
 
-        <div className="mt-4 space-y-4 max-w-[520px]">
+        <div className="mt-4 space-y-4">
           <CategoryItem
             title="Tuition/Healthcare"
             onClick={() => nav("/dashboard/payments/tuition-healthcare")}
             active
-            icon={
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-                <path
-                  d="M20 21a8 8 0 1 0-16 0"
-                  stroke="#2C14DD"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                />
-                <path
-                  d="M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4z"
-                  stroke="#2C14DD"
-                  strokeWidth="2"
-                />
-              </svg>
-            }
+            icon={<Activity size={22} strokeWidth={2.5} />}
           />
 
           <CategoryItem
             title="SUG Dues"
-            onClick={() => nav("/dashboard/payments/tuition-healthcare")}
-            icon={
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-                <path d="M12 2v20" stroke="#2C14DD" strokeWidth="2" strokeLinecap="round"/>
-                <path d="M5 7h14" stroke="#2C14DD" strokeWidth="2" strokeLinecap="round"/>
-              </svg>
-            }
+            onClick={() => alert("SUG Dues payments are coming soon.")}
+            icon={<Users size={22} strokeWidth={2.5} />}
           />
 
           <CategoryItem
             title="Accomodation/Hostel Fees"
-            onClick={() => nav("/dashboard/payments/tuition-healthcare")}
-            icon={
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-                <path d="M3 10.5L12 3l9 7.5V21H3V10.5z" stroke="#2C14DD" strokeWidth="2" strokeLinejoin="round"/>
-              </svg>
-            }
+            onClick={() => alert("Accommodation/Hostel fee payments are coming soon.")}
+            icon={<Home size={22} strokeWidth={2.5} />}
           />
 
           <CategoryItem
             title="Departmental Fees"
-            onClick={() => nav("/dashboard/payments/tuition-healthcare")}
-            icon={
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-                <path d="M6 7h12v10H6z" stroke="#2C14DD" strokeWidth="2"/>
-                <path d="M9 11h6" stroke="#2C14DD" strokeWidth="2" strokeLinecap="round"/>
-              </svg>
-            }
+            onClick={() => alert("Departmental fee payments are coming soon.")}
+            icon={<Library size={22} strokeWidth={2.5} />}
           />
         </div>
 
         <h3 className="mt-10 text-[#9AA0B4] font-medium">Quick Actions</h3>
 
-        <div className="mt-4 bg-[#F6F7FF] rounded-[22px] p-6 max-w-[520px]">
+        <div className="mt-4 bg-[#F6F7FF] rounded-[22px] p-6">
           <QuickActions
             variant="payments"
             onPayFees={() => nav("/dashboard/payments/overdue")}
@@ -214,7 +87,7 @@ export default function Payments() {
           Tuition/Healthcare
         </h3>
 
-        <div className="space-y-4 max-w-[720px]">
+        <div className="space-y-4 min-w-0 flex-1">
           {Array.from({ length: 6 }).map((_, i) => (
             <div
               key={i}
@@ -237,7 +110,7 @@ export default function Payments() {
                   onClick={() => nav("/dashboard/payments/tuition-healthcare")}
                   className="h-11 px-5 rounded-full bg-[#2C14DD] text-white font-semibold flex items-center gap-2"
                 >
-                  Pay <span className="text-lg">›</span>
+                  Pay <ChevronRight size={18} strokeWidth={3} />
                 </button>
               </div>
             </div>

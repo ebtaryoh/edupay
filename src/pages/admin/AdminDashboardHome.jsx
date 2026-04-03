@@ -1,56 +1,59 @@
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { ChevronRight, BadgeCheck } from "lucide-react";
 import QuickActions from "../../components/dashboard/QuickActions";
 import RecentTransactions from "../../components/dashboard/RecentTransactions";
 import Topbar from "../../components/dashboard/Topbar";
+import { adminApi } from "../../api/admin";
+import { dashboardApi } from "../../api/dashboard";
 
 function ProgressArrow() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <path
-        d="M9 6l6 6-6 6"
-        stroke="#8D7CFF"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
+  return <ChevronRight size={16} color="#8D7CFF" strokeWidth={2.5} />;
 }
 
 function AdminSummaryIcon() {
-  return (
-    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <path
-        d="M12 3.25l2.42 2.01 3.11-.12.86 2.99 2.61 1.69-1.1 2.91.87 2.99-2.64 1.58-.94 2.97-3.1-.21L12 20.75l-2.42-2.01-3.11.12-.86-2.99-2.61-1.69 1.1-2.91-.87-2.99 2.64-1.58.94-2.97 3.1.21L12 3.25z"
-        stroke="white"
-        strokeWidth="1.7"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M8.25 12.15l2.05 2.05 5-5"
-        stroke="white"
-        strokeWidth="1.9"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
+  return <BadgeCheck size={28} color="white" strokeWidth={2} />;
 }
 
 export default function AdminDashboardHome() {
   const nav = useNavigate();
+  const adminId = localStorage.getItem("adminId") || "";
 
-  const adminProfile = {
-    fullName: "Uti Chike",
-    matricNo: "CSC/2021/001",
-    institutionName: "UNILAG",
-    office: "Admin Office - College of Medicine",
-    completion: 22,
-    initials: "UC",
-  };
+  const [profile, setProfile] = useState(null);
+  const [recentTxs, setRecentTxs] = useState([]);
+  const [txTotal, setTxTotal] = useState(0);
+  const [loadingTxs, setLoadingTxs] = useState(true);
+
+  useEffect(() => {
+    async function loadData() {
+      const [profileRes, txRes] = await Promise.all([
+        adminId ? adminApi.getAdminById(adminId).catch(() => null) : Promise.resolve(null),
+        dashboardApi.recentTransactions().catch(() => null),
+      ]);
+
+      if (profileRes) setProfile(profileRes?.data || profileRes);
+
+      const txData = txRes?.data || txRes || [];
+      const txArr = Array.isArray(txData) ? txData : [];
+      setRecentTxs(txArr.slice(0, 8));
+      const total = txArr.reduce((sum, t) => sum + (t.totalAmount || t.amount || 0), 0);
+      setTxTotal(total);
+      setLoadingTxs(false);
+    }
+    loadData();
+  }, [adminId]);
+
+  const fullName = profile
+    ? [profile.firstName, profile.lastName].filter(Boolean).join(" ")
+    : "Admin User";
+  const initials = profile
+    ? `${(profile.firstName || "A")[0]}${(profile.lastName || "U")[0]}`
+    : "AU";
+  const institution = profile?.institutionName || profile?.institution || "Institution";
+  const office = profile?.office || profile?.department || "Admin Office";
 
   return (
-    <div className="min-w-0 space-y-5 overflow-x-hidden sm:space-y-6 xl:space-y-7">
+    <div className="min-w-0 xl:min-w-[1440px] space-y-5 overflow-x-auto sm:space-y-6 xl:space-y-7 pb-10">
       <Topbar
         title="Admin Dashboard"
         showNotification
@@ -59,13 +62,13 @@ export default function AdminDashboardHome() {
         onSearchClick={() => {}}
       />
 
-      <div className="grid min-w-0 grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_460px] 2xl:grid-cols-[minmax(0,1fr)_520px] 2xl:gap-8">
+      <div className="grid grid-cols-1 xl:grid-cols-[1fr_1.1fr] gap-10">
         <div className="min-w-0 space-y-6 xl:space-y-7">
           <section className="overflow-hidden rounded-[24px] border border-[#DCD8FF] bg-white px-4 py-4 shadow-[0_10px_30px_rgba(44,20,221,0.04)] sm:rounded-[26px] sm:px-5 sm:py-5 lg:rounded-[28px]">
             <div className="flex min-w-0 flex-col gap-4 sm:flex-row sm:items-start sm:gap-5">
               <div className="mx-auto h-[88px] w-[88px] shrink-0 overflow-hidden rounded-full border-[4px] border-[#F3E4D7] bg-[radial-gradient(circle_at_50%_30%,#D5B08D_0%,#A86E45_62%,#8A5636_100%)] sm:mx-0 sm:h-[96px] sm:w-[96px] lg:h-[106px] lg:w-[106px]">
                 <div className="flex h-full w-full items-center justify-center text-[30px] font-bold text-white/95 sm:text-[32px] lg:text-[34px]">
-                  {adminProfile.initials}
+                  {initials}
                 </div>
               </div>
 
@@ -75,13 +78,13 @@ export default function AdminDashboardHome() {
                 </p>
 
                 <h2 className="mt-1 truncate text-[24px] font-extrabold leading-tight tracking-[-0.02em] text-[#2F2AD9] sm:text-[28px] md:text-[30px] xl:text-[32px]">
-                  {adminProfile.fullName}
+                  {fullName}
                 </h2>
 
                 <p className="mt-1 text-[13px] leading-[1.4] text-[#3E3E76] sm:text-[14px]">
-                  {adminProfile.institutionName} - {adminProfile.matricNo}
+                  {institution}
                   <br />
-                  {adminProfile.office}
+                  {office}
                 </p>
               </div>
             </div>
@@ -90,7 +93,7 @@ export default function AdminDashboardHome() {
               <div className="h-[6px] flex-1 overflow-hidden rounded-full bg-[#E7EDF6]">
                 <div
                   className="h-full rounded-full bg-[#22D04F] transition-all duration-500"
-                  style={{ width: `${adminProfile.completion}%` }}
+                  style={{ width: `${profile ? 80 : 20}%` }}
                 />
               </div>
 
@@ -117,7 +120,7 @@ export default function AdminDashboardHome() {
                   Today’s Total Transaction
                 </p>
                 <h3 className="mt-1 text-[30px] font-extrabold leading-none tracking-[-0.02em] sm:text-[34px] xl:text-[36px]">
-                  ₦345,000
+                  ₦{txTotal.toLocaleString()}
                 </h3>
               </div>
             </div>
@@ -128,15 +131,7 @@ export default function AdminDashboardHome() {
               className="inline-flex h-[50px] w-full cursor-pointer items-center justify-center gap-3 rounded-[16px] bg-[#4735F5] px-6 text-[15px] font-semibold shadow-[inset_0_0_0_1px_rgba(255,255,255,0.05)] transition hover:brightness-110 active:scale-[0.99] sm:w-auto sm:rounded-[18px] sm:px-7 sm:text-[16px]"
             >
               See All
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <path
-                  d="M9 6l6 6-6 6"
-                  stroke="white"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
+              <ChevronRight size={20} color="white" strokeWidth={2.5} />
             </button>
           </section>
 
@@ -154,8 +149,8 @@ export default function AdminDashboardHome() {
                 onUsers={() => nav("/admin/dashboard/users")}
                 onReports={() => nav("/admin/dashboard/payments/reports")}
                 onNotifications={() => nav("/admin/dashboard/notifications")}
-                onSupport={() => nav("/admin/dashboard/support")}
-                onSettings={() => nav("/admin/dashboard/settings")}
+                onSupport={() => nav("/admin/dashboard/account/contact-admin")}
+                onSettings={() => nav("/admin/dashboard/account/settings")}
               />
             </div>
           </section>
@@ -163,6 +158,8 @@ export default function AdminDashboardHome() {
 
         <div className="min-w-0 xl:sticky xl:top-7 xl:h-fit">
           <RecentTransactions
+            transactions={recentTxs}
+            loading={loadingTxs}
             onViewAll={() => nav("/admin/dashboard/payments/transactions")}
             onViewItem={(id) => nav(`/admin/dashboard/payments/transaction/${id}`)}
           />

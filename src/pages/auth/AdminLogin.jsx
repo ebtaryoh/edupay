@@ -48,39 +48,21 @@ function extractToken(response) {
 export default function AdminLogin() {
   const nav = useNavigate();
 
-  const [institutions, setInstitutions] = useState([]);
-  const [loadingInstitutions, setLoadingInstitutions] = useState(true);
-
   const [form, setForm] = useState({
     emailAddress: "",
     password: "",
-    institutionId: "",
   });
 
   const [fieldErrors, setFieldErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState("");
 
-  useEffect(() => {
-    async function loadInstitutions() {
-      try {
-        const response = await authApi.getInstitutionsForDropdown();
-        setInstitutions(response?.data || response || []);
-      } catch (error) {
-        console.error("FAILED TO LOAD INSTITUTIONS:", error);
-      } finally {
-        setLoadingInstitutions(false);
-      }
-    }
 
-    loadInstitutions();
-  }, []);
 
   const isFormFilled = useMemo(() => {
     return (
       form.emailAddress.trim() &&
-      form.password.trim() &&
-      form.institutionId.trim()
+      form.password.trim()
     );
   }, [form]);
 
@@ -109,10 +91,6 @@ export default function AdminLogin() {
 
     if (!values.password.trim()) {
       errors.password = "Password is required.";
-    }
-
-    if (!values.institutionId.trim()) {
-      errors.institutionId = "Please select an institution.";
     }
 
     return errors;
@@ -156,7 +134,6 @@ export default function AdminLogin() {
       const data = await authApi.adminLogin({
         emailAddress: form.emailAddress.trim(),
         password: form.password.trim(),
-        institutionId: form.institutionId.trim(),
         systemIP: window.location.hostname || "127.0.0.1",
       });
 
@@ -209,56 +186,21 @@ export default function AdminLogin() {
             ) : null}
           </div>
 
-          <div>
-            <div className="relative">
-              <select
-                value={form.institutionId}
-                onChange={(e) => handleChange("institutionId", e.target.value)}
-                disabled={loadingInstitutions}
-                className={`h-[58px] w-full cursor-pointer appearance-none rounded-[18px] border bg-white px-5 pr-12 text-sm outline-none transition md:text-base ${
-                  fieldErrors.institutionId
-                    ? "border-red-500 focus:border-red-500"
-                    : "border-[#8E8E93] focus:border-[#3C22F2]"
-                }`}
-              >
-                <option value="">
-                  {loadingInstitutions ? "Loading institutions..." : "Select Institution"}
-                </option>
 
-                {institutions.map((item) => (
-                  <option key={item.value} value={item.value}>
-                    {item.text}
-                  </option>
-                ))}
-              </select>
-
-              <span className="pointer-events-none absolute inset-y-0 right-4 flex items-center text-[#8E8E93]">
-                <svg width="18" height="18" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-                  <path
-                    d="M5 7.5L10 12.5L15 7.5"
-                    stroke="currentColor"
-                    strokeWidth="1.8"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </span>
-            </div>
-
-            {fieldErrors.institutionId ? (
-              <p className="mt-1 text-sm text-red-600">{fieldErrors.institutionId}</p>
-            ) : null}
-          </div>
 
           <div className="text-right text-sm text-[#33334E]">
-            <button type="button" className="cursor-pointer hover:underline">
+            <button
+              type="button"
+              onClick={() => nav("/forgot-password?role=admin")}
+              className="cursor-pointer hover:underline"
+            >
               Forgot Password?
             </button>
           </div>
 
           {err ? <p className="text-sm text-red-600">{err}</p> : null}
 
-          <Button disabled={loading || loadingInstitutions || !isFormFilled}>
+          <Button disabled={loading || !isFormFilled}>
             {loading ? "Logging in..." : "Login"}
           </Button>
 

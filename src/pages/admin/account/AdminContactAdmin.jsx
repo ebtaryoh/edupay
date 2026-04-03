@@ -1,18 +1,9 @@
 import { useState } from "react";
+import { ChevronDown as ChevronDownLucide } from "lucide-react";
 import AdminAccountPlainLayout from "../../../components/admin/account/AdminAccountPlainLayout";
 
 function ChevronDown() {
-  return (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <path
-        d="M6 9l6 6 6-6"
-        stroke="#9AA0B4"
-        strokeWidth="2.1"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
+  return <ChevronDownLucide size={24} color="#9AA0B4" strokeWidth={2.5} />;
 }
 
 function InputCard({ label, children, tall = false }) {

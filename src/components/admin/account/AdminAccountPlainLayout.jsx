@@ -1,18 +1,9 @@
 import { useNavigate } from "react-router-dom";
+import { ArrowLeft } from "lucide-react";
 import AdminAccountMenu from "./AdminAccountMenu";
 
 function BackArrow() {
-  return (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <path
-        d="M15 18l-6-6 6-6"
-        stroke="#171B31"
-        strokeWidth="2.2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
+  return <ArrowLeft size={24} color="#171B31" strokeWidth={2.5} />;
 }
 
 export default function AdminAccountPlainLayout({

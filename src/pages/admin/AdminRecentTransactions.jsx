@@ -1,59 +1,9 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Topbar from "../../components/dashboard/Topbar";
 import sideImage from "../../assets/admin/Recent Transactions-image.png";
+import { dashboardApi } from "../../api/dashboard";
 
-const transactions = [
-  {
-    id: "at1",
-    group: "Today",
-    title: "School of Medicine Tuition Fee - 2025/2026 Academic Session",
-    date: "23rd September 2025 at 12:03 AM",
-    amount: "₦86,890.00",
-  },
-  {
-    id: "at2",
-    group: "Today",
-    title: "Non-Medical Students Tuition Fee - 2025/2026 Academic...",
-    date: "23rd September 2025 at 12:03 AM",
-    amount: "₦66,390.00",
-  },
-  {
-    id: "at3",
-    group: "Last Week",
-    title: "Healthcare Fee - 2025/2026 Academic Session",
-    date: "23rd September 2025 at 12:03 AM",
-    amount: "₦11,890.00",
-  },
-  {
-    id: "at4",
-    group: "Last Week",
-    title: "Library Fee - New Registration - 2025/2026 Academic Session",
-    date: "23rd September 2025 at 12:03 AM",
-    amount: "₦13,890.00",
-  },
-  {
-    id: "at5",
-    group: "Last Week",
-    title: "Library Fee Renewal - 2025/2026 Academic Session",
-    date: "23rd September 2025 at 12:03 AM",
-    amount: "₦7,890.00",
-  },
-  {
-    id: "at6",
-    group: "Last Week",
-    title: "Postgraduate Screening Fee - 2025/2026 Academic Session",
-    date: "20th September 2025 at 02:11 PM",
-    amount: "₦18,500.00",
-  },
-  {
-    id: "at7",
-    group: "Last Week",
-    title: "Transcript Processing Fee - 2025/2026 Academic Session",
-    date: "18th September 2025 at 09:27 AM",
-    amount: "₦24,500.00",
-  },
-];
 
 function SearchIcon() {
   return (
@@ -120,17 +70,43 @@ export default function AdminRecentTransactions() {
   const nav = useNavigate();
   const [search, setSearch] = useState("");
   const [visibleCount, setVisibleCount] = useState(5);
+  const [transactions, setTransactions] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadTx() {
+      try {
+        const res = await dashboardApi.transactions();
+        const data = res?.data || res || [];
+        const arr = Array.isArray(data) ? data : [];
+        const today = new Date().toDateString();
+        setTransactions(
+          arr.map(t => ({
+            id: t.id,
+            group: new Date(t.createdAt || t.date).toDateString() === today ? "Today" : "Earlier",
+            title: t.title || t.description || "Payment",
+            date: t.date || t.createdAt || "",
+            amount: t.amount ? `₦${Number(t.amount).toLocaleString()}` : `₦${t.totalAmount || 0}`,
+          }))
+        );
+      } catch (err) {
+        console.error("ADMIN TX FETCH ERROR:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadTx();
+  }, []);
 
   const filteredTransactions = useMemo(() => {
     const q = search.trim().toLowerCase();
     if (!q) return transactions;
-
     return transactions.filter((item) =>
-      [item.title, item.date, item.amount, item.group].some((value) =>
-        value.toLowerCase().includes(q)
+      [item.title, item.date, item.amount, item.group].some((v) =>
+        v.toLowerCase().includes(q)
       )
     );
-  }, [search]);
+  }, [search, transactions]);
 
   const visibleTransactions = filteredTransactions.slice(0, visibleCount);
 
@@ -145,10 +121,10 @@ export default function AdminRecentTransactions() {
   const hasMore = visibleCount < filteredTransactions.length;
 
   return (
-    <div className="min-w-0 space-y-5 overflow-x-hidden sm:space-y-6 xl:space-y-7">
-      <Topbar title="Transactions" />
+    <div className="min-w-0 xl:min-w-[1440px] space-y-5 overflow-x-auto sm:space-y-6 xl:space-y-7 pb-10">
+      <Topbar title="Payments" />
 
-      <div className="grid min-w-0 grid-cols-1 gap-8 xl:grid-cols-[minmax(0,1fr)_500px] 2xl:grid-cols-[minmax(0,1fr)_540px]">
+      <div className="grid grid-cols-1 xl:grid-cols-[1fr_1.1fr] gap-12 xl:gap-16 2xl:gap-20">
         <div className="min-w-0">
           <div className="max-w-[515px]">
             <div className="flex h-[76px] items-center gap-4 rounded-[28px] border border-[#E9E8F7] bg-[#F9F8FF] px-6 shadow-[0_10px_30px_rgba(20,20,58,0.03)]">

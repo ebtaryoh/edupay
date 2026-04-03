@@ -1,3 +1,4 @@
+import { ChevronDown } from "lucide-react";
 import AccountShell from "../../../components/dashboard/AccountShell";
 
 function SoftField({ label, placeholder, rightIcon, as = "input", rows = 6 }) {
@@ -41,15 +42,7 @@ export default function ContactAdmin() {
               label="Support Type"
               placeholder="Failed Transaction but debited"
               rightIcon={
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                  <path
-                    d="M6 9l6 6 6-6"
-                    stroke="#14143A"
-                    strokeWidth="2.2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
+                <ChevronDown size={18} color="#14143A" strokeWidth={2.5} />
               }
             />
 

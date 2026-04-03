@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { ChevronRight, Search, Camera, Check } from "lucide-react";
 
 export function AccountSectionLabel({ children }) {
   return <p className="text-[13px] font-medium text-[#9A9CAC]">{children}</p>;
@@ -70,15 +71,7 @@ export function SettingsLinkRow({ title, subtitle, onClick }) {
         {subtitle ? <p className="mt-1 text-[15px] text-[#7F8398]">{subtitle}</p> : null}
       </div>
 
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-        <path
-          d="M9 6l6 6-6 6"
-          stroke="#171C34"
-          strokeWidth="2.2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
+      <ChevronRight size={22} color="#171C34" strokeWidth={2.5} />
     </button>
   );
 }
@@ -106,10 +99,7 @@ export function SimpleToggle({ checked = false, onChange }) {
 export function RoundedSearch({ placeholder = "Search" }) {
   return (
     <div className="flex h-[62px] items-center gap-4 rounded-[18px] border border-[#ECECF4] bg-white px-5">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-        <circle cx="11" cy="11" r="6.7" stroke="#B5C2FF" strokeWidth="2.2" />
-        <path d="M16 16l3.8 3.8" stroke="#B5C2FF" strokeWidth="2.2" strokeLinecap="round" />
-      </svg>
+      <Search size={24} color="#B5C2FF" strokeWidth={2.5} />
       <input
         placeholder={placeholder}
         className="w-full bg-transparent text-[17px] text-[#232743] outline-none placeholder:text-[#A6A9B8]"
@@ -148,10 +138,7 @@ export function ProfileHero({
               type="button"
               className="absolute bottom-[10px] right-[2px] flex h-[48px] w-[48px] items-center justify-center rounded-full border-[4px] border-white bg-[#7A73F0] text-white shadow-lg"
             >
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <path d="M8 7l1.2-2h5.6L16 7h2a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h2z" fill="white" fillOpacity="0.95" />
-                <circle cx="12" cy="12.5" r="3.2" fill="#7A73F0" />
-              </svg>
+              <Camera size={22} color="white" strokeWidth={2} />
             </button>
           ) : null}
         </div>
@@ -211,9 +198,7 @@ export function AccountTabs({ tabs, activeKey }) {
 export function TinyVerifiedBadge() {
   return (
     <div className="flex h-[34px] w-[34px] items-center justify-center rounded-full bg-[#3D2BE9] text-white">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-        <path d="M7 12.5l3 3 7-7" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-      </svg>
+      <Check size={20} color="white" strokeWidth={3} />
     </div>
   );
 }

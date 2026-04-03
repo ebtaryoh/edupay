@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import SplitAuthLayout from "../../components/layout/SplitAuthLayout";
 import Input from "../../components/ui/Input";
 import Button from "../../components/ui/Button";
@@ -10,6 +10,8 @@ const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export default function ForgotPassword() {
   const nav = useNavigate();
+  const [searchParams] = useSearchParams();
+  const isAdmin = searchParams.get("role") === "admin";
 
   const [form, setForm] = useState({
     emailAddress: "",
@@ -58,19 +60,24 @@ export default function ForgotPassword() {
     try {
       setLoading(true);
 
-      const response = await authApi.forgotPasswordByEmail(emailAddress);
-      console.log("FORGOT PASSWORD RESPONSE:", response);
+      if (isAdmin) {
+        await authApi.adminForgotPasswordByEmail(emailAddress);
+      } else {
+        await authApi.forgotPasswordByEmail(emailAddress);
+      }
 
       nav("/confirm-reset-password", {
         replace: true,
-        state: { emailAddress },
+        state: { emailAddress, isAdmin },
       });
     } catch (error) {
       console.error("FORGOT PASSWORD ERROR:", error);
 
       const message =
         error?.message === "NOT FOUND"
-          ? "No student account was found for that email address."
+          ? isAdmin 
+            ? "No admin account was found for that email address."
+            : "No student account was found for that email address."
           : error?.message || "Failed to send OTP.";
 
       setSubmitError(message);

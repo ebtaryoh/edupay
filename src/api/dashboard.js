@@ -1,8 +1,8 @@
-import http from "./http";
+import { request } from "./http";
 
 export const dashboardApi = {
-  me: () => http.get("/me"),
-  recentTransactions: () => http.get("/transactions/recent"),
-  transactions: (params) => http.get("/transactions", { params }),
-  transactionById: (id) => http.get(`/transactions/${id}`),
+  me: () => request("/me"),
+  recentTransactions: () => request("/api/Payment/get-all-payments"),
+  transactions: () => request("/api/Payment/get-all-payments"),
+  transactionById: (id) => request(`/api/Payment/get-payment-by-id?id=${id}`),
 };

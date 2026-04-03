@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { bookstoreApi } from "../../../api/bookstore";
-import { Search, ChevronDown, Heart } from "lucide-react";
+import { Search, ChevronDown, Heart, ChevronLeft } from "lucide-react";
 
 function BookCard({ book, onBuy }) {
   return (
@@ -124,7 +124,7 @@ export default function BookstoreLanding() {
   }, [books, activeCat]);
 
   return (
-    <div className="min-h-[calc(100vh-24px)] bg-[#2C14DD] rounded-[28px] p-6 md:p-10 pb-20 flex flex-col">
+    <div className="min-w-[1440px] min-h-[calc(100vh-24px)] bg-[#2C14DD] rounded-[28px] p-6 md:p-10 pb-20 flex flex-col">
       {/* header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
@@ -134,8 +134,8 @@ export default function BookstoreLanding() {
             className="w-[42px] h-[42px] rounded-full bg-white flex items-center justify-center shadow-lg text-[#14143A] hover:bg-gray-50 transition cursor-pointer"
             aria-label="Back"
           >
-            ‹
-          </button>
+          <ChevronLeft size={24} strokeWidth={2.5} />
+        </button>
           <h1 className="text-white text-[22px] font-semibold">Bookstore</h1>
         </div>
       </div>

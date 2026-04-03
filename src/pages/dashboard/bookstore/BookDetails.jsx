@@ -1,5 +1,6 @@
-// pages/dashboard/bookstore/BookDetails.jsx
+import { useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { bookstoreApi } from "../../../api/bookstore";
 
 function SimilarCard({ onBuy }) {
   return (
@@ -37,6 +38,26 @@ export default function BookDetails() {
   const { state } = useLocation();
 
   const book = state?.book ?? { id, title: "Abstract Colors", author: "James Akande", price: 5600 };
+  const studentId = localStorage.getItem("studentId") || "";
+  const [purchasing, setPurchasing] = useState(false);
+  const [purchaseError, setPurchaseError] = useState("");
+
+  async function handlePurchase() {
+    setPurchaseError("");
+    if (!studentId) {
+      setPurchaseError("You must be logged in to purchase a book.");
+      return;
+    }
+    try {
+      setPurchasing(true);
+      await bookstoreApi.purchaseBook(book.id, studentId, { bookId: book.id, studentId });
+      nav("/dashboard/bookstore", { state: { purchaseSuccess: true } });
+    } catch (err) {
+      setPurchaseError(err?.message || "Purchase failed. Please try again.");
+    } finally {
+      setPurchasing(false);
+    }
+  }
 
   return (
     <div className="min-h-[calc(100vh-24px)] bg-white rounded-[28px] p-6 md:p-10">
@@ -70,17 +91,23 @@ export default function BookDetails() {
               <p className="text-[#14143A] font-semibold truncate">{book.title}</p>
               <p className="text-[#8A90A6] text-xs mt-1">By {book.author}</p>
 
-              <div className="mt-4 flex items-center gap-4">
-                <p className="text-[#2C14DD] font-extrabold text-[20px]">
-                  ₦{Number(book.price).toLocaleString()}
-                </p>
-                <button
-                  type="button"
-                  onClick={() => nav("/bookstore/payment", { state: { book } })}
-                  className="h-9 px-7 rounded-full bg-[#2C14DD] text-white text-sm font-semibold"
-                >
-                  Pay
-                </button>
+              <div className="mt-4 flex flex-col gap-2">
+                <div className="flex items-center gap-4">
+                  <p className="text-[#2C14DD] font-extrabold text-[20px]">
+                    ₦{Number(book.price).toLocaleString()}
+                  </p>
+                  <button
+                    type="button"
+                    onClick={handlePurchase}
+                    disabled={purchasing}
+                    className="h-9 px-7 rounded-full bg-[#2C14DD] text-white text-sm font-semibold disabled:opacity-60 transition hover:opacity-90"
+                  >
+                    {purchasing ? "Processing..." : "Buy Now"}
+                  </button>
+                </div>
+                {purchaseError && (
+                  <p className="text-xs text-red-600">{purchaseError}</p>
+                )}
               </div>
             </div>
           </div>

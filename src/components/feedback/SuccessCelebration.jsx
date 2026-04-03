@@ -1,3 +1,5 @@
+import { Check } from "lucide-react";
+
 const pieces = [
   { left: "8%", top: "22%", bg: "#3C22F2", rotate: "-16deg", delay: "0s" },
   { left: "16%", top: "12%", bg: "#F59E0B", rotate: "18deg", delay: "0.2s" },
@@ -50,15 +52,7 @@ export default function SuccessCelebration({
           className="absolute left-1/2 top-1/2 flex h-[96px] w-[96px] items-center justify-center rounded-full bg-[#3C22F2] shadow-[0_20px_60px_rgba(60,34,242,0.35)]"
           style={{ animation: "successPop 650ms ease-out both" }}
         >
-          <svg width="42" height="42" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <path
-              d="M20 6L9 17L4 12"
-              stroke="white"
-              strokeWidth="2.6"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
+          <Check size={42} strokeWidth={3} color="white" />
         </div>
 
         {pieces.map((piece, index) => (

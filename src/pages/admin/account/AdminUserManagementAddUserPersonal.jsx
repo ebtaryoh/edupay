@@ -1,21 +1,45 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { Camera } from "lucide-react";
 import AdminAccountShell from "../../../components/admin/account/AdminAccountShell";
 import { PurpleSaveButton } from "../../../components/admin/account/AdminAccountBlocks";
 
-function LineField({ label, value, dropdown = false, withAvatar = false }) {
+function LineField({ label, value, onChange, type = "text", dropdown = false, children }) {
   return (
     <div>
       <p className="text-[13px] text-[#8E92A4]">{label}</p>
-      <div className="mt-3 flex items-center justify-between gap-4 border-b border-transparent pb-3 text-[17px] font-medium text-[#171C34]">
-        <span>{value}</span>
-        {dropdown ? <span className="text-[28px] leading-none text-[#171C34]">⌄</span> : null}
-      </div>
+      {dropdown ? (
+        <div className="mt-3 flex items-center justify-between gap-4 border-b border-[#E8EAF5] pb-3">
+          <select
+            value={value}
+            onChange={e => onChange(e.target.value)}
+            className="w-full bg-transparent text-[17px] font-medium text-[#171C34] outline-none"
+          >
+            {children}
+          </select>
+        </div>
+      ) : (
+        <input
+          type={type}
+          value={value}
+          onChange={e => onChange(e.target.value)}
+          placeholder={label}
+          className="mt-3 w-full border-b border-[#E8EAF5] bg-transparent pb-3 text-[17px] font-medium text-[#171C34] outline-none placeholder:text-[#C0C3D0]"
+        />
+      )}
     </div>
   );
 }
 
 export default function AdminUserManagementAddUserPersonal() {
   const nav = useNavigate();
+  const [form, setForm] = useState({ firstName: "", lastName: "", email: "", phone: "", gender: "" });
+
+  function set(key) { return v => setForm(f => ({ ...f, [key]: v })); }
+
+  function handleContinue() {
+    nav("/admin/dashboard/account/user-management/students/add-user/institution", { state: { personal: form } });
+  }
 
   return (
     <AdminAccountShell
@@ -31,28 +55,27 @@ export default function AdminUserManagementAddUserPersonal() {
           <div className="flex justify-center pb-2">
             <div className="relative h-[96px] w-[96px] rounded-full bg-[#C9C9C9]">
               <button className="absolute bottom-[-2px] right-[-4px] flex h-[34px] w-[34px] items-center justify-center rounded-full bg-[#8B84F5] text-white">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                  <path d="M8 7l1-2h6l1 2h2a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h2z" fill="white" />
-                  <circle cx="12" cy="12.5" r="3" fill="#8B84F5" />
-                </svg>
+                <Camera size={18} strokeWidth={2.5} />
               </button>
             </div>
           </div>
 
           <div className="space-y-8">
-            <LineField label="First Name" value="Enter First Name" />
-            <LineField label="Last Name" value="Enter Last Name" />
-            <LineField label="Email Address" value="Enter Email Address" />
-            <LineField label="Phone Number" value="Enter Phone Number" />
-            <LineField label="Gender" value="Select gender" dropdown />
+            <LineField label="First Name" value={form.firstName} onChange={set("firstName")} />
+            <LineField label="Last Name" value={form.lastName} onChange={set("lastName")} />
+            <LineField label="Email Address" value={form.email} onChange={set("email")} type="email" />
+            <LineField label="Phone Number" value={form.phone} onChange={set("phone")} type="tel" />
+            <LineField label="Gender" value={form.gender} onChange={set("gender")} dropdown>
+              <option value="">Select gender</option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+            </LineField>
           </div>
 
           <div className="pt-4">
-            <PurpleSaveButton
-              children="Continue"
-              className="w-full max-w-[380px]"
-              onClick={() => nav("/admin/dashboard/account/user-management/add-user/institution")}
-            />
+            <PurpleSaveButton className="w-full max-w-[380px]" onClick={handleContinue}>
+              Continue
+            </PurpleSaveButton>
           </div>
         </div>
       }

@@ -135,10 +135,6 @@ export default function StudentLogin() {
     const studentId = extractStudentId(response);
     const matricNo = extractMatricNo(response);
 
-    console.log("STUDENT LOGIN RESPONSE:", response);
-    console.log("EXTRACTED STUDENT ID:", studentId);
-    console.log("EXTRACTED MATRIC NO:", matricNo);
-
     localStorage.setItem("token", token);
     localStorage.setItem("role", role);
 
@@ -215,7 +211,7 @@ export default function StudentLogin() {
         <form onSubmit={onSubmit} className="mt-8 space-y-5" noValidate>
           <div>
             <Input
-              placeholder="Email Address"
+              placeholder="Email/Matriculation No."
               type="email"
               value={form.emailAddress}
               onChange={(e) => handleChange("emailAddress", e.target.value)}
@@ -283,15 +279,6 @@ export default function StudentLogin() {
             </button>
           </p>
 
-          <div className="flex justify-center pt-4">
-            <button
-              type="button"
-              onClick={() => nav("/quickpay")}
-              className="cursor-pointer font-semibold text-[#2F2AD9] hover:underline"
-            >
-              Try QuickPay (no account)
-            </button>
-          </div>
         </form>
       </div>
     </SplitAuthLayout>

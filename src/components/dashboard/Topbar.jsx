@@ -1,4 +1,5 @@
 import { useLocation, useNavigate } from "react-router-dom";
+import { Bell, Search, ChevronLeft } from "lucide-react";
 
 function CircleButton({ onClick, children, className = "" }) {
   return (
@@ -16,36 +17,11 @@ function CircleButton({ onClick, children, className = "" }) {
 }
 
 function BellTopIcon() {
-  return (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <path
-        d="M17.5 15.5h-11c1-1.1 1.6-2.7 1.6-4.5 0-2.5 1.7-4.4 3.9-4.4s3.9 1.9 3.9 4.4c0 1.8.6 3.4 1.6 4.5z"
-        stroke="white"
-        strokeWidth="1.9"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M10.5 18.4a1.8 1.8 0 0 0 3 0"
-        stroke="white"
-        strokeWidth="1.9"
-        strokeLinecap="round"
-      />
-    </svg>
-  );
+  return <Bell size={22} strokeWidth={2} color="white" fill="none" />;
 }
 
 function SearchTopIcon() {
-  return (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <circle cx="11" cy="11" r="6.4" stroke="white" strokeWidth="2" />
-      <path
-        d="M16 16l3.6 3.6"
-        stroke="white"
-        strokeWidth="2"
-        strokeLinecap="round"
-      />
-    </svg>
-  );
+  return <Search size={22} strokeWidth={2} color="white" />;
 }
 
 export default function Topbar({
@@ -117,15 +93,7 @@ export default function Topbar({
           onClick={() => nav(-1)}
           className="bg-[#F3F4FA] text-[#14143A] hover:bg-white"
         >
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <path
-              d="M15 18l-6-6 6-6"
-              stroke="#1F1F34"
-              strokeWidth="2.1"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
+          <ChevronLeft size={24} strokeWidth={2.5} />
         </CircleButton>
 
         <h1 className="truncate text-[20px] font-semibold text-[#1B1C34] md:text-[22px]">

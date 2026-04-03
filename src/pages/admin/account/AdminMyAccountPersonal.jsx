@@ -1,19 +1,12 @@
 import { useMemo, useState } from "react";
+import { Check } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import AdminAccountProfileLayout from "../../../components/admin/account/AdminAccountProfileLayout";
 
 function VerifiedIcon() {
   return (
     <div className="flex h-[36px] w-[36px] items-center justify-center rounded-full bg-[#3C2BE8]">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-        <path
-          d="M7.8 12.5l2.8 2.8 5.6-6.2"
-          stroke="white"
-          strokeWidth="2.4"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
+      <Check size={18} color="white" strokeWidth={3.5} />
     </div>
   );
 }

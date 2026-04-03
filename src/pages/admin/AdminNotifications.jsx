@@ -1,66 +1,37 @@
 import { useNavigate } from "react-router-dom";
+import {
+  ChevronRight as ChevronRightLucide,
+  BadgeCheck,
+  User,
+  CreditCard,
+  History,
+  ShoppingCart,
+  Users,
+  FileText,
+  Bell,
+  Phone,
+  Settings
+} from "lucide-react";
 import Topbar from "../../components/dashboard/Topbar";
 
 function ProgressArrow() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <path
-        d="M9 6l6 6-6 6"
-        stroke="#8D7CFF"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
+  return <ChevronRightLucide size={16} color="#8D7CFF" strokeWidth={2.5} />;
 }
 
 function BadgeFeeIcon() {
-  return (
-    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <path
-        d="M12 3.25l2.42 2.01 3.11-.12.86 2.99 2.61 1.69-1.1 2.91.87 2.99-2.64 1.58-.94 2.97-3.1-.21L12 20.75l-2.42-2.01-3.11.12-.86-2.99-2.61-1.69 1.1-2.91-.87-2.99 2.64-1.58.94-2.97 3.1.21L12 3.25z"
-        stroke="white"
-        strokeWidth="1.7"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M8.25 12.15l2.05 2.05 5-5"
-        stroke="white"
-        strokeWidth="1.9"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
+  return <BadgeCheck size={28} color="white" strokeWidth={2} />;
 }
 
 function NotificationRowIcon() {
   return (
-    <div className="flex h-[64px] w-[64px] items-center justify-center rounded-[20px] bg-[#E9E7FF]">
-      <svg width="30" height="30" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-        <circle cx="12" cy="8" r="3.2" fill="#6A63E8" />
-        <path
-          d="M6.6 17.3c.9-2.5 2.8-3.9 5.4-3.9s4.5 1.4 5.4 3.9"
-          fill="#6A63E8"
-        />
-      </svg>
+    <div className="flex h-[64px] w-[64px] shrink-0 items-center justify-center rounded-[20px] bg-[#E9E7FF]">
+      <User size={30} color="#6A63E8" strokeWidth={2.5} />
     </div>
   );
 }
 
 function ChevronRight({ color = "#D1D1D8" }) {
-  return (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <path
-        d="M9 6l6 6-6 6"
-        stroke={color}
-        strokeWidth="2.4"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
+  return <ChevronRightLucide size={24} color={color} strokeWidth={2.5} />;
 }
 
 function AdminQuickActionCard({ label, onClick, icon, showDot = false }) {
@@ -85,89 +56,35 @@ function AdminQuickActionCard({ label, onClick, icon, showDot = false }) {
 }
 
 function PaymentCentreIcon() {
-  return (
-    <svg width="31" height="31" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <rect x="3.5" y="6" width="17" height="12.5" rx="2.5" stroke="white" strokeWidth="1.9" />
-      <path d="M6.5 10h10.5" stroke="white" strokeWidth="1.9" strokeLinecap="round" />
-      <path d="M7 14.5h3.5" stroke="white" strokeWidth="1.9" strokeLinecap="round" />
-    </svg>
-  );
+  return <CreditCard size={31} color="white" strokeWidth={2} />;
 }
 
 function HistoryIcon() {
-  return (
-    <svg width="31" height="31" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <path d="M5 7h10" stroke="white" strokeWidth="1.9" strokeLinecap="round" />
-      <path d="M5 12h8" stroke="white" strokeWidth="1.9" strokeLinecap="round" />
-      <path d="M5 17h6" stroke="white" strokeWidth="1.9" strokeLinecap="round" />
-      <path d="M16 8v8" stroke="white" strokeWidth="1.9" strokeLinecap="round" />
-      <path d="M13.5 13.5L16 16l2.5-2.5" stroke="white" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
+  return <History size={31} color="white" strokeWidth={2} />;
 }
 
 function CartIcon() {
-  return (
-    <svg width="31" height="31" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <path d="M4.5 6h2l1.6 8.2h8.8l1.7-6.1H8.3" stroke="white" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" />
-      <circle cx="10.1" cy="18.2" r="1.2" fill="white" />
-      <circle cx="16.7" cy="18.2" r="1.2" fill="white" />
-    </svg>
-  );
+  return <ShoppingCart size={31} color="white" strokeWidth={2} />;
 }
 
 function UsersIcon() {
-  return (
-    <svg width="31" height="31" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <path d="M8.2 11.2a2.7 2.7 0 1 0 0-5.4 2.7 2.7 0 0 0 0 5.4z" stroke="white" strokeWidth="1.9" />
-      <path d="M15.7 10.4a2.1 2.1 0 1 0 0-4.2 2.1 2.1 0 0 0 0 4.2z" stroke="white" strokeWidth="1.9" />
-      <path d="M4.8 18.2c.7-2.4 2.2-3.7 4.4-3.7 2.2 0 3.7 1.3 4.4 3.7" stroke="white" strokeWidth="1.9" strokeLinecap="round" />
-      <path d="M14.1 17.7c.5-1.6 1.6-2.5 3.2-2.5 1.4 0 2.4.7 3 2.1" stroke="white" strokeWidth="1.9" strokeLinecap="round" />
-    </svg>
-  );
+  return <Users size={31} color="white" strokeWidth={2} />;
 }
 
 function ReportsIcon() {
-  return (
-    <svg width="31" height="31" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <circle cx="12" cy="12" r="8.5" stroke="white" strokeWidth="1.9" />
-      <path d="M3.8 12h16.4" stroke="white" strokeWidth="1.9" />
-      <path d="M12 3.8c2.4 2.4 3.6 5.1 3.6 8.2s-1.2 5.8-3.6 8.2c-2.4-2.4-3.6-5.1-3.6-8.2s1.2-5.8 3.6-8.2z" stroke="white" strokeWidth="1.9" strokeLinejoin="round" />
-    </svg>
-  );
+  return <FileText size={31} color="white" strokeWidth={2} />;
 }
 
 function BellIcon() {
-  return (
-    <svg width="31" height="31" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <path d="M18 15H6c1.1-1.2 1.8-3 1.8-5.1 0-2.8 1.9-4.9 4.2-4.9s4.2 2.1 4.2 4.9c0 2.1.7 3.9 1.8 5.1z" stroke="white" strokeWidth="1.9" strokeLinejoin="round" />
-      <path d="M10.2 18.2a2 2 0 0 0 3.6 0" stroke="white" strokeWidth="1.9" strokeLinecap="round" />
-    </svg>
-  );
+  return <Bell size={31} color="white" strokeWidth={2} />;
 }
 
 function SupportIcon() {
-  return (
-    <svg width="31" height="31" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <circle cx="12" cy="12" r="7.8" stroke="white" strokeWidth="1.9" />
-      <path d="M9 10.3h.01M15 10.3h.01" stroke="white" strokeWidth="2.3" strokeLinecap="round" />
-      <path d="M9.2 14c.7.8 1.7 1.2 2.8 1.2s2.1-.4 2.8-1.2" stroke="white" strokeWidth="1.9" strokeLinecap="round" />
-    </svg>
-  );
+  return <Phone size={31} color="white" strokeWidth={2.5} />;
 }
 
 function SettingsIcon() {
-  return (
-    <svg width="31" height="31" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <path d="M12 15.2a3.2 3.2 0 1 0 0-6.4 3.2 3.2 0 0 0 0 6.4z" stroke="white" strokeWidth="1.9" />
-      <path
-        d="M19.2 13.2l1.1-.8-1-2.9-1.4.1a6.6 6.6 0 0 0-1.3-1.3l.1-1.4-2.9-1-1 .9a7 7 0 0 0-1.8 0l-1-.9-2.9 1 .1 1.4c-.5.4-.9.8-1.3 1.3l-1.4-.1-1 2.9 1.1.8a7 7 0 0 0 0 1.8l-1.1.8 1 2.9 1.4-.1c.4.5.8.9 1.3 1.3l-.1 1.4 2.9 1 1-.9a7 7 0 0 0 1.8 0l1 .9 2.9-1-.1-1.4c.5-.4.9-.8 1.3-1.3l1.4.1 1-2.9-1.1-.8a7 7 0 0 0 0-1.8z"
-        stroke="white"
-        strokeWidth="1.5"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
+  return <Settings size={31} color="white" strokeWidth={2} />;
 }
 
 function AdminOverviewPane() {
@@ -259,13 +176,13 @@ function AdminOverviewPane() {
         <div className="mt-5 grid grid-cols-2 gap-x-6 gap-y-8 sm:grid-cols-4">
           <AdminQuickActionCard
             label="Payment Centre"
-            onClick={() => nav("/admin/dashboard/payment-centre")}
+            onClick={() => nav("/admin/dashboard/payments")}
             icon={<PaymentCentreIcon />}
             showDot
           />
           <AdminQuickActionCard
             label="History"
-            onClick={() => nav("/admin/dashboard/history")}
+            onClick={() => nav("/admin/dashboard/payments/transactions")}
             icon={<HistoryIcon />}
             showDot
           />
@@ -282,7 +199,7 @@ function AdminOverviewPane() {
           />
           <AdminQuickActionCard
             label="Reports"
-            onClick={() => nav("/admin/dashboard/reports")}
+            onClick={() => nav("/admin/dashboard/payments/reports")}
             icon={<ReportsIcon />}
           />
           <AdminQuickActionCard
@@ -293,12 +210,12 @@ function AdminOverviewPane() {
           />
           <AdminQuickActionCard
             label="Support"
-            onClick={() => nav("/admin/dashboard/support")}
+            onClick={() => nav("/admin/dashboard/account/contact-admin")}
             icon={<SupportIcon />}
           />
           <AdminQuickActionCard
             label="Settings"
-            onClick={() => nav("/admin/dashboard/settings")}
+            onClick={() => nav("/admin/dashboard/account/settings")}
             icon={<SettingsIcon />}
           />
         </div>

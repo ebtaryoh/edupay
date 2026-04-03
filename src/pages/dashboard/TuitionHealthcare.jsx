@@ -1,4 +1,6 @@
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { billApi } from "../../api/bill";
 import Input from "../../components/ui/Input";
 
 function FeeRow({ title, amount, onPay }) {
@@ -26,12 +28,45 @@ function FeeRow({ title, amount, onPay }) {
 
 export default function TuitionHealthcare() {
   const nav = useNavigate();
+  const studentId = localStorage.getItem("studentId") || "";
+  
+  const [bills, setBills] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
+
+  useEffect(() => {
+    async function loadBills() {
+      if (!studentId) {
+        setLoading(false);
+        return;
+      }
+      try {
+        const response = await billApi.getBillDetails(studentId);
+        const data = response?.data || response || [];
+        setBills(Array.isArray(data) ? data : []);
+      } catch (err) {
+        console.error("FAILED TO LOAD BILL DETAILS:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadBills();
+  }, [studentId]);
+
+  const filteredBills = bills.filter(b => 
+    (b.feeName || b.title || b.description || "").toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <div className="grid grid-cols-1 xl:grid-cols-[1fr_520px] gap-10">
       <div>
         <div className="max-w-[520px]">
-          <Input placeholder="Search fees" className="bg-[#F6F7FF]" />
+          <Input 
+            placeholder="Search fees" 
+            className="bg-[#F6F7FF]" 
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
         </div>
 
         <h3 className="mt-8 text-[#14143A] font-semibold text-[18px]">
@@ -39,26 +74,20 @@ export default function TuitionHealthcare() {
         </h3>
 
         <div className="mt-4 space-y-4 max-w-[720px]">
-          <FeeRow
-            title="School of Medicine Tuition Fee - 2025/2026 Academic Session"
-            amount="₦86,890.00"
-            onPay={() => nav("/dashboard/checkout/paystack")}
-          />
-          <FeeRow
-            title="Healthcare Fee - 2025/2026 Academic Session"
-            amount="₦11,890.00"
-            onPay={() => nav("/dashboard/checkout/paystack")}
-          />
-          <FeeRow
-            title="School of Medicine Tuition Fee - 2025/2026 Academic Session"
-            amount="₦86,890.00"
-            onPay={() => nav("/dashboard/checkout/paystack")}
-          />
-          <FeeRow
-            title="Healthcare Fee - 2025/2026 Academic Session"
-            amount="₦11,890.00"
-            onPay={() => nav("/dashboard/checkout/paystack")}
-          />
+          {loading ? (
+            <p className="text-sm text-gray-500">Loading bills...</p>
+          ) : filteredBills.length === 0 ? (
+            <p className="text-sm text-gray-500">No outstanding bills found.</p>
+          ) : (
+            filteredBills.map((bill, index) => (
+              <FeeRow
+                key={bill.id || index}
+                title={bill.feeName || bill.title || bill.description || "School Fee"}
+                amount={`₦${(bill.amount || bill.amountDue || 0).toLocaleString()}`}
+                onPay={() => nav("/dashboard/checkout", { state: { bill } })}
+              />
+            ))
+          )}
         </div>
       </div>
 

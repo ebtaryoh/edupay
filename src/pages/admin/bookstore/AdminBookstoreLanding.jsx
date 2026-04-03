@@ -43,7 +43,7 @@ export default function AdminBookstoreLanding() {
   };
 
   return (
-    <div className="min-h-[calc(100vh-24px)] min-w-[1100px] rounded-[30px] bg-[#2A16DF] px-6 py-7 text-white md:px-8 pb-8 flex flex-col">
+    <div className="min-h-[calc(100vh-24px)] min-w-[1440px] rounded-[30px] bg-[#2A16DF] px-6 py-7 text-white md:px-8 pb-8 flex flex-col">
       <AdminBookstoreHeader title="Bookstore" />
 
       <div className="mt-8">

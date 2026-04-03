@@ -1,32 +1,13 @@
 import { useNavigate } from "react-router-dom";
+import { ArrowLeft, Camera } from "lucide-react";
 import AdminAccountMenu from "./AdminAccountMenu";
 
 function BackArrow() {
-  return (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <path
-        d="M15 18l-6-6 6-6"
-        stroke="white"
-        strokeWidth="2.2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
+  return <ArrowLeft size={24} color="white" strokeWidth={2.5} />;
 }
 
 function CameraIcon() {
-  return (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <path
-        d="M8 7.5l1.2-1.8h5.6L16 7.5h1.4A2.6 2.6 0 0 1 20 10.1v6.3A2.6 2.6 0 0 1 17.4 19H6.6A2.6 2.6 0 0 1 4 16.4v-6.3A2.6 2.6 0 0 1 6.6 7.5H8z"
-        stroke="white"
-        strokeWidth="1.9"
-        strokeLinejoin="round"
-      />
-      <circle cx="12" cy="13" r="3" stroke="white" strokeWidth="1.9" />
-    </svg>
-  );
+  return <Camera size={22} color="white" strokeWidth={2} />;
 }
 
 function getProfile() {

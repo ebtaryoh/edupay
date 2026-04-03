@@ -1,18 +1,9 @@
 import { useNavigate } from "react-router-dom";
+import { ChevronRight } from "lucide-react";
 import AdminAccountPlainLayout from "../../../components/admin/account/AdminAccountPlainLayout";
 
 function ArrowRight() {
-  return (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <path
-        d="M9 6l6 6-6 6"
-        stroke="#171B31"
-        strokeWidth="2.3"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
+  return <ChevronRight size={22} color="#171B31" strokeWidth={2.5} />;
 }
 
 function SettingLink({ title, subtitle, onClick }) {

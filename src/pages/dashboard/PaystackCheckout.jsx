@@ -24,7 +24,7 @@ export default function PaystackCheckout() {
 
           <Button
             className="mt-6 w-full h-14"
-            onClick={() => nav("/dashboard/payment-success")}
+            onClick={() => nav("/dashboard/success")}
           >
             Pay
           </Button>
