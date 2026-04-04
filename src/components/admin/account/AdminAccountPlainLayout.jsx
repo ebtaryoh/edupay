@@ -29,7 +29,7 @@ export default function AdminAccountPlainLayout({
         </h1>
       </div>
 
-      <div className="mt-14 grid grid-cols-1 gap-10 xl:grid-cols-[420px_minmax(0,1fr)] xl:gap-14">
+      <div className="mt-14 grid grid-cols-1 gap-10 xl:grid-cols-[1fr_1.1fr] xl:gap-14">
         <div className="max-w-[420px]">
           <AdminAccountMenu activeKey={activeKey} />
         </div>

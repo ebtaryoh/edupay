@@ -81,7 +81,7 @@ export default function AdminAccountProfileLayout({
       </div>
 
       <div className="mt-8 rounded-[40px] bg-[#D8D5F2] px-8 py-10 md:px-10 md:py-10">
-        <div className="grid grid-cols-1 gap-10 xl:grid-cols-[420px_minmax(0,1fr)] xl:gap-16">
+        <div className="grid grid-cols-1 gap-10 xl:grid-cols-[1fr_1.1fr] xl:gap-16">
           <div className="max-w-[420px]">
             <AdminAccountMenu activeKey={activeKey} />
           </div>
