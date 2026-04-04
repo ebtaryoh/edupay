@@ -28,7 +28,7 @@ export default function AdminSettingsChangeEmail() {
 
   return (
     <AdminAccountPlainLayout title="Change Email Address" activeKey="settings">
-      <div className="max-w-[460px]">
+      <div className="w-full">
         <div className="space-y-5">
           <InputCard
             label="Current Email Address"

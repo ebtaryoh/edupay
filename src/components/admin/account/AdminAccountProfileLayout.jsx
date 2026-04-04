@@ -30,7 +30,7 @@ export default function AdminAccountProfileLayout({
   const profile = getProfile();
 
   return (
-    <div className="min-h-[calc(100vh-24px)] rounded-[32px] bg-[#2F1FD9] px-6 py-6 md:px-10 md:py-8">
+    <div className="min-h-[calc(100vh-24px)] min-w-0 xl:min-w-[1440px] rounded-[32px] bg-[#2F1FD9] px-6 py-6 md:px-10 md:py-8 overflow-x-auto">
       <div className="flex items-center gap-5">
         <button
           type="button"

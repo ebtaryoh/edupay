@@ -38,7 +38,7 @@ export default function AdminSettingsLanding() {
 
   return (
     <AdminAccountPlainLayout title="Account" activeKey="settings">
-      <div className="max-w-[430px]">
+      <div className="w-full">
         <div>
           <p className="text-[18px] text-[#8F94A6]">General</p>
 

@@ -24,7 +24,7 @@ export default function AdminMyAccountInstitution() {
 
   return (
     <AdminAccountProfileLayout activeKey="my-account">
-      <div className="max-w-[560px]">
+      <div className="w-full">
         <div className="mb-8 flex items-center gap-8 text-[16px]">
           <button
             type="button"

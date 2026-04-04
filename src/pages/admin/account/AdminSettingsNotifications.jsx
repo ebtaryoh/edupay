@@ -47,7 +47,7 @@ export default function AdminSettingsNotifications() {
 
   return (
     <AdminAccountPlainLayout title="Notifications" activeKey="settings">
-      <div className="max-w-[430px] space-y-12">
+      <div className="w-full space-y-12">
         <ToggleRow
           label="Receive Notifications"
           value={settings.receiveNotifications}

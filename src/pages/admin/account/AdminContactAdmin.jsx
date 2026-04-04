@@ -24,7 +24,7 @@ export default function AdminContactAdmin() {
 
   return (
     <AdminAccountPlainLayout title="Contact Support" activeKey="contact-admin">
-      <div className="max-w-[470px]">
+      <div className="w-full">
         <p className="max-w-[460px] text-[18px] leading-[1.45] text-[#4D5B82]">
           Send in your complaints. We&apos;ll respond within 24 hours
           to your registered email address.
