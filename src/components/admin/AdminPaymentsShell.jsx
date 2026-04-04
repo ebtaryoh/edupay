@@ -3,25 +3,14 @@ import { useState } from "react";
 import {
   Eye,
   EyeOff,
-  ChevronRight as ChevronRightLucide,
+  ChevronRight,
   BookOpen,
-  Settings,
+  Settings2,
   BarChart3,
-  CreditCard
+  Landmark,
+  ChevronDown
 } from "lucide-react";
 import Topbar from "../dashboard/Topbar";
-
-function EyeOpenIcon() {
-  return <Eye size={24} color="white" strokeWidth={2} />;
-}
-
-function EyeClosedIcon() {
-  return <EyeOff size={24} color="white" strokeWidth={2} />;
-}
-
-function ChevronRight({ color = "#CFCFDB" }) {
-  return <ChevronRightLucide size={20} color={color} strokeWidth={2.5} />;
-}
 
 function WalletActionButton({ label, onClick, dark = false }) {
   return (
@@ -36,7 +25,7 @@ function WalletActionButton({ label, onClick, dark = false }) {
       ].join(" ")}
     >
       {label}
-      <ChevronRight color={dark ? "white" : "#2F1FC1"} />
+      <ChevronRight size={18} color={dark ? "white" : "#2F1FC1"} />
     </button>
   );
 }
@@ -63,7 +52,7 @@ function WalletCard() {
             className="cursor-pointer"
             aria-label={hidden ? "Show balance" : "Hide balance"}
           >
-            {hidden ? <EyeClosedIcon /> : <EyeOpenIcon />}
+            {hidden ? <EyeOff size={24} color="white" /> : <Eye size={24} color="white" />}
           </button>
         </div>
 
@@ -90,22 +79,6 @@ function WalletCard() {
   );
 }
 
-function BookstoreIcon() {
-  return <BookOpen size={30} color="#7369EA" strokeWidth={2.5} />;
-}
-
-function ManageFeesIcon() {
-  return <Settings size={30} color="#7369EA" strokeWidth={2.5} />;
-}
-
-function ReportsIcon() {
-  return <BarChart3 size={30} color="#7369EA" strokeWidth={2.5} />;
-}
-
-function SettlementIcon() {
-  return <CreditCard size={30} color="#7369EA" strokeWidth={2.5} />;
-}
-
 function MenuRow({ icon, label, active = false, onClick, hasBorder = true }) {
   return (
     <button
@@ -126,7 +99,7 @@ function MenuRow({ icon, label, active = false, onClick, hasBorder = true }) {
         <p className="text-[18px] font-medium text-[#17192F]">{label}</p>
       </div>
 
-      <ChevronRight color="#D2D2DB" />
+      <ChevronRight size={20} color="#D2D2DB" />
 
       {hasBorder && !active ? (
         <span className="pointer-events-none absolute bottom-0 left-0 right-0 h-px bg-[#D9D9E6]" />
@@ -153,28 +126,28 @@ export default function AdminPaymentsShell({
           <div className="w-full max-w-[404px]">
             <MenuRow
               label="Bookstore"
-              icon={<BookstoreIcon />}
+              icon={<BookOpen size={28} color="#7369EA" />}
               active={activeKey === "bookstore"}
               onClick={() => nav("/admin/dashboard/payments/bookstore")}
             />
 
             <MenuRow
               label="Manage Fees"
-              icon={<ManageFeesIcon />}
+              icon={<Settings2 size={28} color="#7369EA" />}
               active={activeKey === "manage-fees"}
               onClick={() => nav("/admin/dashboard/payments/manage-fees")}
             />
 
             <MenuRow
               label="Reports"
-              icon={<ReportsIcon />}
+              icon={<BarChart3 size={28} color="#7369EA" />}
               active={activeKey === "reports"}
               onClick={() => nav("/admin/dashboard/payments/reports")}
             />
 
             <MenuRow
               label="Settlement"
-              icon={<SettlementIcon />}
+              icon={<Landmark size={28} color="#7369EA" />}
               active={activeKey === "settlement"}
               onClick={() => nav("/admin/dashboard/payments/settlement")}
               hasBorder={false}

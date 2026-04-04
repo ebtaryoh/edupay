@@ -4,40 +4,32 @@ import { Search, ChevronRight as ChevronRightLucide } from "lucide-react";
 import AdminPaymentsShell from "../../components/admin/AdminPaymentsShell";
 import { feesApi } from "../../api/fees";
 
-function SearchIcon() {
-  return <Search size={20} color="#9EB0F4" strokeWidth={2.5} />;
-}
-
-function ChevronRight({ color = "white" }) {
-  return <ChevronRightLucide size={18} color={color} strokeWidth={2.5} />;
-}
-
 function FeeRow({ item, onManage }) {
   return (
-    <div className="min-w-0 xl:min-w-[1440px] space-y-5 overflow-x-auto sm:space-y-6 xl:space-y-7 pb-10">
-      <Topbar title="Payments" />
-
-      <div className="grid grid-cols-1 xl:grid-cols-[1fr_1.1fr] gap-12 xl:gap-16 2xl:gap-20">
-        <p className="truncate text-[16px] font-medium text-[#31313B]">
+    <div className="flex flex-col gap-4 rounded-[18px] bg-white px-5 py-5 shadow-[0_12px_35px_rgba(20,20,58,0.04)] sm:flex-row sm:items-center sm:justify-between">
+      <div className="min-w-0 flex-1">
+        <p className="truncate text-[18px] font-semibold text-[#181B31]">
           {item.title}
         </p>
-        <p className="mt-2 text-[15px] text-[#FF7A1A]">
+        <p className="mt-1 text-[15px] font-medium text-[#FF7A1A]">
           Expiring: {item.expiry}
         </p>
       </div>
 
-      <div className="inline-flex h-[48px] min-w-[96px] items-center justify-center rounded-[14px] bg-[#E8E5FB] px-4 text-[14px] font-semibold text-[#1E1E24]">
-        {item.amount}
-      </div>
+      <div className="flex shrink-0 items-center gap-3">
+        <div className="inline-flex h-[48px] min-w-[100px] items-center justify-center rounded-[14px] bg-[#E8E5FB] px-4 text-[16px] font-bold text-[#1E1E24]">
+          {item.amount}
+        </div>
 
-      <button
-        type="button"
-        onClick={onManage}
-        className="inline-flex h-[48px] cursor-pointer items-center gap-1 rounded-[14px] bg-[#3827ED] px-5 text-[15px] font-semibold text-white transition hover:brightness-110 active:scale-[0.99]"
-      >
-        Manage
-        <ChevronRight />
-      </button>
+        <button
+          type="button"
+          onClick={onManage}
+          className="inline-flex h-[48px] cursor-pointer items-center gap-2 rounded-[14px] bg-[#3827ED] px-5 text-[15px] font-semibold text-white transition hover:brightness-110 active:scale-[0.99]"
+        >
+          Manage
+          <ChevronRight size={18} color="white" />
+        </button>
+      </div>
     </div>
   );
 }
@@ -71,8 +63,8 @@ export default function AdminViewFees() {
     <AdminPaymentsShell title="Fees" activeKey="manage-fees">
       <div className="w-full max-w-[760px]">
         <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
-          <div className="flex h-[60px] w-full max-w-[390px] items-center gap-3 rounded-full border border-[#E9ECF8] bg-[#FAFBFF] px-5">
-            <SearchIcon />
+          <div className="flex h-[60px] w-full max-w-[390px] items-center gap-3 rounded-full border border-[#E9ECF8] bg-[#FAFBFF] px-5 focus-within:border-[#3827ED]/30 transition-colors">
+            <Search size={22} color="#9EB0F4" strokeWidth={2.5} />
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}

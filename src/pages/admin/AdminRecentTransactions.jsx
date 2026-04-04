@@ -1,37 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { Search, ChevronRight } from "lucide-react";
 import Topbar from "../../components/dashboard/Topbar";
 import sideImage from "../../assets/admin/Recent Transactions-image.png";
 import { dashboardApi } from "../../api/dashboard";
 
-
-function SearchIcon() {
-  return (
-    <svg width="25" height="25" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <circle cx="11" cy="11" r="7.2" stroke="#A9B7F7" strokeWidth="2.6" />
-      <path
-        d="M16.4 16.4L20 20"
-        stroke="#A9B7F7"
-        strokeWidth="2.6"
-        strokeLinecap="round"
-      />
-    </svg>
-  );
-}
-
-function ChevronRight({ color = "white" }) {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <path
-        d="M9 6l6 6-6 6"
-        stroke={color}
-        strokeWidth="2.2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
 
 function TransactionRow({ item, onView }) {
   return (
@@ -58,7 +31,7 @@ function TransactionRow({ item, onView }) {
             className="inline-flex h-[42px] cursor-pointer items-center gap-2 rounded-[14px] bg-[#3420F0] px-5 text-[15px] font-semibold text-white transition hover:brightness-110 active:scale-[0.99]"
           >
             View
-            <ChevronRight />
+            <ChevronRight size={18} color="white" />
           </button>
         </div>
       </div>
@@ -127,8 +100,8 @@ export default function AdminRecentTransactions() {
       <div className="grid grid-cols-1 xl:grid-cols-[1fr_1.1fr] gap-12 xl:gap-16 2xl:gap-20">
         <div className="min-w-0">
           <div className="max-w-[515px]">
-            <div className="flex h-[76px] items-center gap-4 rounded-[28px] border border-[#E9E8F7] bg-[#F9F8FF] px-6 shadow-[0_10px_30px_rgba(20,20,58,0.03)]">
-              <SearchIcon />
+            <div className="flex h-[76px] items-center gap-4 rounded-[28px] border border-[#E9E8F7] bg-[#F9F8FF] px-6 shadow-[0_10px_30px_rgba(20,20,58,0.03)] focus-within:border-[#3420F0]/30 transition-colors">
+              <Search size={22} color="#A9B7F7" strokeWidth={2.5} />
               <input
                 type="text"
                 value={search}
