@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import img from "../assets/quickpay/quickpay-home.jpg";
 import coinsImg from "../assets/welcome/coins.png";
 
 export default function WelcomePage() {
