@@ -1,35 +1,13 @@
 import { useMemo, useState } from "react";
-import AdminSettlementShell from "../../components/admin/AdminPaymentsShell";
+import { Search, ChevronDown } from "lucide-react";
+import AdminSettlementShell from "./AdminSettlementShell";
 import kudaLogo from "../../assets/admin/banks/kuda-bank.png";
-
-function SearchIcon() {
-  return (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <circle cx="11" cy="11" r="6.5" stroke="#9EB0F4" strokeWidth="2.2" />
-      <path d="M16 16l4 4" stroke="#9EB0F4" strokeWidth="2.2" strokeLinecap="round" />
-    </svg>
-  );
-}
-
-function ChevronDown() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <path
-        d="M6 9l6 6 6-6"
-        stroke="#2A2D45"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
 
 function HistoryRow({ logo, bank, amount }) {
   return (
     <button
       type="button"
-      className="flex w-full cursor-pointer items-center justify-between"
+      className="flex w-full cursor-pointer items-center justify-between group transition-colors hover:bg-black/5 p-2 rounded-xl -m-2"
     >
       <div className="flex items-center gap-4">
         <img src={logo} alt={bank} className="h-[42px] w-[42px] rounded-[10px] object-cover" />
@@ -38,7 +16,7 @@ function HistoryRow({ logo, bank, amount }) {
 
       <div className="flex items-center gap-3">
         <span className="text-[18px] font-semibold text-[#22242D]">{amount}</span>
-        <ChevronDown />
+        <ChevronDown size={18} color="#2A2D45" />
       </div>
     </button>
   );
@@ -68,8 +46,8 @@ export default function AdminSettlementHistory() {
     <AdminSettlementShell title="Settlement History">
       <div className="min-w-0 pt-1 xl:pl-8 2xl:pl-10">
         <div className="w-full max-w-[520px]">
-          <div className="flex h-[72px] items-center gap-4 rounded-[28px] bg-[#F4F3FB] px-6">
-            <SearchIcon />
+          <div className="flex h-[72px] items-center gap-4 rounded-[28px] bg-[#F4F3FB] px-6 focus-within:ring-2 ring-[#3827ED]/20 transition-all">
+            <Search size={22} color="#9EB0F4" strokeWidth={2.5} />
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}

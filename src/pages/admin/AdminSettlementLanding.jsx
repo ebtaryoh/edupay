@@ -3,14 +3,15 @@ import { useNavigate } from "react-router-dom";
 import {
   Eye,
   EyeOff,
-  ChevronRight as ChevronRightLucide,
+  ChevronRight,
   History,
   UserCog,
   Settings,
   BookOpen,
-  Settings as SettingsIcon,
+  Settings2,
   BarChart3,
-  CreditCard
+  Landmark,
+  ListRestart
 } from "lucide-react";
 import Topbar from "../../components/dashboard/Topbar";
 
@@ -18,50 +19,22 @@ import kudaLogo from "../../assets/admin/banks/kuda-bank.png";
 import gtbLogo from "../../assets/admin/banks/gtbank.png";
 import cowrywiseLogo from "../../assets/admin/banks/cowrywise.png";
 
-function EyeOpenIcon() {
-  return <Eye size={24} color="white" strokeWidth={2} />;
-}
-
-function EyeClosedIcon() {
-  return <EyeOff size={24} color="white" strokeWidth={2} />;
-}
-
-function ChevronRight({ color = "#CFCFDB" }) {
-  return <ChevronRightLucide size={20} color={color} strokeWidth={2.5} />;
-}
-
-function HistoryMiniIcon() {
+function WalletActionButton({ label, onClick, dark = false }) {
   return (
-    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <path d="M5 7h10" stroke="white" strokeWidth="1.9" strokeLinecap="round" />
-      <path d="M5 12h8" stroke="white" strokeWidth="1.9" strokeLinecap="round" />
-      <path d="M5 17h6" stroke="white" strokeWidth="1.9" strokeLinecap="round" />
-      <path d="M16 8v8" stroke="white" strokeWidth="1.9" strokeLinecap="round" />
-      <path
-        d="M13.5 13.5L16 16l2.5-2.5"
-        stroke="white"
-        strokeWidth="1.9"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
+    <button
+      type="button"
+      onClick={onClick}
+      className={[
+        "inline-flex h-[42px] cursor-pointer items-center justify-center gap-2 rounded-full px-6 text-[15px] font-semibold transition active:scale-[0.99]",
+        dark
+          ? "bg-[#1F0EAE] text-white hover:brightness-110"
+          : "bg-white text-[#2F1FC1] hover:brightness-95",
+      ].join(" ")}
+    >
+      {label}
+      <ChevronRight size={18} color={dark ? "white" : "#2F1FC1"} />
+    </button>
   );
-}
-
-function PaymentMenuBookstoreIcon() {
-  return <BookOpen size={30} color="#7369EA" strokeWidth={2.5} />;
-}
-
-function PaymentMenuManageFeesIcon() {
-  return <SettingsIcon size={30} color="#7369EA" strokeWidth={2.5} />;
-}
-
-function PaymentMenuReportsIcon() {
-  return <BarChart3 size={30} color="#7369EA" strokeWidth={2.5} />;
-}
-
-function PaymentMenuSettlementIcon() {
-  return <CreditCard size={30} color="#7369EA" strokeWidth={2.5} />;
 }
 
 function BalanceCard() {
@@ -83,7 +56,7 @@ function BalanceCard() {
             className="cursor-pointer"
             aria-label={hidden ? "Show balance" : "Hide balance"}
           >
-            {hidden ? <EyeClosedIcon /> : <EyeOpenIcon />}
+            {hidden ? <EyeOff size={24} color="white" /> : <Eye size={24} color="white" />}
           </button>
         </div>
 
@@ -139,7 +112,7 @@ function PaymentMenuRow({ icon, label, active = false, onClick, hasBorder = true
         <p className="text-[18px] font-medium text-[#17192F]">{label}</p>
       </div>
 
-      <ChevronRight color="#D2D2DB" />
+      <ChevronRight size={20} color="#D2D2DB" />
 
       {hasBorder && !active ? (
         <span className="pointer-events-none absolute bottom-0 left-0 right-0 h-px bg-[#D9D9E6]" />
@@ -202,16 +175,16 @@ export default function AdminSettlementLanding() {
   );
 
   return (
-    <div className="min-w-0 space-y-5 overflow-x-hidden sm:space-y-6 xl:space-y-7">
+    <div className="min-w-0 xl:min-w-[1440px] space-y-5 overflow-x-auto sm:space-y-6 xl:space-y-7 pb-10">
       <Topbar title="Settlement" />
 
-      <div className="grid min-w-0 grid-cols-1 gap-8 xl:grid-cols-[404px_minmax(0,1fr)] xl:gap-14 2xl:grid-cols-[414px_minmax(0,1fr)]">
+      <div className="grid grid-cols-1 xl:grid-cols-[1fr_1.1fr] gap-12 xl:gap-16 2xl:gap-20">
         <div className="min-w-0">
           <BalanceCard />
 
           <div className="mt-8 flex flex-wrap items-center gap-x-12 gap-y-5">
             <QuickMiniAction
-              icon={<History size={26} color="white" strokeWidth={2} />}
+              icon={<ListRestart size={26} color="white" strokeWidth={2} />}
               label={
                 <>
                   View
@@ -237,7 +210,7 @@ export default function AdminSettlementLanding() {
             />
 
             <QuickMiniAction
-              icon={<SettingsIcon size={26} color="white" strokeWidth={2} />}
+              icon={<Settings size={26} color="white" strokeWidth={2} />}
               label="Settings"
               onClick={() => nav("/admin/dashboard/account/settings")}
               showDot
@@ -247,25 +220,25 @@ export default function AdminSettlementLanding() {
           <div className="mt-10 w-full">
             <PaymentMenuRow
               label="Bookstore"
-              icon={<PaymentMenuBookstoreIcon />}
+              icon={<BookOpen size={28} color="#7369EA" />}
               onClick={() => nav("/admin/dashboard/payments/bookstore")}
             />
 
             <PaymentMenuRow
               label="Manage Fees"
-              icon={<PaymentMenuManageFeesIcon />}
+              icon={<Settings2 size={28} color="#7369EA" />}
               onClick={() => nav("/admin/dashboard/payments/manage-fees")}
             />
 
             <PaymentMenuRow
               label="Reports"
-              icon={<PaymentMenuReportsIcon />}
+              icon={<BarChart3 size={28} color="#7369EA" />}
               onClick={() => nav("/admin/dashboard/payments/reports")}
             />
 
             <PaymentMenuRow
               label="Settlement"
-              icon={<PaymentMenuSettlementIcon />}
+              icon={<Landmark size={28} color="#7369EA" />}
               onClick={() => nav("/admin/dashboard/payments/settlement")}
               active
               hasBorder={false}

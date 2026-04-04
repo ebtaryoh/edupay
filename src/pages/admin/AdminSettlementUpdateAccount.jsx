@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
-import AdminSettlementShell from "../../components/admin/AdminPaymentsShell";
+import AdminSettlementShell from "./AdminSettlementShell";
 
 import kudaLogo from "../../assets/admin/banks/kuda-bank.png";
 import gtbLogo from "../../assets/admin/banks/gtbank.png";
