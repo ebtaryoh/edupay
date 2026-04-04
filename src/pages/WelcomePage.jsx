@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import img from "../assets/quickpay/quickpay-home.jpg";
+import coinsImg from "../assets/welcome/coins.png";
 
 export default function WelcomePage() {
   const nav = useNavigate();
@@ -19,38 +19,11 @@ export default function WelcomePage() {
             <div className="mt-6 w-full rounded-[28px] bg-[#2C14DD] px-7 py-7 text-white">
               {/* Card art */}
               <div className="flex h-36 items-center justify-center">
-                <svg
-                  width="80"
-                  height="60"
-                  viewBox="0 0 80 60"
-                  fill="none"
-                  aria-hidden="true"
-                >
-                  <rect
-                    x="0"
-                    y="10"
-                    width="80"
-                    height="50"
-                    rx="8"
-                    fill="white"
-                    fillOpacity="0.18"
-                  />
-                  <rect
-                    x="0"
-                    y="10"
-                    width="80"
-                    height="50"
-                    rx="8"
-                    stroke="white"
-                    strokeOpacity="0.3"
-                    strokeWidth="1"
-                  />
-                  <rect x="8" y="22" width="22" height="16" rx="3" fill="white" fillOpacity="0.5" />
-                  <rect x="8" y="46" width="32" height="5" rx="2.5" fill="white" fillOpacity="0.4" />
-                  <rect x="8" y="55" width="20" height="4" rx="2" fill="white" fillOpacity="0.3" />
-                  <circle cx="59" cy="30" r="9" fill="white" fillOpacity="0.3" />
-                  <circle cx="67" cy="30" r="9" fill="white" fillOpacity="0.15" />
-                </svg>
+                <img 
+                  src={coinsImg} 
+                  alt="Quick Pay" 
+                  className="h-32 w-auto object-contain"
+                />
               </div>
 
               <h2 className="mt-2 text-3xl font-extrabold">Quick Pay</h2>
