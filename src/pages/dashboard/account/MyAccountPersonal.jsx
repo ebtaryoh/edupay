@@ -13,15 +13,21 @@ function formatDateForInput(value) {
 }
 
 function getStudentPhoto(student) {
-  return (
+  let photo =
     student?.photo ||
     student?.photoUrl ||
     student?.imageUrl ||
     student?.profileImage ||
     student?.studentImage ||
     student?.passport ||
-    ""
-  );
+    "";
+
+  // If it's a raw Base64 string (common in this backend), prepend the data URI prefix
+  if (photo && !photo.startsWith("http") && !photo.startsWith("data:") && photo.length > 100) {
+    return `data:image/jpeg;base64,${photo}`;
+  }
+  
+  return photo;
 }
 
 function EditableField({
@@ -132,6 +138,15 @@ function getInitials(firstName = "", lastName = "") {
   return `${firstName?.[0] || ""}${lastName?.[0] || ""}`.toUpperCase() || "AS";
 }
 
+function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = (error) => reject(error);
+  });
+}
+
 export default function MyAccountPersonal() {
   const nav = useNavigate();
   const fileInputRef = useRef(null);
@@ -190,9 +205,13 @@ export default function MyAccountPersonal() {
 
       const latestPhoto = getStudentPhoto(student);
       if (latestPhoto) {
-        const cacheBustedPhoto = `${latestPhoto}${latestPhoto.includes("?") ? "&" : "?"}t=${Date.now()}`;
-        setProfileImage(cacheBustedPhoto);
-        localStorage.setItem("studentPhoto", cacheBustedPhoto);
+        let finalPhoto = latestPhoto;
+        // Only cache-bust if it's a real URL, not a Base64 string
+        if (latestPhoto.startsWith("http")) {
+          finalPhoto = `${latestPhoto}${latestPhoto.includes("?") ? "&" : "?"}t=${Date.now()}`;
+        }
+        setProfileImage(finalPhoto);
+        localStorage.setItem("studentPhoto", finalPhoto);
       }
     } catch (error) {
       console.error("FAILED TO LOAD STUDENT PROFILE:", error);
@@ -284,13 +303,19 @@ export default function MyAccountPersonal() {
     try {
       setUploadingImage(true);
 
+      let base64Image = await fileToBase64(selectedPhoto);
+      // Strip the Data URL prefix (e.g., "data:image/png;base64,") for backend compatibility
+      if (base64Image.includes(",")) {
+        base64Image = base64Image.split(",")[1];
+      }
+
       const formData = new FormData();
       formData.append("MatricNo", actualMatricNo);
-      formData.append("Photo", selectedPhoto);
+      formData.append("Photo", base64Image);
 
-      console.log("UPDATE STUDENT IMAGE PAYLOAD:", {
+      console.log("UPDATE STUDENT IMAGE PAYLOAD (Base64):", {
         MatricNo: actualMatricNo,
-        Photo: selectedPhoto?.name,
+        PhotoLength: base64Image.length,
       });
 
       const response = await studentApi.updateStudentImage(formData);
@@ -308,8 +333,16 @@ export default function MyAccountPersonal() {
       setImageSuccess("Profile image updated successfully.");
     } catch (error) {
       console.error("UPDATE STUDENT IMAGE ERROR:", error);
-      console.error("UPDATE STUDENT IMAGE ERROR PAYLOAD:", error?.payload || error?.data);
-      setImageError(error?.message || "Failed to update profile image.");
+      const errorPayload = error?.payload || error?.data;
+      console.error("UPDATE STUDENT IMAGE ERROR PAYLOAD:", JSON.stringify(errorPayload, null, 2));
+      
+      const validationErrors = errorPayload?.errors;
+      if (validationErrors) {
+        const errorMsg = Object.values(validationErrors).flat().join(" ");
+        setImageError(errorMsg || "Validation failed.");
+      } else {
+        setImageError(error?.message || "Failed to update profile image.");
+      }
     } finally {
       setUploadingImage(false);
     }

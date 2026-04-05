@@ -7,6 +7,7 @@ import Input from "../../components/ui/Input";
 import Button from "../../components/ui/Button";
 import Divider from "../../components/ui/Divider";
 import { authApi } from "../../api/auth";
+import { parseJwt } from "../../api/http";
 
 import loginImg from "../../assets/auth/login-image.jpg";
 
@@ -55,24 +56,62 @@ function extractToken(response) {
 }
 
 function extractStudentId(response) {
-  return (
+  let id =
     response?.studentId ||
     response?.data?.studentId ||
     response?.id ||
     response?.data?.id ||
     response?.data?.student?.studentId ||
     response?.data?.student?.id ||
-    ""
-  );
+    "";
+
+  if (!id) {
+    const token = response?.token || response?.accessToken || response?.data?.token || response?.data?.accessToken;
+    if (token) {
+      const decoded = parseJwt(token);
+      id =
+        decoded?.uid ||
+        decoded?.studentId ||
+        decoded?.studentID ||
+        decoded?.id ||
+        decoded?.Id ||
+        decoded?.ID ||
+        decoded?.userId ||
+        decoded?.UserId ||
+        decoded?.nameid ||
+        decoded?.sub ||
+        decoded?.["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"] ||
+        "";
+    }
+  }
+
+  return id;
 }
 
 function extractMatricNo(response) {
-  return (
+  let matric =
     response?.matricNo ||
     response?.data?.matricNo ||
     response?.data?.student?.matricNo ||
-    ""
-  );
+    "";
+
+  if (!matric) {
+    const token = response?.token || response?.accessToken || response?.data?.token || response?.data?.accessToken;
+    if (token) {
+      const decoded = parseJwt(token);
+      matric =
+        decoded?.matricNo ||
+        decoded?.matriculationNo ||
+        decoded?.ucode ||
+        decoded?.unique_name ||
+        decoded?.email ||
+        decoded?.emailAddress ||
+        decoded?.["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"] ||
+        "";
+    }
+  }
+
+  return matric;
 }
 
 export default function StudentLogin() {

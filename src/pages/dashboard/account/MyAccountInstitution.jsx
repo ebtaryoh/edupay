@@ -2,6 +2,12 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import AccountShell from "../../../components/dashboard/AccountShell";
 import { studentApi } from "../../../api/student";
+import {
+  departmentApi,
+  levelApi,
+  institutionApi,
+} from "../../../api/fees";
+import { parseJwt } from "../../../api/http";
 
 function EditableField({
   label,
@@ -30,9 +36,33 @@ function EditableField({
   );
 }
 
+function SelectField({ label, value, onChange, options, error, disabled = false, placeholder = "Select option" }) {
+  return (
+    <div className="rounded-[16px] bg-white px-6 py-5">
+      <p className="text-[12px] font-medium text-[#9AA0B4]">{label}</p>
+      <select
+        value={value}
+        onChange={onChange}
+        disabled={disabled}
+        className="mt-2 w-full cursor-pointer bg-transparent text-[16px] font-semibold text-[#14143A] outline-none disabled:cursor-not-allowed disabled:text-[#7E849A]"
+      >
+        <option value="">{placeholder}</option>
+        {options.map((option) => (
+          <option key={option.value} value={option.value}>
+            {option.text}
+          </option>
+        ))}
+      </select>
+      {error ? <p className="mt-2 text-sm text-red-600">{error}</p> : null}
+    </div>
+  );
+}
+
 export default function MyAccountInstitution() {
+  console.log(">>> MY ACCOUNT INSTITUTION COMPONENT MOUNTED");
   const nav = useNavigate();
   const studentId = localStorage.getItem("studentId") || "";
+  console.log(">>> CURRENT STUDENT ID FROM STORAGE:", studentId);
 
   const [form, setForm] = useState({
     institutionName: "",
@@ -45,17 +75,50 @@ export default function MyAccountInstitution() {
   const [submitError, setSubmitError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [loadingProfile, setLoadingProfile] = useState(true);
+  const [loadingLookups, setLoadingLookups] = useState(false);
   const [saving, setSaving] = useState(false);
+
+  const [departments, setDepartments] = useState([]);
+  const [levels, setLevels] = useState([]);
 
   useEffect(() => {
     async function loadProfile() {
-      if (!studentId) {
+      let currentId = studentId;
+
+      if (!currentId) {
+        console.log(">>> ATTEMPTING IMMEDIATE REPAIR IN COMPONENT...");
+        const token = localStorage.getItem("token");
+        if (token) {
+          const decoded = parseJwt(token);
+          currentId =
+            decoded?.uid ||
+            decoded?.studentId ||
+            decoded?.studentID ||
+            decoded?.id ||
+            decoded?.Id ||
+            decoded?.ID ||
+            decoded?.userId ||
+            decoded?.nameid ||
+            decoded?.sub ||
+            decoded?.["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"] ||
+            "";
+          
+          if (currentId) {
+            console.log(">>> COMPONENT REPAIRED ID:", currentId);
+            localStorage.setItem("studentId", String(currentId));
+          }
+        }
+      }
+
+      if (!currentId) {
+        console.error(">>> NO STUDENT ID FOUND. CANNOT LOAD PROFILE.");
         setLoadingProfile(false);
         return;
       }
 
       try {
-        const response = await studentApi.getStudentProfile(studentId);
+        const response = await studentApi.getStudentProfile(currentId);
+        console.log("FULL STUDENT PROFILE RESPONSE:", response);
         const student = response?.data || response || {};
 
         setForm({
@@ -74,11 +137,76 @@ export default function MyAccountInstitution() {
               ? String(student.level)
               : "",
         });
+
+        // Trigger lookup loads if we have institutional info
+        let instId = student?.institutionId || student?.institutionID;
+
+        // Fallback to token if not in profile response
+        if (!instId) {
+          const token = localStorage.getItem("token");
+          if (token) {
+            const decoded = parseJwt(token);
+            instId = decoded?.instid || decoded?.institutionId || decoded?.institutionID || "";
+            console.log("RESOLVED INSTITUTION ID FROM TOKEN FALLBACK:", instId);
+          }
+        }
+
+        if (instId) {
+          loadLookups(instId);
+        } else {
+          console.warn("NO INSTITUTION ID FOUND IN PROFILE OR TOKEN");
+        }
       } catch (error) {
         console.error("FAILED TO LOAD STUDENT INSTITUTION PROFILE:", error);
         setSubmitError("Unable to load institution information.");
       } finally {
         setLoadingProfile(false);
+      }
+    }
+
+    async function loadLookups(instId) {
+      try {
+        console.log("FETCHING LOOKUPS FOR INST ID:", instId);
+        setLoadingLookups(true);
+
+        // 1. Get institution details for the code
+        const instResponse = await institutionApi.getInstitutionById(instId);
+        console.log("INSTITUTION DETAILS RESPONSE:", instResponse);
+        const institution = instResponse?.data || instResponse || {};
+        const code = institution?.code || institution?.institutionCode || "";
+
+        console.log("RESOLVED INSTITUTION CODE:", code);
+
+        if (!code) {
+          console.warn("NO INSTITUTION CODE FOUND FOR LOOKUPS. ATTEMPTING WITH ID AS FALLBACK...");
+          // Fallback: try using the ID as the code if they might be interchangeable
+        }
+
+        const lookupCode = code || instId;
+
+        // 2. Fetch departments and levels
+        const [deptRes, levelRes] = await Promise.allSettled([
+          departmentApi.getDepartmentsForDropdown(lookupCode),
+          levelApi.getLevelsForDropdown(lookupCode),
+        ]);
+
+        if (deptRes.status === "fulfilled") {
+          console.log("DEPARTMENTS LOOKUP SUCCESS:", deptRes.value);
+          setDepartments(Array.isArray(deptRes.value?.data) ? deptRes.value.data : []);
+        } else {
+          console.error("DEPARTMENTS LOOKUP FAILED:", deptRes.reason);
+        }
+
+        if (levelRes.status === "fulfilled") {
+          console.log("LEVELS LOOKUP SUCCESS:", levelRes.value);
+          setLevels(Array.isArray(levelRes.value?.data) ? levelRes.value.data : []);
+        } else {
+          console.error("LEVELS LOOKUP FAILED:", levelRes.reason);
+        }
+      } catch (error) {
+        console.error("FAILED TO LOAD ACCOUNT LOOKUPS:", error);
+      } finally {
+        setLoadingLookups(false);
       }
     }
 
@@ -186,23 +314,24 @@ export default function MyAccountInstitution() {
                 disabled={loadingProfile}
               />
 
-              <EditableField
-                label="Department ID"
+              <SelectField
+                label="Department"
                 value={form.departmentId}
                 onChange={(e) => handleChange("departmentId", e.target.value)}
-                placeholder="Enter department ID"
+                options={departments}
+                placeholder={loadingLookups ? "Loading departments..." : "Select department"}
                 error={fieldErrors.departmentId}
-                disabled={loadingProfile}
+                disabled={loadingProfile || loadingLookups}
               />
 
-              <EditableField
+              <SelectField
                 label="Level"
-                type="number"
                 value={form.level}
                 onChange={(e) => handleChange("level", e.target.value)}
-                placeholder="Enter level"
+                options={levels}
+                placeholder={loadingLookups ? "Loading levels..." : "Select level"}
                 error={fieldErrors.level}
-                disabled={loadingProfile}
+                disabled={loadingProfile || loadingLookups}
               />
             </div>
 

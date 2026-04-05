@@ -21,14 +21,16 @@ export const feesApi = {
 
 export const departmentApi = {
   getDepartments: () => get("/api/Department/get-departments"),
-  getDepartmentsForDropdown: () => get("/api/Department/get-departments-for-dropdown"),
+  getDepartmentsForDropdown: (institutionCode) =>
+    get(`/api/Department/get-departments-for-dropdown?institutionCode=${institutionCode}`),
   createDepartment: (payload) => post("/api/Department/create-department", payload),
   updateDepartment: (payload) => put("/api/Department/update-department", payload),
 };
 
 export const levelApi = {
   getAllLevels: () => get("/api/Level/get-all-levels"),
-  getLevelsForDropdown: () => get("/api/Level/get-levels-for-dropdown"),
+  getLevelsForDropdown: (institutionCode) =>
+    get(`/api/Level/get-levels-for-dropdown?institutionCode=${institutionCode}`),
   createLevel: (payload) => post("/api/Level/new-level", payload),
 };
 
@@ -37,4 +39,5 @@ export const institutionApi = {
   getInstitutionDropdown: () => get("/api/Institution/get-institution-for-drop-down"),
   getInstitutionTypeDropdown: () => get("/api/Institution/get-institution-type-for-drop-down"),
   createInstitution: (payload) => post("/api/Institution/create-institution", payload),
+  getInstitutionById: (id) => get(`/api/Institution/get-institution-by-id?institutionId=${id}`),
 };

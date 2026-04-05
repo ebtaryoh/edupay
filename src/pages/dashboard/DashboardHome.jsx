@@ -193,12 +193,22 @@ export default function DashboardHome() {
       ? `${profile.level} Level`
       : "300 Level";
 
-  const profileImage =
+  let profileImage =
     profile?.photo ||
     profile?.photoUrl ||
     profile?.imageUrl ||
     profile?.profileImage ||
     "";
+
+  // If it's a raw Base64 string, prepend the data URI prefix
+  if (
+    profileImage &&
+    !profileImage.startsWith("http") &&
+    !profileImage.startsWith("data:") &&
+    profileImage.length > 100
+  ) {
+    profileImage = `data:image/jpeg;base64,${profileImage}`;
+  }
 
   const completion = getProfileCompletion(profile);
   const initials = getInitials(profile?.firstName, profile?.lastName);

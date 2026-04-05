@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Eye, EyeOff, ChevronRight, BookOpen, Settings2, BarChart3, Landmark } from "lucide-react";
-import Topbar from "../dashboard/Topbar";
+import Topbar from "../../components/dashboard/Topbar";
 
 function WalletActionButton({ label, onClick, dark = false }) {
   return (

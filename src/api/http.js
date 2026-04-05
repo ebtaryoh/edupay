@@ -4,6 +4,24 @@ function isJwt(token) {
   return typeof token === "string" && token.split(".").length === 3;
 }
 
+export function parseJwt(token) {
+  if (!isJwt(token)) return null;
+  try {
+    const base64Url = token.split(".")[1];
+    const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split("")
+        .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
+        .join("")
+    );
+    return JSON.parse(jsonPayload);
+  } catch (error) {
+    console.error("JWT PARSE ERROR:", error);
+    return null;
+  }
+}
+
 export async function request(path, options = {}) {
   const token = localStorage.getItem("token");
   const isFormData = options.body instanceof FormData;

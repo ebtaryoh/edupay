@@ -46,4 +46,10 @@ export const studentApi = {
 
   updateStudentImage: (formData) =>
     put("/api/Student/update-student-image", formData),
+
+  getDepartmentsForDropdown: (institutionCode) =>
+    get(`/api/Department/get-departments-for-dropdown?institutionCode=${institutionCode}`),
+
+  getLevelsForDropdown: (institutionCode) =>
+    get(`/api/Level/get-levels-for-dropdown?institutionCode=${institutionCode}`),
 };
