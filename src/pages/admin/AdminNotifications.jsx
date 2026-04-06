@@ -1,4 +1,7 @@
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { adminApi } from "../../api/admin";
+import { notificationApi } from "../../api/notification";
 import {
   ChevronRight as ChevronRightLucide,
   BadgeCheck,
@@ -89,40 +92,39 @@ function SettingsIcon() {
 
 function AdminOverviewPane() {
   const nav = useNavigate();
-  const adminPhoto = "";
+  const adminId = localStorage.getItem("adminId") || "";
+  const [profile, setProfile] = useState(null);
+
+  useEffect(() => {
+    if (!adminId) return;
+    adminApi.getAdminById(adminId).then((res) => {
+      setProfile(res?.data || res || null);
+    }).catch(() => {});
+  }, [adminId]);
+
+  const fullName = profile
+    ? [profile.firstName, profile.lastName].filter(Boolean).join(" ")
+    : "Admin User";
+  const initials = profile
+    ? `${(profile.firstName || "A")[0]}${(profile.lastName || "U")[0]}`
+    : "AU";
+  const institution = profile?.institutionName || profile?.institution || "Institution";
+  const office = profile?.office || profile?.department || "Admin Office";
 
   return (
     <div className="min-w-0 space-y-6 xl:space-y-7">
       <section className="overflow-hidden rounded-[24px] border border-[#DCD8FF] bg-white px-4 py-4 shadow-[0_10px_30px_rgba(44,20,221,0.04)] sm:rounded-[26px] sm:px-5 sm:py-5 lg:rounded-[28px]">
         <div className="flex min-w-0 flex-col gap-4 sm:flex-row sm:items-start sm:gap-5">
           <div className="mx-auto h-[88px] w-[88px] shrink-0 overflow-hidden rounded-full border-[4px] border-[#F3E4D7] bg-[radial-gradient(circle_at_50%_30%,#D5B08D_0%,#A86E45_62%,#8A5636_100%)] sm:mx-0 sm:h-[96px] sm:w-[96px] lg:h-[106px] lg:w-[106px]">
-            {adminPhoto ? (
-              <img
-                src={adminPhoto}
-                alt="Admin profile"
-                className="h-full w-full object-cover"
-              />
-            ) : (
-              <div className="flex h-full w-full items-center justify-center text-[30px] font-bold text-white/95 sm:text-[32px] lg:text-[34px]">
-                UC
-              </div>
-            )}
+            <div className="flex h-full w-full items-center justify-center text-[30px] font-bold text-white/95 sm:text-[32px] lg:text-[34px]">
+              {initials}
+            </div>
           </div>
 
           <div className="min-w-0 flex-1 pt-0 text-center sm:pt-2 sm:text-left">
-            <p className="text-[14px] font-semibold text-[#F4A13A] sm:text-[15px]">
-              Welcome Back,
-            </p>
-
-            <h2 className="mt-1 truncate text-[24px] font-extrabold leading-tight tracking-[-0.02em] text-[#2F2AD9] sm:text-[28px] md:text-[30px] xl:text-[32px]">
-              Uti Chike
-            </h2>
-
-            <p className="mt-1 text-[13px] leading-[1.4] text-[#3E3E76] sm:text-[14px]">
-              UNILAG - CSC/2021/001
-              <br />
-              Admin Office - College of Medicine
-            </p>
+            <p className="text-[14px] font-semibold text-[#F4A13A] sm:text-[15px]">Welcome Back,</p>
+            <h2 className="mt-1 truncate text-[24px] font-extrabold leading-tight tracking-[-0.02em] text-[#2F2AD9] sm:text-[28px] md:text-[30px] xl:text-[32px]">{fullName}</h2>
+            <p className="mt-1 text-[13px] leading-[1.4] text-[#3E3E76] sm:text-[14px]">{institution}<br />{office}</p>
           </div>
         </div>
 
@@ -130,13 +132,8 @@ function AdminOverviewPane() {
           <div className="h-[6px] flex-1 overflow-hidden rounded-full bg-[#E7EDF6]">
             <div className="h-full w-[22%] rounded-full bg-[#22D04F]" />
           </div>
-
-          <button
-            type="button"
-            className="inline-flex cursor-pointer shrink-0 items-center gap-1 text-[11px] font-medium text-[#7E6EFF] transition hover:underline sm:text-[12px]"
-          >
-            Complete Profile
-            <ProgressArrow />
+          <button type="button" onClick={() => nav("/admin/dashboard/account")} className="inline-flex cursor-pointer shrink-0 items-center gap-1 text-[11px] font-medium text-[#7E6EFF] transition hover:underline sm:text-[12px]">
+            Complete Profile <ProgressArrow />
           </button>
         </div>
       </section>
@@ -224,73 +221,44 @@ function AdminOverviewPane() {
   );
 }
 
-const notifications = [
-  {
-    id: 1,
-    title: "New Updates Available!",
-    message: "EDUPay just got an upgrade. Download now!!!",
-  },
-  {
-    id: 2,
-    title: "Secure your account!",
-    message: "Be careful. Secure your account.",
-  },
-  {
-    id: 3,
-    title: "New Updates Available!",
-    message: "EDUPay just got an upgrade. Download now!!!",
-  },
-  {
-    id: 4,
-    title: "Secure your account!",
-    message: "Be careful. Secure your account.",
-  },
-  {
-    id: 5,
-    title: "New Updates Available!",
-    message: "EDUPay just got an upgrade. Download now!!!",
-  },
-  {
-    id: 6,
-    title: "Secure your account!",
-    message: "Be careful. Secure your account.",
-  },
-  {
-    id: 7,
-    title: "New Updates Available!",
-    message: "EDUPay just got an upgrade. Download now!!!",
-  },
-  {
-    id: 8,
-    title: "Secure your account!",
-    message: "Be careful. Secure your account.",
-  },
-];
-
 function NotificationsList() {
+  const adminId = localStorage.getItem("adminId") || "";
+  const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!adminId) { setLoading(false); return; }
+    notificationApi.getByUserId(adminId)
+      .then((res) => {
+        const data = res?.data || res;
+        setItems(Array.isArray(data) ? data : data ? [data] : []);
+      })
+      .catch(() => setItems([]))
+      .finally(() => setLoading(false));
+  }, [adminId]);
+
+  if (loading) return <p className="py-10 text-center text-sm text-[#9AA0B4]">Loading notifications...</p>;
+
+  if (items.length === 0) return (
+    <div className="flex flex-col items-center justify-center py-16 gap-2">
+      <Bell size={48} strokeWidth={1.5} className="text-[#E7E9FF]" />
+      <p className="text-sm text-[#9AA0B4]">No notifications yet.</p>
+    </div>
+  );
+
   return (
     <section className="min-w-0">
       <div className="space-y-5">
-        {notifications.map((item) => (
-          <button
-            key={item.id}
-            type="button"
+        {items.map((item, i) => (
+          <button key={item.id || i} type="button"
             className="flex w-full cursor-pointer items-center gap-4 rounded-[22px] bg-transparent px-2 py-2 text-left transition hover:bg-white/50"
           >
             <NotificationRowIcon />
-
             <div className="min-w-0 flex-1">
-              <h3 className="truncate text-[18px] font-semibold leading-tight text-[#1B1C34]">
-                {item.title}
-              </h3>
-              <p className="mt-1 text-[14px] leading-[1.35] text-[#3E3E53]">
-                {item.message}
-              </p>
+              <h3 className="truncate text-[18px] font-semibold leading-tight text-[#1B1C34]">{item.name || item.title || "Admin Notice"}</h3>
+              <p className="mt-1 text-[14px] leading-[1.35] text-[#3E3E53] line-clamp-2">{item.message || item.description || "No details."}</p>
             </div>
-
-            <div className="shrink-0">
-              <ChevronRight />
-            </div>
+            <div className="shrink-0"><ChevronRight /></div>
           </button>
         ))}
       </div>

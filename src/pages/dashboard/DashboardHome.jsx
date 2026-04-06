@@ -5,7 +5,7 @@ import QuickActions from "../../components/dashboard/QuickActions";
 import RecentTransactions from "../../components/dashboard/RecentTransactions";
 import Topbar from "../../components/dashboard/Topbar";
 import { studentApi } from "../../api/student";
-import { billApi } from "../../api/bill";
+import { billingApi } from "../../api/fees";
 import { dashboardApi } from "../../api/dashboard";
 
 function ProgressArrow() {
@@ -149,7 +149,7 @@ export default function DashboardHome() {
       try {
         const [profileRes, debtRes, txRes] = await Promise.all([
           studentApi.getStudentProfile(studentId).catch(() => null),
-          billApi.getStudentDebt(studentId).catch(() => null),
+          billingApi.getStudentDebt(studentId).catch(() => null),
           dashboardApi.recentTransactions().catch(() => null),
         ]);
 

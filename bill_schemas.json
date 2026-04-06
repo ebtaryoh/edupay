@@ -1,0 +1,34 @@
+{
+  "getBillDetails": {
+    "params": [
+      {
+        "name": "studentId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      }
+    ]
+  },
+  "studentDebt": {
+    "params": [
+      {
+        "name": "studentId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      }
+    ]
+  },
+  "unregBill": {
+    "postBody": null
+  },
+  "payUnregBill": {
+    "postBody": {
+      "$ref": "#/components/schemas/PayForUnregisteredStd"
+    }
+  }
+}

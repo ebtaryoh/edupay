@@ -218,15 +218,17 @@ export function AdminBookCard({
   title = "Abstract Colors",
   author = "By James Akande",
   price = "₦5,600",
+  imageUrl = null,
   buttonLabel = "Buy",
   onClick,
 }) {
   return (
     <div className="rounded-[20px] bg-white p-4 flex flex-col justify-between shadow-[0_4px_24px_rgba(0,0,0,0.04)] border border-black/5">
       <div>
-        <BookCover />
+        <BookCover value={imageUrl} />
         <div className="mt-4">
           <h3 className="truncate text-[15px] font-bold text-[#14143A]">{title}</h3>
+
           <p className="mt-1 text-[11px] text-[#8A90A6]">{author}</p>
         </div>
       </div>
@@ -316,7 +318,7 @@ export function AdminBookstoreField({ label, value, onChange, placeholder = "" }
   );
 }
 
-export function AdminBookstoreSelect({ label, value, onChange }) {
+export function AdminBookstoreSelect({ label, value, onChange, options = ["Live", "Draft"] }) {
   return (
     <div className="space-y-2">
       <label className="text-[13px] font-semibold text-[#1F2340]">{label}</label>
@@ -326,9 +328,9 @@ export function AdminBookstoreSelect({ label, value, onChange }) {
           onChange={(e) => onChange?.(e.target.value)}
           className="h-[52px] w-full appearance-none rounded-[16px] border border-[#E6E8F5] bg-white px-5 text-[15px] outline-none transition focus:border-[#2C14DD]/30 focus:ring-4 focus:ring-[#2C14DD]/5"
         >
-          <option>{value || "Select"}</option>
-          <option>Live</option>
-          <option>Draft</option>
+          {options.map(opt => (
+            <option key={opt} value={opt}>{opt}</option>
+          ))}
         </select>
         <ChevronDown size={18} className="absolute right-5 top-1/2 -translate-y-1/2 text-[#9AA0B4] pointer-events-none" />
       </div>
@@ -350,13 +352,31 @@ export function AdminBookstoreTextarea({ label, value, onChange, placeholder = "
   );
 }
 
-export function AdminBookstoreEditorUpload() {
+export function AdminBookstoreEditorUpload({ onImageChange, previewImage }) {
+  const handleFile = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        onImageChange?.(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   return (
     <div className="flex flex-col items-center">
-      <div className="flex h-[126px] w-[126px] cursor-pointer flex-col items-center justify-center rounded-[20px] border-2 border-dashed border-[#E6E8F5] bg-[#F9FAFF] transition hover:bg-[#F1F3FF] hover:border-[#2C14DD]/20">
-        <Image size={32} className="text-[#9AA0B4]" />
-        <p className="mt-2 text-[11px] font-bold text-[#2C14DD]">Upload Image</p>
-      </div>
+      <label className="relative flex h-[126px] w-[126px] cursor-pointer flex-col items-center justify-center rounded-[20px] border-2 border-dashed border-[#E6E8F5] bg-[#F9FAFF] transition hover:bg-[#F1F3FF] hover:border-[#2C14DD]/20 overflow-hidden">
+        <input type="file" className="hidden" accept="image/*" onChange={handleFile} />
+        {previewImage ? (
+          <img src={previewImage} alt="Preview" className="h-full w-full object-cover" />
+        ) : (
+          <>
+            <Image size={32} className="text-[#9AA0B4]" />
+            <p className="mt-2 text-[11px] font-bold text-[#2C14DD]">Upload Image</p>
+          </>
+        )}
+      </label>
       <p className="mt-3 text-center text-[11px] text-[#9AA0B4] leading-relaxed">
         Recommended size:<br/>500x500px, under 2MB
       </p>

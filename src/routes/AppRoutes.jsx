@@ -116,6 +116,7 @@ import ContactAdmin from "../pages/dashboard/account/ContactAdmin";
 import BookstoreLanding from "../pages/dashboard/bookstore/BookstoreLanding";
 import BookDetails from "../pages/dashboard/bookstore/BookDetails";
 import BookstorePayment from "../pages/dashboard/bookstore/BookstorePayment";
+import MyBooks from "../pages/dashboard/bookstore/MyBooks";
 
 export default function AppRoutes() {
   const onboarded = localStorage.getItem("hasOnboarded") === "true";
@@ -207,6 +208,7 @@ export default function AppRoutes() {
 
           {/* Bookstore */}
           <Route path="bookstore" element={<BookstoreLanding />} />
+          <Route path="bookstore/my-books" element={<MyBooks />} />
           <Route path="bookstore/:bookId" element={<BookDetails />} />
           <Route
             path="bookstore/:bookId/payment"

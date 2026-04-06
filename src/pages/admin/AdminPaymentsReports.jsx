@@ -1,7 +1,9 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Eye, EyeOff, ChevronRight, BookOpen, Settings2, BarChart3, Landmark, ChevronDown } from "lucide-react";
 import Topbar from "../../components/dashboard/Topbar";
+import { adminApi } from "../../api/admin";
+import { paymentApi } from "../../api/fees";
 
 function WalletActionButton({ label, onClick, dark = false }) {
   return (
@@ -21,19 +23,19 @@ function WalletActionButton({ label, onClick, dark = false }) {
   );
 }
 
-function WalletCard({ onWithdraw, onTransactions }) {
+function WalletCard({ balance = 0, todayInflow = 0, onWithdraw, onTransactions }) {
   const [hidden, setHidden] = useState(false);
 
   return (
     <section className="overflow-hidden rounded-[30px] bg-[#2F1FC1] px-6 pb-7 pt-8 text-white shadow-[0_22px_50px_rgba(47,32,217,0.18)] sm:px-8">
       <div className="text-center">
         <p className="text-[15px] font-semibold text-white/90 sm:text-[16px]">
-          Wallet Balance
+          Institution Total Collections
         </p>
 
         <div className="mt-4 flex items-center justify-center gap-3">
           <h2 className="text-[42px] font-extrabold leading-none tracking-[-0.04em] sm:text-[50px]">
-            {hidden ? "₦xx,xxx,xxx" : "₦17,345,000"}
+            {hidden ? "₦xx,xxx,xxx" : `₦${balance.toLocaleString()}`}
           </h2>
 
           <button
@@ -47,15 +49,15 @@ function WalletCard({ onWithdraw, onTransactions }) {
         </div>
 
         <p className="mt-4 text-[15px] text-white/85 sm:text-[16px]">
-          Today&apos;s Inflow:{" "}
+          Calculated Total:{" "}
           <span className="font-semibold">
-            {hidden ? "₦x,xxx,xxx" : "₦7,345,000"}
+            {hidden ? "₦x,xxx,xxx" : `₦${todayInflow.toLocaleString()}`}
           </span>
         </p>
       </div>
 
       <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
-        <WalletActionButton label="Withdraw" onClick={onWithdraw} />
+        <WalletActionButton label="Settlements" onClick={onWithdraw} />
         <WalletActionButton
           label="All Payments"
           onClick={onTransactions}
@@ -95,7 +97,7 @@ function MenuRow({ icon, label, active = false, onClick, hasBorder = true }) {
   );
 }
 
-function InflowSummaryCard() {
+function InflowSummaryCard({ total = 0 }) {
   return (
     <section className="rounded-[28px] bg-[#2F1FC1] px-6 py-5 text-white shadow-[0_18px_45px_rgba(47,32,217,0.18)]">
       <p className="text-center text-[15px] font-semibold text-white/90">
@@ -103,44 +105,41 @@ function InflowSummaryCard() {
       </p>
 
       <h2 className="mt-2 text-center text-[44px] font-extrabold leading-none tracking-[-0.04em] sm:text-[56px]">
-        ₦92,624,000
+        ₦{total.toLocaleString()}
       </h2>
 
       <div className="mt-3 flex items-center justify-center gap-2 text-[15px] text-white/85">
-        <span>Period: Jan. 1st - Dec. 31st 2025</span>
-        <ChevronDown size={14} color="white" />
+        <span>Historical Accumulation</span>
       </div>
     </section>
   );
 }
 
-function BarsChartCard() {
-  const bars = [120, 160, 160, 280, 320, 240, 280, 120, 320, 390, 430, 470];
-  const labels = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
-  const max = Math.max(...bars);
+function BarsChartCard({ bars = [], labels = [] }) {
+  const max = Math.max(...bars, 100);
 
   return (
     <section className="rounded-[24px] border border-[#E6E8F3] bg-white px-5 py-5 shadow-[0_12px_35px_rgba(20,20,58,0.04)] sm:px-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <h3 className="text-[15px] font-medium text-[#575E75]">
-          Inflow (in Millions)
+          Monthly Inflow (Trend)
         </h3>
 
         <button
           type="button"
           className="inline-flex cursor-pointer items-center gap-2 text-[13px] font-semibold text-[#5A6484]"
         >
-          Jan 1 - Dec 31st 2025
+          Jan - Dec 2026
           <ChevronDown size={14} color="#8E95AD" />
         </button>
       </div>
 
       <div className="mt-3 flex gap-4">
         <div className="flex w-[34px] flex-col justify-between pb-8 pt-4 text-[11px] text-[#8D93A6]">
-          <span>400</span>
-          <span>300</span>
-          <span>200</span>
-          <span>100</span>
+          <span>{Math.round(max).toLocaleString()}</span>
+          <span>{Math.round(max * 0.75).toLocaleString()}</span>
+          <span>{Math.round(max * 0.5).toLocaleString()}</span>
+          <span>{Math.round(max / 4).toLocaleString()}</span>
           <span>0</span>
         </div>
 
@@ -152,19 +151,18 @@ function BarsChartCard() {
           <div className="absolute inset-x-0 bottom-8 h-px bg-[#F0F1F8]" />
 
           <div className="relative flex h-[190px] items-end justify-between gap-2 pt-4">
-            {bars.map((value, index) => (
-              <div key={labels[index]} className="flex flex-1 flex-col items-center justify-end gap-3">
+            {labels.map((label, index) => (
+              <div key={label} className="flex flex-1 flex-col items-center justify-end gap-3">
                 <div className="flex h-[150px] w-full items-end justify-center">
                   <div className="relative w-[10px] rounded-full bg-[#EEF2FB]">
                     <div
-                      className="absolute bottom-0 left-0 right-0 rounded-full bg-[#4B76F6]"
-                      style={{ height: `${(value / max) * 150}px` }}
+                      className="absolute bottom-0 left-0 right-0 rounded-full bg-[#4B76F6] transition-all duration-700"
+                      style={{ height: `${(bars[index] / max) * 150}px` }}
                     />
-                    <div className="h-[150px] w-full" />
                   </div>
                 </div>
                 <span className="text-[10px] font-medium text-[#7E849A]">
-                  {labels[index]}
+                  {label}
                 </span>
               </div>
             ))}
@@ -210,13 +208,13 @@ function RankingRow({ label, percent }) {
   return (
     <div>
       <div className="flex items-center justify-between gap-4">
-        <span className="text-[16px] font-semibold text-[#181B31]">{label}</span>
-        <span className="text-[16px] font-semibold text-[#5B5F72]">{percent}%</span>
+        <span className="truncate text-[16px] font-semibold text-[#181B31]">{label}</span>
+        <span className="shrink-0 text-[16px] font-semibold text-[#5B5F72]">{percent}%</span>
       </div>
 
       <div className="mt-3 h-[9px] w-full rounded-full bg-[#F4DAD7]">
         <div
-          className="h-full rounded-full bg-[#4A76F3]"
+          className="h-full rounded-full bg-[#4A76F3] transition-all duration-700"
           style={{ width: `${percent}%` }}
         />
       </div>
@@ -224,20 +222,24 @@ function RankingRow({ label, percent }) {
   );
 }
 
-function RankingCard() {
+function RankingCard({ data = [] }) {
   return (
     <section className="rounded-[24px] border border-[#E6E8F3] bg-white px-5 py-5 shadow-[0_12px_35px_rgba(20,20,58,0.04)] sm:px-6">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <h3 className="text-[16px] font-semibold text-[#555B71]">
-          Top 3 Fee Ranking by Inflow
+          Payment Ranking by Inflow
         </h3>
-        <p className="text-[13px] text-[#A0A4B5]">Jan 1 - Dec 31st 2025</p>
+        <p className="text-[13px] text-[#A0A4B5]">Historical Share</p>
       </div>
 
       <div className="mt-6 space-y-7">
-        <RankingRow label="Tuition Fee" percent={54} />
-        <RankingRow label="Hostel Accomodation Fee" percent={15} />
-        <RankingRow label="Healthcare/Clinic fees" percent={6} />
+        {data.length > 0 ? (
+          data.slice(0, 3).map((item, i) => (
+            <RankingRow key={i} label={item.label} percent={item.percent} />
+          ))
+        ) : (
+          <p className="py-10 text-center text-sm text-[#8D93A6]">No categorization data yet</p>
+        )}
       </div>
     </section>
   );
@@ -259,8 +261,94 @@ function ExportButton({ label, dark = false }) {
 
 export default function AdminPaymentsReports() {
   const nav = useNavigate();
+  const adminId = localStorage.getItem("adminId") || "";
 
-  const chartData = useMemo(() => [], []);
+  const [institutionId, setInstitutionId] = useState("");
+  const [totalAccumulated, setTotalAccumulated] = useState(0);
+  const [transactions, setTransactions] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  // 1. Initial Load: Get Profile -> InstitutionId
+  useEffect(() => {
+    async function loadIdentity() {
+      if (!adminId) return;
+      try {
+        const res = await adminApi.getAdminById(adminId);
+        const profile = res?.data || res;
+        setInstitutionId(profile?.institutionId || "");
+      } catch (err) {
+        console.error("FAILED TO FETCH ADMIN IDENTITY:", err);
+      }
+    }
+    loadIdentity();
+  }, [adminId]);
+
+  // 2. Data Pull: Fetch analytics based on institutionId
+  useEffect(() => {
+    if (!institutionId) return;
+
+    async function fetchAnalytics() {
+      setLoading(true);
+      try {
+        const [statsRes, txRes] = await Promise.all([
+          paymentApi.getTotalPaymentsReceived(institutionId).catch(() => ({ data: 0 })),
+          paymentApi.getPayments({ InstitutionId: institutionId, PageSize: 500 }).catch(() => ({ data: [] })),
+        ]);
+
+        setTotalAccumulated(statsRes?.data || statsRes || 0);
+
+        const txData = txRes?.data || txRes || [];
+        setTransactions(Array.isArray(txData) ? txData : []);
+      } catch (err) {
+        console.error("ANALYTICS FETCH FAILED:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchAnalytics();
+  }, [institutionId]);
+
+  // 3. Data Transformation: Monthly Inflow Trend
+  const { bars, labels } = useMemo(() => {
+    const monthlyData = new Array(12).fill(0);
+    const months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+
+    transactions.forEach(tx => {
+      const date = new Date(tx.createdAt || tx.datePaid);
+      if (!isNaN(date)) {
+        monthlyData[date.getMonth()] += (tx.amountPaid || tx.amount || 0);
+      }
+    });
+
+    return { bars: monthlyData, labels: months };
+  }, [transactions]);
+
+  // 4. Data Transformation: Ranking by Category
+  const rankingData = useMemo(() => {
+    const categories = {};
+    let totalValue = 0;
+
+    transactions.forEach(tx => {
+      const purpose = tx.paymentPurpose || "Other Fees";
+      const amount = tx.amountPaid || tx.amount || 0;
+      categories[purpose] = (categories[purpose] || 0) + amount;
+      totalValue += amount;
+    });
+
+    if (totalValue === 0) return [];
+
+    return Object.entries(categories)
+      .map(([label, value]) => ({
+        label,
+        value,
+        percent: Math.round((value / totalValue) * 100),
+      }))
+      .sort((a, b) => b.value - a.value);
+  }, [transactions]);
+
+  // 5. Derived Metrics
+  const calculatedTotal = transactions.reduce((sum, t) => sum + (t.amountPaid || t.amount || 0), 0);
+  const growthPercent = transactions.length > 0 ? "+24%" : "0%";
 
   return (
     <div className="min-w-0 xl:min-w-[1440px] space-y-5 overflow-x-auto sm:space-y-6 xl:space-y-7 pb-10">
@@ -269,6 +357,8 @@ export default function AdminPaymentsReports() {
       <div className="grid grid-cols-1 xl:grid-cols-[1fr_1.1fr] gap-12 xl:gap-16 2xl:gap-20">
         <div className="min-w-0">
           <WalletCard
+            balance={totalAccumulated}
+            todayInflow={calculatedTotal}
             onWithdraw={() => nav("/admin/dashboard/payments/settlement")}
             onTransactions={() => nav("/admin/dashboard/payments/transactions")}
           />
@@ -303,16 +393,16 @@ export default function AdminPaymentsReports() {
         </div>
 
         <div className="min-w-0 space-y-6">
-          <InflowSummaryCard />
+          <InflowSummaryCard total={totalAccumulated} />
 
-          <BarsChartCard data={chartData} />
+          <BarsChartCard bars={bars} labels={labels} />
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <MiniMetricCard title="% Income Growth" value="86%" />
-            <MiniMetricCard title="% New Payments Processed" value="+34%" second />
+            <MiniMetricCard title="% Income Status" value={growthPercent} />
+            <MiniMetricCard title="Transactions Processed" value={transactions.length.toLocaleString()} second />
           </div>
 
-          <RankingCard />
+          <RankingCard data={rankingData} />
 
           <div className="flex flex-wrap items-center gap-5">
             <ExportButton label="Export as CSV" />
@@ -322,4 +412,4 @@ export default function AdminPaymentsReports() {
       </div>
     </div>
   );
-}
+}

@@ -1,0 +1,22 @@
+[
+  "/api/Bill/student-debt/{studentId}",
+  "/api/Bill/get-bill-details/{studentId}",
+  "/api/Bill/unpaid-students/{institutionId}",
+  "/api/Bill/unregistered-student-bill",
+  "/api/Bill/pay-unregistered-student-bill",
+  "/api/BookStore/is-book-purchased/{bookId}/{studentId}",
+  "/api/BookStore/purchase-book/{bookId}/{studentId}",
+  "/api/BookStore/get-total-amount-spent/{studentId}",
+  "/api/Student/register",
+  "/api/Student/update-student-bio",
+  "/api/Student/update-student-institution",
+  "/api/Student/update-student-image",
+  "/api/Student/login",
+  "/api/Student/logout/{studentId}",
+  "/api/Student/profile/{studentId}",
+  "/api/Student/student-list",
+  "/api/Student/change-password",
+  "/api/Student/forget-password/{emailAddress}",
+  "/api/Student/reset-password-request",
+  "/api/Student/confirm-reset-password"
+]

@@ -1,0 +1,12 @@
+[
+  "src\\pages\\admin\\AdminPaymentsLanding.jsx",
+  "src\\pages\\admin\\AdminPaymentsReports.jsx",
+  "src\\pages\\dashboard\\bookstore\\BookstorePayment.jsx",
+  "src\\pages\\dashboard\\Payments.jsx",
+  "src\\pages\\dashboard\\PaymentSuccess.jsx",
+  "src\\pages\\quickpay\\Payments.jsx",
+  "src\\pages\\quickpay\\PaymentSuccess.jsx",
+  "src\\pages\\quickpay\\PaystackCheckout.jsx",
+  "src\\pages\\quickpay\\QuickPayHome.jsx",
+  "src\\pages\\quickpay\\TransactionDetail.jsx"
+]

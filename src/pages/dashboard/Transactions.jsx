@@ -1,14 +1,25 @@
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { dashboardApi } from "../../api/dashboard";
+import { studentApi } from "../../api/student";
 import Input from "../../components/ui/Input";
 
-function TxRow({ title, amount, date, onView }) {
+function TxRow({ title, amount, date, status, onView }) {
+  const statusColor =
+    status === "Successful" || status === "successful"
+      ? "text-green-600"
+      : status === "Failed" || status === "failed"
+      ? "text-red-500"
+      : "text-[#9AA0B4]";
+
   return (
     <div className="bg-[#F1F2FF] rounded-[18px] px-5 py-4 flex items-center justify-between gap-4">
       <div className="min-w-0">
         <p className="font-semibold text-[#14143A] leading-snug">{title}</p>
-        <p className="text-xs text-[#9AA0B4] mt-1">{date || "Today at 12:00 AM"}</p>
+        <p className="text-xs text-[#9AA0B4] mt-1">{date || "—"}</p>
+        {status && (
+          <p className={`text-xs font-semibold mt-0.5 ${statusColor}`}>{status}</p>
+        )}
       </div>
 
       <div className="flex items-center gap-3 shrink-0">
@@ -28,14 +39,34 @@ function TxRow({ title, amount, date, onView }) {
 
 export default function Transactions() {
   const nav = useNavigate();
+  const studentId = localStorage.getItem("studentId") || "";
+
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
+    if (!studentId) {
+      setLoading(false);
+      return;
+    }
+
     async function fetchTransactions() {
       try {
-        const response = await dashboardApi.transactions();
+        setLoading(true);
+
+        // Step 1: get MatricNo from profile
+        const profileRes = await studentApi.getStudentProfile(studentId).catch(() => null);
+        const matricNo =
+          profileRes?.data?.matricNo ||
+          profileRes?.matricNo ||
+          localStorage.getItem("matricNo") ||
+          "";
+
+        // Step 2: pull this student's payment history
+        const response = await dashboardApi.transactions(
+          matricNo ? { MatricNo: matricNo, PageSize: 100 } : {}
+        );
         const data = response?.data || response || [];
         setTransactions(Array.isArray(data) ? data : []);
       } catch (error) {
@@ -44,40 +75,65 @@ export default function Transactions() {
         setLoading(false);
       }
     }
-    fetchTransactions();
-  }, []);
 
-  const filteredTxs = transactions.filter(t => 
-    (t.title || t.description || "").toLowerCase().includes(searchTerm.toLowerCase())
+    fetchTransactions();
+  }, [studentId]);
+
+  const filteredTxs = transactions.filter((t) =>
+    (t.paymentPurpose || t.title || t.description || "")
+      .toLowerCase()
+      .includes(searchTerm.toLowerCase())
   );
+
+  function formatAmount(tx) {
+    const val = tx.amountPaid ?? tx.amount ?? tx.totalAmount ?? 0;
+    return `₦${Number(val).toLocaleString()}`;
+  }
+
+  function formatDate(tx) {
+    const raw = tx.createdAt || tx.datePaid || tx.date;
+    if (!raw) return "—";
+    const d = new Date(raw);
+    return isNaN(d)
+      ? raw
+      : d.toLocaleDateString("en-NG", { day: "numeric", month: "short", year: "numeric" });
+  }
 
   return (
     <div className="grid grid-cols-1 xl:grid-cols-[1fr_520px] gap-10">
       <div>
         <div className="max-w-[520px]">
-          <Input 
-            placeholder="Search transactions" 
-            className="bg-[#F6F7FF]" 
+          <Input
+            placeholder="Search transactions"
+            className="bg-[#F6F7FF]"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
 
-        <h3 className="mt-8 text-[#9AA0B4] font-semibold">Payment History</h3>
+        <h3 className="mt-8 text-[#9AA0B4] font-semibold">
+          Payment History
+          {!loading && (
+            <span className="ml-2 text-[#2C14DD]">({filteredTxs.length})</span>
+          )}
+        </h3>
 
         <div className="mt-4 space-y-4 max-w-[760px]">
           {loading ? (
-            <p className="text-sm text-gray-500">Loading transactions...</p>
+            <p className="text-sm text-gray-500 py-10 text-center">Loading your transactions...</p>
           ) : filteredTxs.length === 0 ? (
-            <p className="text-sm text-gray-500">No transactions recorded.</p>
+            <p className="text-sm text-gray-500 py-10 text-center">
+              {searchTerm ? "No results match your search." : "No transactions recorded yet."}
+            </p>
           ) : (
             filteredTxs.map((tx) => (
               <TxRow
-                key={tx.id}
-                title={tx.title || tx.description || "System Payment"}
-                amount={tx.amount || `₦${tx.totalAmount || 0}`}
-                date={tx.date || tx.createdAt}
-                onView={() => nav(`/dashboard/transaction/${tx.id}`)}
+                key={tx.id || tx.paymentId}
+                title={tx.paymentPurpose || tx.title || tx.description || "System Payment"}
+                amount={formatAmount(tx)}
+                date={formatDate(tx)}
+                status={tx.paymentStatus || tx.status}
+                onView={() => nav(`/dashboard/transaction/${tx.id || tx.paymentId}`)}
               />
             ))
           )}

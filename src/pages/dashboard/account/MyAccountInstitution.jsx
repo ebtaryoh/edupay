@@ -47,9 +47,9 @@ function SelectField({ label, value, onChange, options, error, disabled = false,
         className="mt-2 w-full cursor-pointer bg-transparent text-[16px] font-semibold text-[#14143A] outline-none disabled:cursor-not-allowed disabled:text-[#7E849A]"
       >
         <option value="">{placeholder}</option>
-        {options.map((option) => (
-          <option key={option.value} value={option.value}>
-            {option.text}
+        {options?.map?.((option) => (
+          <option key={option.value || option.id || option.code} value={option.value || option.id || option.code}>
+            {option.text || option.name || option.label || option.institutionName || option.departmentName || option.levelName}
           </option>
         ))}
       </select>
@@ -169,40 +169,41 @@ export default function MyAccountInstitution() {
         console.log("FETCHING LOOKUPS FOR INST ID:", instId);
         setLoadingLookups(true);
 
-        // 1. Get institution details for the code
         const instResponse = await institutionApi.getInstitutionById(instId);
-        console.log("INSTITUTION DETAILS RESPONSE:", instResponse);
         const institution = instResponse?.data || instResponse || {};
         const code = institution?.code || institution?.institutionCode || "";
+        const lookupCode = code || instId;
 
         console.log("RESOLVED INSTITUTION CODE:", code);
 
-        if (!code) {
-          console.warn("NO INSTITUTION CODE FOUND FOR LOOKUPS. ATTEMPTING WITH ID AS FALLBACK...");
-          // Fallback: try using the ID as the code if they might be interchangeable
-        }
-
-        const lookupCode = code || instId;
-
-        // 2. Fetch departments and levels
         const [deptRes, levelRes] = await Promise.allSettled([
           departmentApi.getDepartmentsForDropdown(lookupCode),
           levelApi.getLevelsForDropdown(lookupCode),
         ]);
 
-        if (deptRes.status === "fulfilled") {
-          console.log("DEPARTMENTS LOOKUP SUCCESS:", deptRes.value);
-          setDepartments(Array.isArray(deptRes.value?.data) ? deptRes.value.data : []);
-        } else {
-          console.error("DEPARTMENTS LOOKUP FAILED:", deptRes.reason);
-        }
+        const getArr = (res) => {
+          if (res.status !== "fulfilled") return [];
+          const val = res.value;
+          const data = val?.data || val;
+          return Array.isArray(data) ? data : [];
+        };
 
-        if (levelRes.status === "fulfilled") {
-          console.log("LEVELS LOOKUP SUCCESS:", levelRes.value);
-          setLevels(Array.isArray(levelRes.value?.data) ? levelRes.value.data : []);
-        } else {
-          console.error("LEVELS LOOKUP FAILED:", levelRes.reason);
+        let finalDeps = getArr(deptRes);
+        if (finalDeps.length === 0) {
+          console.log("FILTERED DEPARTMENTS EMPTY, FALLING BACK TO ALL...");
+          const allDeptRes = await departmentApi.getDepartmentsForDropdown();
+          finalDeps = allDeptRes?.data || allDeptRes || [];
         }
+        setDepartments(Array.isArray(finalDeps) ? finalDeps : []);
+
+        let finalLevels = getArr(levelRes);
+        if (finalLevels.length === 0) {
+          console.log("FILTERED LEVELS EMPTY, FALLING BACK TO ALL...");
+          const allLevelRes = await levelApi.getLevelsForDropdown();
+          finalLevels = allLevelRes?.data || allLevelRes || [];
+        }
+        setLevels(Array.isArray(finalLevels) ? finalLevels : []);
+
       } catch (error) {
         console.error("FAILED TO LOAD ACCOUNT LOOKUPS:", error);
       } finally {

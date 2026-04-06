@@ -1,0 +1,124 @@
+{
+  "/api/Bill/department-outstanding/{institutionId}": [
+    {
+      "name": "institutionId",
+      "in": "path",
+      "required": true,
+      "schema": {
+        "type": "string"
+      }
+    }
+  ],
+  "/api/Bill/level-outstanding/{institutionId}": [
+    {
+      "name": "institutionId",
+      "in": "path",
+      "required": true,
+      "schema": {
+        "type": "string"
+      }
+    }
+  ],
+  "/api/Department/get-department-by-id": [
+    {
+      "name": "departmentId",
+      "in": "query",
+      "schema": {
+        "type": "string",
+        "format": "uuid"
+      }
+    }
+  ],
+  "/api/Department/get-departments": [
+    {
+      "name": "InstitutionId",
+      "in": "query",
+      "schema": {
+        "type": "string"
+      }
+    },
+    {
+      "name": "Name",
+      "in": "query",
+      "schema": {
+        "type": "string"
+      }
+    },
+    {
+      "name": "PageNo",
+      "in": "query",
+      "schema": {
+        "type": "integer",
+        "format": "int32"
+      }
+    },
+    {
+      "name": "PageSize",
+      "in": "query",
+      "schema": {
+        "type": "integer",
+        "format": "int32"
+      }
+    }
+  ],
+  "/api/Department/get-departments-for-dropdown": [
+    {
+      "name": "institutionCode",
+      "in": "query",
+      "schema": {
+        "type": "string"
+      }
+    }
+  ],
+  "/api/Level/get-all-levels": [
+    {
+      "name": "InstitutionCode",
+      "in": "query",
+      "schema": {
+        "type": "string"
+      }
+    },
+    {
+      "name": "Name",
+      "in": "query",
+      "schema": {
+        "type": "string"
+      }
+    },
+    {
+      "name": "PageNo",
+      "in": "query",
+      "schema": {
+        "type": "integer",
+        "format": "int32"
+      }
+    },
+    {
+      "name": "PageSize",
+      "in": "query",
+      "schema": {
+        "type": "integer",
+        "format": "int32"
+      }
+    }
+  ],
+  "/api/Level/get-level-by-id": [
+    {
+      "name": "levelId",
+      "in": "query",
+      "schema": {
+        "type": "integer",
+        "format": "int32"
+      }
+    }
+  ],
+  "/api/Level/get-levels-for-dropdown": [
+    {
+      "name": "institutionCode",
+      "in": "query",
+      "schema": {
+        "type": "string"
+      }
+    }
+  ]
+}

@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { billApi } from "../../api/bill";
+import { billingApi } from "../../api/fees";
+import { parseJwt } from "../../api/http";
 import Input from "../../components/ui/Input";
+import { Loader2, AlertCircle } from "lucide-react";
 
 function FeeRow({ title, amount, onPay }) {
   return (
@@ -17,7 +19,7 @@ function FeeRow({ title, amount, onPay }) {
         </div>
         <button
           onClick={onPay}
-          className="h-11 px-5 rounded-full bg-[#2C14DD] text-white font-semibold flex items-center gap-2"
+          className="h-11 px-5 rounded-full bg-[#2C14DD] text-white font-semibold flex items-center gap-2 transition hover:brightness-110"
         >
           Pay <span className="text-lg">›</span>
         </button>
@@ -28,30 +30,37 @@ function FeeRow({ title, amount, onPay }) {
 
 export default function TuitionHealthcare() {
   const nav = useNavigate();
-  const studentId = localStorage.getItem("studentId") || "";
-  
   const [bills, setBills] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     async function loadBills() {
-      if (!studentId) {
-        setLoading(false);
-        return;
-      }
       try {
-        const response = await billApi.getBillDetails(studentId);
+        const token = localStorage.getItem("token");
+        if (!token) {
+          nav("/login/student");
+          return;
+        }
+
+        const decoded = parseJwt(token);
+        const studentId = decoded?.uid || decoded?.id || decoded?.userId;
+
+        if (!studentId) throw new Error("Student identity not found.");
+
+        const response = await billingApi.getBillDetails(studentId);
         const data = response?.data || response || [];
         setBills(Array.isArray(data) ? data : []);
       } catch (err) {
         console.error("FAILED TO LOAD BILL DETAILS:", err);
+        setError("Failed to load tuition/healthcare bills.");
       } finally {
         setLoading(false);
       }
     }
     loadBills();
-  }, [studentId]);
+  }, [nav]);
 
   const filteredBills = bills.filter(b => 
     (b.feeName || b.title || b.description || "").toLowerCase().includes(searchTerm.toLowerCase())
@@ -75,9 +84,19 @@ export default function TuitionHealthcare() {
 
         <div className="mt-4 space-y-4 max-w-[720px]">
           {loading ? (
-            <p className="text-sm text-gray-500">Loading bills...</p>
+             <div className="flex items-center gap-3 text-[#9AA0B4] py-10">
+                <Loader2 className="animate-spin" />
+                <span>Loading bills...</span>
+            </div>
+          ) : error ? (
+            <div className="p-6 bg-red-50 text-red-600 rounded-2xl flex items-center gap-3">
+              <AlertCircle size={20} />
+              <p>{error}</p>
+            </div>
           ) : filteredBills.length === 0 ? (
-            <p className="text-sm text-gray-500">No outstanding bills found.</p>
+            <div className="py-10 text-center bg-[#F6F7FF] rounded-2xl text-[#9AA0B4]">
+              <p>No outstanding bills found.</p>
+            </div>
           ) : (
             filteredBills.map((bill, index) => (
               <FeeRow
@@ -100,3 +119,4 @@ export default function TuitionHealthcare() {
     </div>
   );
 }
+

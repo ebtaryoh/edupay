@@ -93,8 +93,8 @@ export default function AdminUserManagementAddUserInstitution() {
             <LineField label="Institution" value={form.institutionId} onChange={set("institutionId")} dropdown>
               <option value="">Select Institution</option>
               {institutions.map(inst => (
-                <option key={inst.id || inst.value} value={inst.id || inst.value}>
-                  {inst.name || inst.label || inst.institutionName}
+                <option key={inst.value || inst.id} value={inst.value || inst.id}>
+                  {inst.text || inst.name || inst.label || inst.institutionName}
                 </option>
               ))}
             </LineField>

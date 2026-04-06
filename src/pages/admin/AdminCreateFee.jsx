@@ -92,7 +92,7 @@ export default function AdminCreateFee() {
                 <option value="">Select Department/Faculty</option>
                 {departments.map(d => (
                   <option key={d.id || d.value} value={d.id || d.value}>
-                    {d.name || d.label || d.departmentName}
+                    {d.text || d.name || d.label || d.departmentName}
                   </option>
                 ))}
               </select>
