@@ -40,12 +40,12 @@ export default function AdminBookstoreEditBook() {
         if (book) {
           setForm({
             title: book.title || book.bookName || "",
-            author: book.author || book.authorName || "",
+            author: book.publisherName || book.author || book.authorName || "",
             description: book.description || "",
             price: book.price || "",
             publishDate: book.dateOfPublishing || "",
-            status: book.status || "Live",
-            category: book.category || "General",
+            status: book.status === 0 ? "Draft" : book.status === 2 ? "Archived" : "Live",
+            category: book.category ?? "General",
             photo: book.coverPhoto || book.imageUrl || book.photo || null
           });
         }
@@ -67,13 +67,13 @@ export default function AdminBookstoreEditBook() {
     try {
       setSaving(true);
       
-      const statusMap = { "Draft": 0, "Live": 1, "Archived": 1 }; // Archived not supported in enum, mapping to Live for now or Draft
+      const statusMap = { "Draft": 0, "Live": 1, "Archived": 2 };
       const statusEnum = statusMap[form.status] ?? 1;
 
-      // Align with backend "request" wrapper and Swagger properties
+      // Backend changeBookStatus expects direct bookId and status
       await bookstoreApi.changeBookStatus({
-        bookId: bookId, 
-        status: statusEnum
+        bookId, 
+        status: statusEnum 
       });
 
       // Navigate back

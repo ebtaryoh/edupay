@@ -44,7 +44,7 @@ const MOCK_BOOKS = [
 
 export default function BookDetails() {
   const nav = useNavigate();
-  const { id } = useParams();
+  const { bookId: id } = useParams(); // route is bookstore/:bookId
   const { state } = useLocation();
 
   const [book, setBook] = useState(state?.book || null);
@@ -52,29 +52,69 @@ export default function BookDetails() {
   const [loading, setLoading] = useState(!state?.book);
   const [loadingSimilar, setLoadingSimilar] = useState(true);
   
-  const studentId = localStorage.getItem("studentId") || "";
+  const studentIdRaw = localStorage.getItem("studentId") || "";
   const [purchasing, setPurchasing] = useState(false);
+  const [hasPurchased, setHasPurchased] = useState(false);
   const [purchaseError, setPurchaseError] = useState("");
 
   useEffect(() => {
     async function loadData() {
       try {
-        setLoadingSimilar(true);
-        
-        let bookData = null;
-        if (id?.startsWith("mock-")) {
-          bookData = MOCK_BOOKS.find(b => b.id === id);
-        } else {
-          // Always re-fetch to ensure fresh status/metadata
+        setLoading(true);
+        window.scrollTo(0, 0);
+
+        // --- PRO SESSION REPAIR ---
+        let studentId = studentIdRaw;
+        try {
+          const { parseJwt } = await import("../../../api/http");
+          const token = localStorage.getItem("token");
+          if (token) {
+            const decoded = parseJwt(token);
+            // Strictly prefer studentId profile claim over userId/uid
+            const resolvedId = decoded?.studentId || decoded?.studentID || decoded?.id || decoded?.uid || "";
+            if (resolvedId && studentId !== String(resolvedId)) {
+              studentId = String(resolvedId);
+              localStorage.setItem("studentId", studentId);
+            }
+          }
+        } catch(e) { console.warn("[Bookstore] ID resolve failed"); }
+        // ---------------------------
+
+        let bookData = state?.book;
+        if (!bookData || !bookData.id) {
           const res = await bookstoreApi.getBookDetails(id);
           bookData = res?.data || res;
         }
         
         if (bookData) setBook(bookData);
 
-        const allBooksRes = await bookstoreApi.getAllBooks().catch(() => ({ data: MOCK_BOOKS }));
-        const all = allBooksRes?.data || allBooksRes || MOCK_BOOKS;
-        setSimilarBooks(Array.isArray(all) ? all : MOCK_BOOKS);
+        // 3. Check if already purchased (Silent Fallback)
+        if (studentId && bookData && !id?.startsWith("mock-")) {
+          try {
+            const purchasedRes = await bookstoreApi.isBookPurchased(id, studentId);
+            const isOwned = purchasedRes?.data === true || purchasedRes === true;
+            setHasPurchased(isOwned);
+          } catch(e) {
+            console.warn("[Bookstore] Silent ignore of purchase check error:", e.message);
+          }
+        }
+
+        // 4. Fetch similar books scoped to the student's institution
+        let institutionId = localStorage.getItem("institutionId") || "";
+        if (!institutionId) {
+          try {
+            const { parseJwt } = await import("../../../api/http");
+            const decoded = parseJwt(localStorage.getItem("token"));
+            institutionId = decoded?.institutionId || decoded?.instid || "";
+          } catch(_) {}
+        }
+
+        const allBooksRes = await bookstoreApi.getAllBooks({ InstitutionId: institutionId || undefined }).catch(() => ({ data: MOCK_BOOKS }));
+        const rawAll = allBooksRes?.data || allBooksRes || MOCK_BOOKS;
+        const allArr = Array.isArray(rawAll) ? rawAll : MOCK_BOOKS;
+        // Only show Live books (status 1 or "Live") in suggestions
+        const liveBooks = allArr.filter(b => Number(b.status) === 1 || b.status === "Live" || b.isMock);
+        setSimilarBooks(liveBooks);
       } catch (err) {
         console.error("FAILED TO LOAD BOOK DETAILS:", err);
         if (!book) setBook(MOCK_BOOKS[0]);
@@ -84,7 +124,7 @@ export default function BookDetails() {
       }
     }
     loadData();
-  }, [id, state]);
+  }, [id, state, studentIdRaw]);
 
   const related = useMemo(() => {
     if (!book) return [];
@@ -94,50 +134,13 @@ export default function BookDetails() {
       .slice(0, 4);
   }, [book, similarBooks]);
 
-  const handlePurchase = async () => {
-    const studentId = localStorage.getItem("studentId") || "";
-    if (!studentId) {
-      alert("You must be logged in to purchase a book.");
-      return;
-    }
-
-    setPurchasing(true);
-    try {
-      // 1. Intercept mock book purchases for UI demo/verification
-      if (book.id?.toString().startsWith("mock-") || book.value?.toString().startsWith("mock-")) {
-        console.log("Simulating purchase for mock book...");
-        // Delay to simulate network
-        await new Promise(r => setTimeout(r, 1000));
-        
-        const mockPaymentData = {
-          authorizationUrl: "https://checkout.paystack.com/mock-redirect", // For testing redirect
-          reference: `MOCK-${Date.now()}`,
-          amount: book.price || 0
-        };
-        
-        nav(`/dashboard/bookstore/${book.id || book.value}/payment`, { 
-          state: { book, paymentData: mockPaymentData } 
-        });
-        return;
-      }
-
-      // 2. Real purchase call
-      const res = await bookstoreApi.purchaseBook(book.id || book.value, studentId);
-      const paymentData = res?.data || res;
-
-      if (paymentData && (paymentData.authorizationUrl || paymentData.reference)) {
-        nav(`/dashboard/bookstore/${book.id || book.value}/payment`, { state: { book, paymentData } });
-      } else {
-        throw new Error("No payment authorization received from server.");
-      }
-    } catch (err) {
-      console.error("PURCHASE ERROR:", err);
-      // Detailed error reporting for the user
-      const errorMsg = err.response?.data?.message || err.message || "Failed to initiate purchase.";
-      alert(errorMsg);
-    } finally {
-      setPurchasing(false);
-    }
+  const handlePurchase = () => {
+    if (!book) return;
+    const bookId = book.id || book.value;
+    
+    // Pro Guided Flow: Navigate to Checkout page immediately
+    // The actual initiation will happen on the checkout page when "Complete Payment" is clicked.
+    nav(`/dashboard/bookstore/${bookId}/payment`, { state: { book } });
   };
 
   if (loading) {
@@ -201,7 +204,7 @@ export default function BookDetails() {
                   disabled={purchasing}
                   className="h-14 px-10 rounded-full bg-[#2C14DD] text-white text-base font-bold shadow-xl shadow-blue-200 disabled:opacity-60 transition hover:scale-105 active:scale-95 flex items-center gap-3"
                 >
-                  {purchasing ? "Processing..." : "Buy Now"}
+                  {purchasing ? "Processing..." : hasPurchased ? "Read Book" : "Buy Now"}
                   {!purchasing && <div className="w-6 h-6 bg-white/20 rounded-full flex items-center justify-center">→</div>}
                 </button>
               </div>
@@ -244,8 +247,8 @@ export default function BookDetails() {
                         <div className="w-full h-full flex items-center justify-center text-[10px] text-gray-400">No Image</div>
                       )}
                    </div>
-                   <p className="text-[12px] font-bold text-[#14143A] truncate">{b.title}</p>
-                   <p className="text-[10px] text-[#8A90A6] mt-1 truncate">By {b.author}</p>
+                   <p className="text-[12px] font-bold text-[#14143A] truncate">{b.title || b.bookName}</p>
+                   <p className="text-[10px] text-[#8A90A6] mt-1 truncate">By {b.publisherName || b.author || b.authorName || "Unknown"}</p>
                    <div className="mt-3 flex items-center justify-between">
                       <p className="text-[#2C14DD] font-black text-[13px]">₦{(b.price || 0).toLocaleString()}</p>
                       <button 

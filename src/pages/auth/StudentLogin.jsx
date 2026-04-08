@@ -114,6 +114,32 @@ function extractMatricNo(response) {
   return matric;
 }
 
+function extractInstitutionId(response, token) {
+  // Try direct response fields first
+  let id =
+    response?.institutionId ||
+    response?.InstitutionId ||
+    response?.data?.institutionId ||
+    response?.data?.InstitutionId ||
+    response?.data?.student?.institutionId ||
+    "";
+
+  // Fallback: decode JWT for institution claim
+  if (!id && token) {
+    const decoded = parseJwt(token);
+    id =
+      decoded?.institutionId ||
+      decoded?.institutionID ||
+      decoded?.InstitutionId ||
+      decoded?.instid ||
+      decoded?.institutionCode ||
+      decoded?.InstitutionCode ||
+      "";
+  }
+
+  return id;
+}
+
 export default function StudentLogin() {
   const nav = useNavigate();
 
@@ -173,6 +199,7 @@ export default function StudentLogin() {
 
     const studentId = extractStudentId(response);
     const matricNo = extractMatricNo(response);
+    const institutionId = extractInstitutionId(response, token);
 
     localStorage.setItem("token", token);
     localStorage.setItem("role", role);
@@ -183,6 +210,31 @@ export default function StudentLogin() {
 
     if (matricNo) {
       localStorage.setItem("matricNo", String(matricNo));
+    }
+
+    if (institutionId) {
+      localStorage.setItem("institutionId", String(institutionId));
+      console.log("[Auth] institutionId saved:", institutionId);
+    } else {
+      // If not in token, try fetching the student profile to get institutionId
+      if (studentId) {
+        try {
+          const { studentApi } = await import("../../api/student");
+          const profile = await studentApi.getStudentProfile(studentId);
+          const profileData = profile?.data || profile;
+          const profileInstId =
+            profileData?.institutionId ||
+            profileData?.InstitutionId ||
+            profileData?.institution?.id ||
+            "";
+          if (profileInstId) {
+            localStorage.setItem("institutionId", String(profileInstId));
+            console.log("[Auth] institutionId fetched from profile:", profileInstId);
+          }
+        } catch (_) {
+          console.warn("[Auth] Could not fetch student profile for institutionId");
+        }
+      }
     }
   }
 

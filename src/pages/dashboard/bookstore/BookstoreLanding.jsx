@@ -3,11 +3,11 @@ import { useNavigate } from "react-router-dom";
 import { bookstoreApi } from "../../../api/bookstore";
 import { Search, ChevronDown, Heart, ChevronLeft, Library, Loader2 } from "lucide-react";
 
-function BookCard({ book, onBuy }) {
+function BookCard({ book, onBuy, onView, isBuying }) {
   const imageUrl = book.coverPhoto || book.imageUrl || book.photo;
   return (
-    <div className="group bg-white rounded-[32px] p-5 transition-all duration-300 hover:shadow-[0_20px_50px_rgba(0,0,0,0.1)] hover:-translate-y-2 border border-transparent hover:border-blue-50">
-      <div className="relative aspect-[3/4] bg-[#F3F4FF] rounded-[24px] overflow-hidden mb-5">
+    <div className="group bg-white rounded-[32px] p-5 transition-all duration-300 hover:shadow-[0_20px_50px_rgba(0,0,0,0.1)] hover:-translate-y-2 border border-transparent hover:border-blue-50 cursor-pointer" onClick={onView}>
+      <div className="relative aspect-[3/4] bg-[#F3F4FF] rounded-[24px] overflow-hidden mb-5 shadow-sm">
         {imageUrl ? (
           <img src={imageUrl} alt={book.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
         ) : (
@@ -16,12 +16,9 @@ function BookCard({ book, onBuy }) {
           </div>
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-        <button
-          type="button"
-          className="absolute top-4 right-4 w-9 h-9 rounded-full bg-white/90 backdrop-blur-md flex items-center justify-center shadow-sm text-[#2C14DD] hover:bg-[#2C14DD] hover:text-white transition-all transform translate-y-[-10px] opacity-0 group-hover:translate-y-0 group-hover:opacity-100"
-        >
+        <div className="absolute top-4 right-4 w-9 h-9 rounded-full bg-white/90 backdrop-blur-md flex items-center justify-center shadow-sm text-[#2C14DD] hover:bg-[#2C14DD] hover:text-white transition-all transform translate-y-[-10px] opacity-0 group-hover:translate-y-0 group-hover:opacity-100">
           <Heart size={16} />
-        </button>
+        </div>
       </div>
 
       <div className="space-y-1 px-1">
@@ -32,10 +29,14 @@ function BookCard({ book, onBuy }) {
           <p className="text-[#2C14DD] font-black text-lg">₦{(book.price || 0).toLocaleString()}</p>
           <button
             type="button"
-            onClick={onBuy}
-            className="h-10 px-6 rounded-full bg-[#2C14DD] text-white text-sm font-bold shadow-lg shadow-blue-100 hover:brightness-110 active:scale-95 transition-all"
+            disabled={isBuying}
+            onClick={(e) => {
+              e.stopPropagation();
+              onBuy();
+            }}
+            className="h-10 px-6 rounded-full bg-[#2C14DD] text-white text-sm font-bold shadow-lg shadow-blue-100 hover:brightness-110 active:scale-95 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
           >
-            Buy Now
+            {isBuying ? <Loader2 size={16} className="animate-spin" /> : "Buy Now"}
           </button>
         </div>
       </div>
@@ -86,40 +87,71 @@ export default function BookstoreLanding() {
   
   const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [buyingId, setBuyingId] = useState(null);
 
   useEffect(() => {
     async function fetchBooks() {
       try {
+        // Tier 1: localStorage (set at login)
         let institutionId = localStorage.getItem("institutionId") || "";
+
+        // Tier 2: decode JWT
         if (!institutionId) {
           try {
-             const { parseJwt } = await import("../../../api/http");
-             const decoded = parseJwt(localStorage.getItem("token"));
-             institutionId = decoded?.institutionId || decoded?.instid || "";
-          } catch(e){}
+            const { parseJwt } = await import("../../../api/http");
+            const decoded = parseJwt(localStorage.getItem("token"));
+            institutionId =
+              decoded?.institutionId ||
+              decoded?.institutionID ||
+              decoded?.InstitutionId ||
+              decoded?.instid ||
+              decoded?.institutionCode ||
+              "";
+            if (institutionId) localStorage.setItem("institutionId", institutionId);
+          } catch (_) {}
         }
 
+        // Tier 3: fetch student profile as final fallback
+        // (handles sessions created before the login fix saved institutionId)
+        if (!institutionId) {
+          try {
+            const studentId = localStorage.getItem("studentId") || "";
+            if (studentId) {
+              const { studentApi } = await import("../../../api/student");
+              const profileRes = await studentApi.getStudentProfile(studentId);
+              const p = profileRes?.data || profileRes;
+              institutionId =
+                p?.institutionId ||
+                p?.InstitutionId ||
+                p?.institution?.id ||
+                "";
+              if (institutionId) localStorage.setItem("institutionId", institutionId);
+            }
+          } catch (_) {}
+        }
+
+        console.log("[Bookstore] fetching with institutionId:", institutionId || "(none)");
         const res = await bookstoreApi.getAllBooks({ InstitutionId: institutionId || undefined });
-        
+
         let data = [];
         const d = res?.data || res;
         if (Array.isArray(d)) {
-           data = d;
+          data = d;
         } else if (d && typeof d === "object") {
-           if (Array.isArray(d.items)) data = d.items;
-           else if (Array.isArray(d.data)) data = d.data;
-           else if (Array.isArray(d.books)) data = d.books;
+          if (Array.isArray(d.items)) data = d.items;
+          else if (Array.isArray(d.data)) data = d.data;
+          else if (Array.isArray(d.books)) data = d.books;
         }
-        
-        // Use mock fallback if backend is empty or returns error message
-        if (!Array.isArray(data) || data.length === 0 || (res?.message === "BOOK(s) NOT FOUND")) {
-           console.log("Using Mock Fallback for Bookstore");
-           data = MOCK_BOOKS;
+
+        // Only fall back to mocks if the shape is completely unrecognised
+        if (!Array.isArray(data)) {
+          console.log("[Bookstore] Unrecognised response shape — using mock fallback");
+          data = MOCK_BOOKS;
         }
         setBooks(data);
       } catch (err) {
-        console.error("FAILED TO FETCH BOOKSTORE:", err);
-        setBooks(MOCK_BOOKS); // Also fallback on error for UI testing
+        console.error("[Bookstore] FAILED TO FETCH:", err);
+        setBooks(MOCK_BOOKS);
       } finally {
         setLoading(false);
       }
@@ -141,14 +173,22 @@ export default function BookstoreLanding() {
   }, [books]);
 
   const filtered = useMemo(() => {
-    let list = books.filter(b => (Number(b.status) === 1 || b.status === "Live" || b.isMock));
+    // Show books that are explicitly Live (1), mock, or have "Live" string status
+    let list = books.filter(b => (
+      Number(b.status) === 1 || 
+      b.status === "Live" || 
+      b.isMock ||
+      !b.status // If status is missing, we assume it's viewable in this context
+    ));
+
     if (activeCat !== "All") {
       list = list.filter((b) => {
-        const c = b.category ?? b.genre ?? "General";
+        const c = b.category ?? b.genre ?? 0;
         const catString = typeof c === "number" ? reverseCategoryMap[c] : c;
         return catString === activeCat;
       });
     }
+
     if (searchTerm.trim()) {
       const term = searchTerm.toLowerCase();
       list = list.filter(b => {
@@ -157,10 +197,13 @@ export default function BookstoreLanding() {
         return title.includes(term) || author.includes(term);
       });
     }
+
+    console.log(`[Bookstore] Filtered ${list.length} books out of ${books.length}`);
     return list;
   }, [books, activeCat, searchTerm]);
 
   const handleBuy = (book) => {
+    // Pro Guided Flow: Clicking "Buy Now" on the card always takes you to the Description page first
     nav(`/dashboard/bookstore/${book.id || book.bookId || book.value}`, { state: { book } });
   };
 
@@ -243,30 +286,38 @@ export default function BookstoreLanding() {
              <p className="text-white/40 mt-2 max-w-[300px]">Try adjusting your search or category filters.</p>
           </div>
         ) : (
-           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 pb-12">
-              {filtered.map(book => (
-                <BookCard key={book.id || book.value} book={book} onBuy={() => handleBuy(book)} />
-              ))}
-           </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 pb-12">
+               {filtered.map(book => {
+                 const bid = book.id || book.bookId || book.value;
+                 return (
+                   <BookCard 
+                     key={bid} 
+                     book={book} 
+                     onBuy={() => handleBuy(book)} 
+                     onView={() => handleBuy(book)}
+                     isBuying={buyingId === bid}
+                   />
+                 );
+               })}
+            </div>
         )}
       </div>
 
-      {/* Featured Tray - Positioned at the bottom like Figma */}
-      {books.length > 0 && (
+      {/* Featured Tray — only show Live books */}
+      {filtered.length > 0 && (
         <div className="mt-12 relative z-10 bg-white rounded-[40px] p-8 lg:p-10 shadow-2xl shadow-blue-950/40 border border-gray-100">
             <div className="flex items-center justify-between mb-10">
               <div>
                 <h3 className="text-2xl font-black text-[#14143A]">Featured Highlights</h3>
                 <p className="text-[#8A90A6] text-sm font-medium mt-1">Handpicked for your current semester</p>
               </div>
-              <button className="text-[#2C14DD] font-bold text-sm hover:underline">View All Releases</button>
             </div>
 
             <div className="flex gap-8 overflow-x-auto pb-6 scrollbar-hide px-2">
-              {books.slice(0, 10).map((b) => (
+              {filtered.slice(0, 10).map((b) => (
                 <div 
                   key={b.id || b.value} 
-                  onClick={() => handleBuy(b)}
+                  onClick={() => handleView(b)}
                   className="group bg-[#F9FAFF] rounded-[32px] p-5 w-[280px] shrink-0 border border-gray-100 hover:border-[#2C14DD]/30 hover:bg-white hover:shadow-xl transition-all cursor-pointer flex gap-5 items-center"
                 >
                    <div className="w-[100px] h-[130px] bg-white rounded-2xl overflow-hidden shadow-sm shrink-0 border border-gray-100">
@@ -280,8 +331,9 @@ export default function BookstoreLanding() {
                    </div>
                    <div className="flex-1 min-w-0 pr-2">
                       <div className="text-[10px] font-black text-[#2C14DD] uppercase tracking-[0.2em] mb-2">New Release</div>
-                      <p className="text-[15px] font-extrabold text-[#14143A] line-clamp-2 leading-snug">{b.title}</p>
-                      <p className="text-[13px] text-[#8A90A6] mt-2 font-medium">₦{(b.price || 0).toLocaleString()}</p>
+                      <p className="text-[15px] font-extrabold text-[#14143A] line-clamp-2 leading-snug">{b.title || b.bookName}</p>
+                      <p className="text-[13px] text-[#8A90A6] mt-2 font-medium">By {b.publisherName || b.author || b.authorName || "Unknown"}</p>
+                      <p className="text-[13px] text-[#2C14DD] font-black mt-1">₦{(b.price || 0).toLocaleString()}</p>
                    </div>
                 </div>
               ))}

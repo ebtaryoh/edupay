@@ -117,22 +117,32 @@ export default function AdminBookstoreAddBook() {
         "Medicine": 4, "Social Sciences": 5, "Law": 6, "Business": 7
       };
 
-      // CORRECT: Fields sent DIRECTLY at root — NO Request wrapper
-      // Swagger RegisterNewBook schema: title, publisherName, description,
+      // Ensure the date is always a full ISO 8601 datetime the .NET backend can parse.
+      // If the user typed YYYY-MM-DD, append a time component.
+      let publishDate = form.publishDate ? form.publishDate.trim() : "";
+      if (publishDate && !publishDate.includes("T")) {
+        publishDate = `${publishDate}T00:00:00.000Z`;
+      }
+      if (!publishDate) {
+        publishDate = new Date().toISOString();
+      }
+
+      // Backend RegisterNewBook endpoint expects a "request" wrapper object.
+      // Swagger schema: title, publisherName, description,
       // price, dateOfPublishing, status, category, imageUrl, institutionId
       const payload = {
         title: form.title.trim(),
         publisherName: form.author.trim(),
         description: form.description.trim(),
         price: Number(form.price.toString().replace(/[^0-9.]/g, "")),
-        publishDate: form.publishDate || new Date().toISOString(),
+        publishDate: publishDate,
         status: statusMap[form.status] ?? 1,
         category: categoryMap[form.category] ?? 0,
         imageUrl: finalPhoto || null,
         institutionId,
       };
 
-      console.log("ADD BOOK PAYLOAD:", payload);
+      console.log("[Bookstore] Submitting registration payload:", payload);
       await bookstoreApi.registerNewBook(payload);
       nav("/admin/dashboard/bookstore");
     } catch (err) {

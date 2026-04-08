@@ -17,16 +17,28 @@ export default function AdminBookstoreLanding() {
 
   const fetchBooks = async () => {
     try {
-      // 1. MUST supply institutionId to see YOUR institution's books
       let institutionId = localStorage.getItem("institutionId") || "";
+      
       if (!institutionId) {
         try {
-           const { parseJwt } = await import("../../../api/http");
-           const decoded = parseJwt(localStorage.getItem("token"));
-           institutionId = decoded?.institutionId || decoded?.instid || "";
-        } catch(e){}
+          const { parseJwt } = await import("../../../api/http");
+          const token = localStorage.getItem("token");
+          if (token) {
+            const decoded = parseJwt(token);
+            institutionId = 
+              decoded?.institutionId || 
+              decoded?.instid || 
+              decoded?.institutionID || 
+              decoded?.InstitutionId || 
+              "";
+            if (institutionId) localStorage.setItem("institutionId", institutionId);
+          }
+        } catch(e) {
+          console.warn("[AdminBookstore] JWT parse failed during fetch");
+        }
       }
 
+      console.log("[AdminBookstore] Syncing library with institutionId:", institutionId || "(anonymous)");
       const res = await bookstoreApi.getAllBooks({ InstitutionId: institutionId || undefined });
 
       // Robust response parsing

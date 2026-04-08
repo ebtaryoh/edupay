@@ -55,21 +55,49 @@ export default function MyBooks() {
   const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
-    if (!studentId) { setLoading(false); return; }
-
     async function fetchMyBooks() {
       try {
         setLoading(true);
+        
+        // --- PRO SESSION REPAIR ---
+        let resolvedId = localStorage.getItem("studentId") || "";
+        try {
+          const { parseJwt } = await import("../../../api/http");
+          const token = localStorage.getItem("token");
+          if (token) {
+            const decoded = parseJwt(token);
+            // Strictly prefer studentId profile claim over userId/uid
+            const tid = decoded?.studentId || decoded?.studentID || decoded?.id || decoded?.uid || "";
+            if (tid && String(tid) !== resolvedId) {
+              resolvedId = String(tid);
+              localStorage.setItem("studentId", resolvedId);
+            }
+          }
+        } catch(e) { console.warn("[MyBooks] Session repair failed"); }
+
+        if (!resolvedId) {
+          setLoading(false);
+          return;
+        }
+        // ---------------------------
+
         const [purchasesRes, spentRes] = await Promise.all([
-          bookstoreApi.getAllPurchasedBooks({ StudentId: studentId, PageSize: 100 }),
-          bookstoreApi.getTotalAmountSpent(studentId).catch(() => ({ data: 0 })),
+          bookstoreApi.getAllPurchasedBooks({ StudentId: resolvedId, PageSize: 100 }),
+          bookstoreApi.getTotalAmountSpent(resolvedId).catch(() => ({ data: 0 })),
         ]);
 
         const data = purchasesRes?.data || purchasesRes || [];
         setPurchases(Array.isArray(data) ? data : []);
         setTotalSpent(spentRes?.data || spentRes || 0);
       } catch (err) {
-        console.error("MY BOOKS FETCH FAILED:", err);
+        // PRO TOUCH: Gracefully handle record not found by showing an empty library instead of an error string
+        if (err.message?.includes("NOT FOUND") || err.status === 404) {
+          console.log("[MyBooks] Active student profile not found on bookstore server. Showing empty library.");
+          setPurchases([]);
+          setTotalSpent(0);
+        } else {
+          console.error("MY BOOKS FETCH FAILED:", err);
+        }
       } finally {
         setLoading(false);
       }

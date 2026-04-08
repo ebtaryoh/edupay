@@ -67,7 +67,16 @@ export const bookstoreApi = {
 
   // ─── Admin ───────────────────────────────────────────────────────────────────
 
-  registerNewBook: (payload) => post("/api/BookStore/register-new-book", payload),
-  deleteBook: (bookId) => del(`/api/BookStore/delete-book/${encodeURIComponent(bookId)}?bookId=${encodeURIComponent(bookId)}`),
-  changeBookStatus: (payload) => put("/api/BookStore/change-book-status", payload),
+  registerNewBook: (payload) => {
+    console.log("[BookstoreAPI] Registering book:", payload);
+    return post("/api/BookStore/register-new-book", payload);
+  },
+
+  deleteBook: (bookId) => 
+    del(`/api/BookStore/delete-book/${encodeURIComponent(bookId)}?bookId=${encodeURIComponent(bookId)}`),
+
+  changeBookStatus: (payload) => {
+    console.log("[BookstoreAPI] Changing status:", payload);
+    return put("/api/BookStore/change-book-status", payload);
+  },
 };
