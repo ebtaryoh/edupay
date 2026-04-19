@@ -1,6 +1,7 @@
 import { useParams } from "react-router-dom";
 import { Copy, ChevronDown } from "lucide-react";
 import Button from "../../components/ui/Button";
+import txImage from "../../assets/dashboard/dashboard-transaction-detail.jpg";
 
 function Row({ left, right, copy }) {
   return (
@@ -58,8 +59,12 @@ export default function TransactionDetails() {
       </div>
 
       <div className="hidden xl:block">
-        <div className="h-[860px] rounded-[60px] bg-black/10 overflow-hidden">
-          <div className="h-full w-full bg-gradient-to-b from-black/10 to-black/30" />
+        <div className="h-[860px] rounded-[60px] overflow-hidden bg-black/5 shadow-sm">
+          <img 
+            src={txImage} 
+            alt="Students walking on campus" 
+            className="h-full w-full object-cover grayscale" 
+          />
         </div>
       </div>
     </div>

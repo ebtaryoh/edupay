@@ -175,7 +175,8 @@ export default function AdminSettlementLanding() {
   );
 
   return (
-    <div className="min-w-0 xl:min-w-[1440px] space-y-5 overflow-x-auto sm:space-y-6 xl:space-y-7 pb-10">
+    <div className="min-w-0 space-y-5 overflow-x-hidden pb-10 sm:space-y-6 xl:space-y-7">
+
       <Topbar title="Settlement" />
 
       <div className="grid grid-cols-1 xl:grid-cols-[1fr_1.1fr] gap-12 xl:gap-16 2xl:gap-20">
@@ -212,7 +213,7 @@ export default function AdminSettlementLanding() {
             <QuickMiniAction
               icon={<Settings size={26} color="white" strokeWidth={2} />}
               label="Settings"
-              onClick={() => nav("/admin/dashboard/account/settings")}
+              onClick={() => nav("/admin/dashboard/payments/settlement/settings")}
               showDot
             />
           </div>

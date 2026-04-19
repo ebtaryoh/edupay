@@ -56,7 +56,20 @@ export default function Overdue() {
         setBills(Array.isArray(data) ? data : []);
       } catch (err) {
         console.error("FAILED TO LOAD BILL DETAILS:", err);
-        setError("Failed to load overdue bills.");
+        const status = err?.response?.status;
+        const msg = err?.response?.data?.message || err?.message || "";
+        
+        // Gracefully treat 404 or "not found" error messages as having 0 bills
+        if (
+          status === 404 || 
+          msg.toLowerCase().includes("not found") || 
+          msg.toLowerCase().includes("no bill") || 
+          msg.toLowerCase().includes("no fee structure")
+        ) {
+          setBills([]);
+        } else {
+          setError("Failed to load overdue bills: " + (status ? `[${status}] ` : "") + msg);
+        }
       } finally {
         setLoading(false);
       }

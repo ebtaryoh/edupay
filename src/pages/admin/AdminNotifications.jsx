@@ -132,7 +132,7 @@ function AdminOverviewPane() {
           <div className="h-[6px] flex-1 overflow-hidden rounded-full bg-[#E7EDF6]">
             <div className="h-full w-[22%] rounded-full bg-[#22D04F]" />
           </div>
-          <button type="button" onClick={() => nav("/admin/dashboard/account")} className="inline-flex cursor-pointer shrink-0 items-center gap-1 text-[11px] font-medium text-[#7E6EFF] transition hover:underline sm:text-[12px]">
+          <button type="button" onClick={() => nav("/admin/dashboard/account/my-account")} className="inline-flex cursor-pointer shrink-0 items-center gap-1 text-[11px] font-medium text-[#7E6EFF] transition hover:underline sm:text-[12px]">
             Complete Profile <ProgressArrow />
           </button>
         </div>

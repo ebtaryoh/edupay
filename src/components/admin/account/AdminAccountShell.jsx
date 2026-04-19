@@ -1,6 +1,5 @@
 import { useNavigate } from "react-router-dom";
 import { ChevronRight as ChevronRightLucide, ChevronLeft, User, Settings, Users, Phone } from "lucide-react";
-
 function ChevronRight() {
   return <ChevronRightLucide size={20} color="#C9C8D6" strokeWidth={2.5} />;
 }
@@ -97,30 +96,33 @@ export default function AdminAccountShell({ title, activeKey, right, intro }) {
   const nav = useNavigate();
 
   return (
-    <div className="min-w-[1440px] px-4 pb-8 pt-2 sm:px-6 xl:px-7">
-      <div className="flex items-center gap-6">
-        <button
-          type="button"
-          onClick={() => nav(-1)}
-          className="flex h-[44px] w-[44px] cursor-pointer items-center justify-center rounded-full bg-[#F2F2F7] transition hover:bg-white"
-        >
-          <BackIcon />
-        </button>
+    <div className="min-w-0 space-y-5 overflow-x-hidden pb-10 sm:space-y-6 xl:space-y-7">
+      <div className="px-4 sm:px-6 xl:px-7 mt-6">
+        <div className="flex items-center gap-6">
+          <button
+            type="button"
+            onClick={() => nav(-1)}
+            className="flex h-[44px] w-[44px] cursor-pointer items-center justify-center rounded-full bg-[#F2F2F7] transition hover:bg-white"
+          >
+            <BackIcon />
+          </button>
 
-        <h1 className="text-[24px] font-semibold tracking-[-0.02em] text-[#15192E]">
-          {title}
-        </h1>
-      </div>
-
-      {intro ? <div className="mt-10">{intro}</div> : null}
-
-      <div className="mt-10 grid grid-cols-[1fr_1.1fr] gap-10 xl:gap-14">
-        <div className="min-w-0">
-          <AdminAccountMenu activeKey={activeKey} />
+          <h1 className="text-[24px] font-semibold tracking-[-0.02em] text-[#15192E]">
+            {title}
+          </h1>
         </div>
 
-        <div className="min-w-0">{right}</div>
+        {intro ? <div className="mt-10">{intro}</div> : null}
+
+        <div className="mt-10 grid grid-cols-1 gap-10 lg:grid-cols-[1fr_1.1fr] xl:gap-14">
+          <div className="min-w-0">
+            <AdminAccountMenu activeKey={activeKey} />
+          </div>
+
+          <div className="min-w-0">{right}</div>
+        </div>
       </div>
     </div>
   );
 }
+

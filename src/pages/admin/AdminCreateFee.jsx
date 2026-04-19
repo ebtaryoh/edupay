@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import AdminPaymentsShell from "../../components/admin/AdminPaymentsShell";
 import { feesApi, departmentApi } from "../../api/fees";
+import { parseJwt } from "../../api/http";
 
 import { Calendar, ChevronDown } from "lucide-react";
 
@@ -26,23 +27,69 @@ export default function AdminCreateFee() {
 
   useEffect(() => {
     departmentApi.getDepartmentsForDropdown()
-      .then(res => setDepartments(res?.data || res || []))
+      .then(res => {
+        const raw = res?.data || res || [];
+        setDepartments(Array.isArray(raw) ? raw : []);
+      })
       .catch(() => {});
   }, []);
+
+  function getInstitutionId() {
+    let id = localStorage.getItem("institutionId") || "";
+    if (!id) {
+      try {
+        const token = localStorage.getItem("token");
+        if (token) {
+          const decoded = parseJwt(token);
+          id =
+            decoded?.institutionId ||
+            decoded?.instid ||
+            decoded?.institutionID ||
+            decoded?.InstitutionId ||
+            "";
+          if (id) localStorage.setItem("institutionId", id);
+        }
+      } catch (_) {}
+    }
+    return id;
+  }
 
   async function handleContinue() {
     setError("");
     if (!form.feeName.trim()) { setError("Fee name is required."); return; }
+    if (!form.startDate) { setError("Please select a start date."); return; }
+
+    const institutionId = getInstitutionId();
+
+    const payload = {
+      feeName: form.feeName.trim(),
+      feeStructureName: form.feeName.trim(), // some APIs use this field name
+      startDate: new Date(form.startDate).toISOString(),
+      institutionId: institutionId || undefined,
+      departmentId: form.departmentId ? form.departmentId : null,
+    };
+
+    console.log("[CreateFee] Submitting payload:", payload);
+
     try {
       setSubmitting(true);
-      await feesApi.createFeeStructure({ feeName: form.feeName, startDate: form.startDate, departmentId: form.departmentId });
+      await feesApi.createFeeStructure(payload);
       nav("/admin/dashboard/payments/fees");
     } catch (err) {
-      setError(err?.message || "Failed to create fee.");
+      console.error("[CreateFee] Error:", err?.payload ?? err);
+      // Show detailed validation errors if present
+      const serverErrors = err?.payload?.errors;
+      if (serverErrors && typeof serverErrors === "object") {
+        const messages = Object.values(serverErrors).flat().join(" ");
+        setError(messages || err?.message || "Failed to create fee.");
+      } else {
+        setError(err?.message || "Failed to create fee.");
+      }
     } finally {
       setSubmitting(false);
     }
   }
+
 
   return (
     <AdminPaymentsShell title="Payments" activeKey="manage-fees">
@@ -76,9 +123,9 @@ export default function AdminCreateFee() {
                 className="mt-3 w-full border-b border-[#D0D0E0] bg-transparent pb-2 text-[18px] font-medium text-[#131525] outline-none"
               />
             </div>
-            <button type="button" className="cursor-pointer">
+            {/* <button type="button" className="cursor-pointer">
               <CalendarIcon />
-            </button>
+            </button> */}
           </div>
 
           <div className="flex items-center justify-between gap-4">
@@ -97,9 +144,9 @@ export default function AdminCreateFee() {
                 ))}
               </select>
             </div>
-            <button type="button" className="cursor-pointer">
+            {/* <button type="button" className="cursor-pointer">
               <ChevronDown />
-            </button>
+            </button> */}
           </div>
         </div>
 

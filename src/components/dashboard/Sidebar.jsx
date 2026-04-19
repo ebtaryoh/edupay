@@ -57,8 +57,8 @@ export default function Sidebar({ open, onClose }) {
   const isAdmin = pathname.startsWith("/admin");
   const dashboardPath = isAdmin ? "/admin/dashboard" : "/dashboard";
   const paymentsPath = `${dashboardPath}/payments`;
-  const bookstorePath = `${dashboardPath}/bookstore`;
-  const accountPath = `${dashboardPath}/account`;
+  const bookstorePath = isAdmin ? `${dashboardPath}/bookstore/view` : `${dashboardPath}/bookstore`;
+  const accountPath = `${dashboardPath}/account/my-account`;
   const logoutPath = isAdmin ? "/login/admin" : "/login/student";
 
   async function handleLogout() {

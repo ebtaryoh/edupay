@@ -45,6 +45,7 @@ import AdminDeleteFeeSuccess from "../pages/admin/AdminDeleteFeeSuccess";
 import AdminRoutePlaceholder from "../pages/admin/AdminRoutePlaceholder";
 
 /** Admin Bookstore pages */
+import AdminManageBookstore from "../pages/admin/AdminManageBookstore";
 import AdminBookstoreLanding from "../pages/admin/bookstore/AdminBookstoreLanding";
 import AdminBookstoreAddBook from "../pages/admin/bookstore/AdminBookstoreAddBook";
 import AdminBookstoreBookDetails from "../pages/admin/bookstore/AdminBookstoreBookDetails";
@@ -77,6 +78,9 @@ import AdminUserManagementAddUserSuccess from "../pages/admin/account/AdminUserM
 /** Student Payments flow */
 import PaymentsLanding from "../pages/dashboard/Payments";
 import TuitionHealthcare from "../pages/dashboard/TuitionHealthcare";
+import SUGDues from "../pages/dashboard/SUGDues";
+import AccommodationHostel from "../pages/dashboard/AccommodationHostel";
+import DepartmentalFees from "../pages/dashboard/DepartmentalFees";
 import OverduePayments from "../pages/dashboard/Overdue";
 
 /** Student Airtime / Data */
@@ -161,6 +165,18 @@ export default function AppRoutes() {
           <Route
             path="payments/category/tuition-healthcare"
             element={<TuitionHealthcare />}
+          />
+          <Route
+            path="payments/category/sug-dues"
+            element={<SUGDues />}
+          />
+          <Route
+            path="payments/category/accommodation-hostel"
+            element={<AccommodationHostel />}
+          />
+          <Route
+            path="payments/category/departmental-fees"
+            element={<DepartmentalFees />}
           />
           <Route path="payments/overdue" element={<OverduePayments />} />
           <Route path="payments/airtime" element={<AirtimePurchase />} />
@@ -290,7 +306,8 @@ export default function AppRoutes() {
           />
 
           {/* Admin Bookstore */}
-          <Route path="bookstore" element={<AdminBookstoreLanding />} />
+          <Route path="bookstore" element={<AdminManageBookstore />} />
+          <Route path="bookstore/view" element={<AdminBookstoreLanding />} />
           <Route path="bookstore/add" element={<AdminBookstoreAddBook />} />
           <Route
             path="bookstore/:bookId"

@@ -387,8 +387,7 @@ export default function MyAccountPersonal() {
   const initials = getInitials(form.firstName, form.lastName);
 
   return (
-    <div className="min-h-[calc(100vh-24px)] rounded-[28px] bg-[#2C14DD] p-6 md:p-10">
-      <AccountShell
+    <AccountShell
         title="Account"
         activeKey="my"
         variant="blue"
@@ -521,6 +520,5 @@ export default function MyAccountPersonal() {
           </div>
         }
       />
-    </div>
   );
 }

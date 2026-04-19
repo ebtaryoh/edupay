@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { dashboardApi } from "../../api/dashboard";
 import { studentApi } from "../../api/student";
 import Input from "../../components/ui/Input";
+import txImage from "../../assets/dashboard/dashboard-transaction-detail.jpg";
 
 function TxRow({ title, amount, date, status, onView }) {
   const statusColor =
@@ -147,8 +148,12 @@ export default function Transactions() {
       </div>
 
       <div className="hidden xl:block">
-        <div className="h-[860px] rounded-[60px] bg-black/10 overflow-hidden">
-          <div className="h-full w-full bg-gradient-to-b from-[#2C14DD]/10 to-[#2C14DD]/30" />
+        <div className="h-[860px] rounded-[60px] overflow-hidden bg-black/5 shadow-sm">
+          <img 
+            src={txImage} 
+            alt="Students walking on campus" 
+            className="h-full w-full object-cover grayscale" 
+          />
         </div>
       </div>
     </div>

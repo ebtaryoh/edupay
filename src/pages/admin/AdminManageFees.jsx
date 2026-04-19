@@ -145,10 +145,10 @@ export default function AdminManageFees() {
   const nav = useNavigate();
 
   return (
-    <div className="min-w-0 xl:min-w-[1440px] space-y-5 overflow-x-auto sm:space-y-6 xl:space-y-7 pb-10">
+    <div className="min-w-0 space-y-5 overflow-x-hidden sm:space-y-6 xl:space-y-7 pb-10">
       <Topbar title="Payments" />
 
-      <div className="grid grid-cols-1 xl:grid-cols-[1fr_1.1fr] gap-12 xl:gap-16 2xl:gap-20">
+      <div className="grid min-w-0 grid-cols-1 gap-8 xl:grid-cols-[420px_minmax(0,1fr)] xl:gap-12 2xl:grid-cols-[430px_minmax(0,1fr)]">
         <div className="min-w-0">
           <WalletCard
             onWithdraw={() => nav("/admin/dashboard/payments/settlement")}
@@ -201,6 +201,7 @@ export default function AdminManageFees() {
             <div className="mx-auto mt-8 max-w-[420px]">
               <button
                 type="button"
+                onClick={() => nav("/admin/dashboard/payments/fees/create")}
                 className="inline-flex h-[78px] w-full cursor-pointer items-center justify-center rounded-full bg-white px-8 text-[19px] font-semibold text-[#3420F0] transition hover:brightness-95 active:scale-[0.99]"
               >
                 Get Started
@@ -213,7 +214,11 @@ export default function AdminManageFees() {
               label="View Inflow"
               onClick={() => nav("/admin/dashboard/payments/reports")}
             />
-            <CTAButton label="View Fees" dark onClick={() => {}} />
+            <CTAButton
+              label="View Fees"
+              dark
+              onClick={() => nav("/admin/dashboard/payments/fees")}
+            />
           </div>
         </div>
       </div>

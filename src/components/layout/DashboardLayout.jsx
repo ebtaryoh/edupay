@@ -7,7 +7,7 @@ export default function DashboardLayout() {
 
   return (
     <div className="min-h-screen overflow-x-auto bg-[#FAFAFD]">
-      <div className="mx-auto flex min-h-screen w-full max-w-[1920px] overflow-x-auto">
+      <div className="mx-auto flex min-h-screen w-full max-w-[1440px] overflow-x-auto">
         {/* Sidebar */}
         <Sidebar open={open} onClose={() => setOpen(false)} />
 

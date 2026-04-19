@@ -7,6 +7,7 @@ import Topbar from "../../components/dashboard/Topbar";
 import { studentApi } from "../../api/student";
 import { billingApi } from "../../api/fees";
 import { dashboardApi } from "../../api/dashboard";
+import quickPayImg from "../../assets/dashboard/Products 2.png";
 
 function ProgressArrow() {
   return <ChevronRight size={16} color="#8D7CFF" strokeWidth={2.5} />;
@@ -16,91 +17,7 @@ function BadgeFeeIcon() {
   return <BadgeCheck size={28} color="white" strokeWidth={2} />;
 }
 
-function QuickPayArt() {
-  return (
-    <div className="relative mx-auto h-[150px] w-full max-w-[310px]">
-      <div className="absolute right-[7px] top-[8px] rotate-[-15deg]">
-        <svg width="118" height="86" viewBox="0 0 124 90" fill="none" aria-hidden="true">
-          <defs>
-            <linearGradient id="capA" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0%" stopColor="#1B0D9F" />
-              <stop offset="100%" stopColor="#7E66FF" />
-            </linearGradient>
-          </defs>
-          <path d="M13 33L63 10l48 21-48 22L13 33z" fill="url(#capA)" />
-          <path
-            d="M41 45v15c0 10 14 17 23 17s23-7 23-17V45"
-            stroke="#C9BBFF"
-            strokeWidth="3"
-            strokeLinecap="round"
-          />
-          <path
-            d="M111 33v23"
-            stroke="#C9BBFF"
-            strokeWidth="3"
-            strokeLinecap="round"
-          />
-          <circle cx="111" cy="60" r="5" fill="#E7DEFF" />
-        </svg>
-      </div>
 
-      <div className="absolute right-[8px] top-[12px]">
-        <svg width="90" height="50" viewBox="0 0 92 52" fill="none" aria-hidden="true">
-          <path d="M8 42L74 10l10 5-66 27L8 42z" fill="#BFB4FF" opacity="0.9" />
-          <path
-            d="M8 42l14-1 62-26"
-            stroke="#EEE9FF"
-            strokeWidth="2"
-            strokeLinecap="round"
-          />
-        </svg>
-      </div>
-
-      <div className="absolute bottom-[-6px] right-[8px]">
-        <svg width="122" height="122" viewBox="0 0 126 126" fill="none" aria-hidden="true">
-          <defs>
-            <linearGradient id="cupA" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0%" stopColor="#D8D1FF" />
-              <stop offset="100%" stopColor="#8F79FF" />
-            </linearGradient>
-          </defs>
-          <rect x="48" y="96" width="28" height="10" rx="4" fill="#1B0D9F" />
-          <rect x="38" y="106" width="48" height="12" rx="5" fill="#A79AFF" />
-          <path
-            d="M40 28h46v24c0 18-11 31-23 31S40 70 40 52V28z"
-            fill="url(#cupA)"
-          />
-          <path
-            d="M86 38h13c0 14-5 24-17 24"
-            stroke="#DAD3FF"
-            strokeWidth="5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-          <path
-            d="M40 38H27c0 14 5 24 17 24"
-            stroke="#DAD3FF"
-            strokeWidth="5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-          <path
-            d="M63 40v19"
-            stroke="#5C45F6"
-            strokeWidth="4"
-            strokeLinecap="round"
-          />
-          <path
-            d="M56 47h14"
-            stroke="#5C45F6"
-            strokeWidth="4"
-            strokeLinecap="round"
-          />
-        </svg>
-      </div>
-    </div>
-  );
-}
 
 function getInitials(firstName = "", lastName = "") {
   return `${firstName?.[0] || ""}${lastName?.[0] || ""}`.toUpperCase() || "AS";
@@ -242,10 +159,10 @@ export default function DashboardHome() {
   }
 
   return (
-    <div className="min-w-0 xl:min-w-[1440px] space-y-5 overflow-x-auto sm:space-y-6 xl:space-y-7 pb-10">
+    <div className="min-w-0 space-y-5 overflow-x-hidden sm:space-y-6 xl:space-y-7 pb-10">
       <Topbar />
 
-      <div className="grid grid-cols-1 xl:grid-cols-[1fr_1.1fr] gap-10">
+      <div className="grid min-w-0 grid-cols-1 gap-8 xl:grid-cols-[minmax(0,1fr)_430px] 2xl:grid-cols-[minmax(0,1fr)_470px] 2xl:gap-10">
         <div className="min-w-0 space-y-6 xl:space-y-7">
           <section className="overflow-hidden rounded-[24px] border border-[#DCD8FF] bg-white px-4 py-4 shadow-[0_10px_30px_rgba(44,20,221,0.04)] sm:rounded-[26px] sm:px-5 sm:py-5 lg:rounded-[28px]">
             <div className="flex min-w-0 flex-col gap-4 sm:flex-row sm:items-start sm:gap-5">
@@ -319,7 +236,7 @@ export default function DashboardHome() {
 
             <button
               type="button"
-              onClick={() => nav("/dashboard/payments")}
+              onClick={() => nav("/dashboard/payments/overdue")}
               className="inline-flex h-[50px] w-full cursor-pointer items-center justify-center gap-3 rounded-[16px] bg-[#4735F5] px-6 text-[15px] font-semibold shadow-[inset_0_0_0_1px_rgba(255,255,255,0.05)] transition hover:brightness-110 active:scale-[0.99] sm:w-auto sm:rounded-[18px] sm:px-7 sm:text-[16px]"
             >
               Pay Now
@@ -346,35 +263,37 @@ export default function DashboardHome() {
             </div>
           </section>
 
-          <section className="relative overflow-hidden rounded-[22px] bg-[radial-gradient(circle_at_35%_18%,#5B43FF_0%,#371FE1_45%,#2913C8_100%)] px-5 py-5 text-white shadow-[0_20px_50px_rgba(44,20,221,0.18)] sm:px-6 sm:py-6">
-            <div className="relative z-10 grid items-center gap-4 md:grid-cols-[minmax(0,1fr)_210px] lg:grid-cols-[minmax(0,1fr)_230px] xl:grid-cols-[minmax(0,1fr)_240px]">
-              <div className="min-w-0">
-                <h3 className="text-[28px] font-extrabold leading-[0.95] tracking-[-0.03em] sm:text-[34px] lg:text-[40px] xl:text-[32px]">
-                  Quick Pay
-                </h3>
+          <section className="relative overflow-hidden rounded-[20px] bg-[#2E0FE0] px-6 py-8 text-white shadow-sm sm:px-10 sm:py-10">
+            {/* Full Image Background (Hidden on small screens to prevent overlap) */}
+            <div 
+              className="absolute inset-0 hidden border border-transparent md:block"
+              style={{
+                backgroundImage: `url(${quickPayImg})`,
+                backgroundSize: "cover",
+                backgroundPosition: "center right",
+                backgroundRepeat: "no-repeat"
+              }}
+            />
+            
+            <div className="relative z-10 max-w-[280px] sm:max-w-[340px]">
+              <h3 className="text-[32px] font-bold leading-none tracking-[-0.02em] sm:text-[40px]">
+                Quick Pay
+              </h3>
 
-                <p className="mt-3 max-w-[350px] text-[12px] leading-5 text-white/88 sm:text-[13px] sm:leading-6">
-                  Make a quick payment. Pay for someone else
-                  <br />
-                  and do much more...
-                </p>
+              <p className="mt-4 text-[13px] leading-relaxed text-white/95">
+                Make a quick payment. Pay for someone else
+                <br />
+                and do much more..
+              </p>
 
-                <button
-                  type="button"
-                  onClick={() => nav("/quickpay")}
-                  className="mt-4 inline-flex h-[40px] cursor-pointer items-center justify-center rounded-[12px] bg-white px-6 text-[12px] font-semibold text-[#2E1FD9] transition hover:brightness-95 active:scale-[0.99] sm:px-7 sm:text-[13px]"
-                >
-                  Pay Now
-                </button>
-              </div>
-
-              <div className="hidden min-w-0 md:block">
-                <QuickPayArt />
-              </div>
+              <button
+                type="button"
+                onClick={() => nav("/quickpay")}
+                className="mt-6 inline-flex h-[42px] cursor-pointer items-center justify-center rounded-[12px] bg-white px-8 text-[13px] font-semibold text-[#111111] transition hover:bg-[#F8F9FA] active:scale-[0.99]"
+              >
+                Pay Now
+              </button>
             </div>
-
-            <div className="absolute -right-14 -top-14 h-44 w-44 rounded-full bg-white/10 blur-3xl" />
-            <div className="absolute bottom-[-70px] left-[35%] h-36 w-36 rounded-full bg-[#7B67FF]/30 blur-3xl" />
           </section>
         </div>
 

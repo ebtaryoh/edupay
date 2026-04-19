@@ -29,7 +29,7 @@ function FeeRow({ title, amount, onPay }) {
   );
 }
 
-export default function TuitionHealthcare() {
+export default function SUGDues() {
   const nav = useNavigate();
   const [bills, setBills] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -66,7 +66,7 @@ export default function TuitionHealthcare() {
         ) {
           setBills([]);
         } else {
-          setError("Failed to load tuition/healthcare bills.");
+          setError("Failed to load SUG Dues.");
         }
       } finally {
         setLoading(false);
@@ -92,7 +92,7 @@ export default function TuitionHealthcare() {
         </div>
 
         <h3 className="mt-8 text-[#14143A] font-semibold text-[18px]">
-          Tuition/Healthcare
+          SUG Dues
         </h3>
 
         <div className="mt-4 space-y-4 max-w-[720px]">
@@ -108,13 +108,13 @@ export default function TuitionHealthcare() {
             </div>
           ) : filteredBills.length === 0 ? (
             <div className="py-10 text-center bg-[#F6F7FF] rounded-2xl text-[#9AA0B4]">
-              <p>No outstanding bills found.</p>
+              <p>No SUG Dues found.</p>
             </div>
           ) : (
             filteredBills.map((bill, index) => (
               <FeeRow
                 key={bill.id || index}
-                title={bill.feeName || bill.title || bill.description || "School Fee"}
+                title={bill.feeName || bill.title || bill.description || "SUG Due"}
                 amount={`₦${(bill.amount || bill.amountDue || 0).toLocaleString()}`}
                 onPay={() => nav("/dashboard/checkout", { state: { bill } })}
               />
@@ -135,4 +135,3 @@ export default function TuitionHealthcare() {
     </div>
   );
 }
-

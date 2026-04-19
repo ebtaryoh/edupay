@@ -28,7 +28,7 @@ export default function Topbar({
   onMenu,
   title: titleProp,
   showNotification = false,
-  showSearch = false,
+  showSearch = true,
   notificationPath,
   searchPath,
   onSearchClick,
@@ -69,6 +69,14 @@ export default function Topbar({
 
     if (searchPath) {
       nav(searchPath);
+      return;
+    }
+
+    // Default to transactions page based on current section
+    if (pathname.includes("/admin")) {
+      nav("/admin/dashboard/payments/transactions");
+    } else {
+      nav("/dashboard/transactions");
     }
   }
 
@@ -114,8 +122,8 @@ export default function Topbar({
 
           {showSearch ? (
             <CircleButton
-              onClick={handleSearch}
-              className="bg-[#2F2AD9] hover:brightness-110"
+              onClick={() => handleSearch()}
+              className="bg-[#2F2AD9] hover:brightness-110 active:scale-95 transition-transform"
             >
               <SearchTopIcon />
             </CircleButton>

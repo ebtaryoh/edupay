@@ -53,7 +53,7 @@ export default function AdminDashboardHome() {
   const office = profile?.office || profile?.department || "Admin Office";
 
   return (
-    <div className="min-w-0 xl:min-w-[1440px] space-y-5 overflow-x-auto sm:space-y-6 xl:space-y-7 pb-10">
+    <div className="min-w-0 space-y-5 overflow-x-hidden sm:space-y-6 xl:space-y-7 pb-10">
       <Topbar
         title="Admin Dashboard"
         showNotification
@@ -62,7 +62,7 @@ export default function AdminDashboardHome() {
         onSearchClick={() => {}}
       />
 
-      <div className="grid grid-cols-1 xl:grid-cols-[1fr_1.1fr] gap-10">
+      <div className="grid min-w-0 grid-cols-1 gap-8 xl:grid-cols-[minmax(0,1fr)_430px] 2xl:grid-cols-[minmax(0,1fr)_470px] 2xl:gap-10">
         <div className="min-w-0 space-y-6 xl:space-y-7">
           <section className="overflow-hidden rounded-[24px] border border-[#DCD8FF] bg-white px-4 py-4 shadow-[0_10px_30px_rgba(44,20,221,0.04)] sm:rounded-[26px] sm:px-5 sm:py-5 lg:rounded-[28px]">
             <div className="flex min-w-0 flex-col gap-4 sm:flex-row sm:items-start sm:gap-5">
@@ -99,7 +99,7 @@ export default function AdminDashboardHome() {
 
               <button
                 type="button"
-                onClick={() => nav("/admin/dashboard/account")}
+                onClick={() => nav("/admin/dashboard/account/my-account")}
                 className="inline-flex cursor-pointer shrink-0 items-center gap-1 text-[11px] font-medium text-[#7E6EFF] transition hover:underline sm:text-[12px]"
               >
                 Complete Profile

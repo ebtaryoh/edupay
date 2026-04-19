@@ -9,7 +9,13 @@ const BG = "bg-[#2C14DD]";
 
 export default function OnboardingFlow() {
   const nav = useNavigate();
-  const [step, setStep] = useState(0);
+  const [step, setStep] = useState(-1);
+
+  useEffect(() => {
+    if (step !== -1) return;
+    const t = setTimeout(() => setStep(0), 4000);
+    return () => clearTimeout(t);
+  }, [step]);
 
   const screens = useMemo(
     () => [
@@ -52,23 +58,66 @@ export default function OnboardingFlow() {
 
   return (
     <section className={`relative min-h-screen overflow-hidden ${BG}`}>
-      <motion.div
-        key={`screen-${step}`}
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: -12 }}
-        transition={{ duration: 0.4, ease: "easeOut" }}
-      >
-        <OnboardingScreen
-          screen={screens[step]}
-          index={step}
-          total={screens.length}
-          onSkip={handleSkip}
-          onNext={handleNext}
-          isLast={isLast}
-        />
-      </motion.div>
+      <AnimatePresence mode="wait">
+        {step === -1 ? (
+          <motion.div
+            key="splash"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            transition={{ duration: 0.5 }}
+          >
+            <SplashScreenText />
+          </motion.div>
+        ) : (
+          <motion.div
+            key={`screen-${step}`}
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -12 }}
+            transition={{ duration: 0.4, ease: "easeOut" }}
+          >
+            <OnboardingScreen
+              screen={screens[step]}
+              index={step}
+              total={screens.length}
+              onSkip={handleSkip}
+              onNext={handleNext}
+              isLast={isLast}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
     </section>
+  );
+}
+
+function SplashScreenText() {
+  return (
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden">
+      <div className="absolute h-[260px] w-[260px] rounded-full bg-white/20 blur-3xl" />
+      <div className="absolute h-[180px] w-[180px] rounded-full bg-white/25 blur-2xl" />
+
+      <div className="relative flex select-none items-end justify-center">
+        <motion.span
+          initial={{ x: -160, opacity: 0 }}
+          animate={{ x: 0, opacity: 1 }}
+          transition={{ duration: 0.9, ease: "easeOut" }}
+          className="text-7xl font-extrabold tracking-tight text-white md:text-8xl"
+        >
+          Edu
+        </motion.span>
+
+        <motion.span
+          initial={{ x: 160, opacity: 0 }}
+          animate={{ x: 0, opacity: 1 }}
+          transition={{ duration: 0.9, delay: 0.05, ease: "easeOut" }}
+          className="ml-1 text-7xl font-thin tracking-tight text-white/90 md:text-8xl"
+        >
+          Pay
+        </motion.span>
+      </div>
+    </div>
   );
 }
 

@@ -276,8 +276,7 @@ export default function MyAccountInstitution() {
   }
 
   return (
-    <div className="min-h-[calc(100vh-24px)] rounded-[28px] bg-[#2C14DD] p-6 md:p-10">
-      <AccountShell
+    <AccountShell
         title="Account"
         activeKey="my"
         variant="blue"
@@ -357,6 +356,5 @@ export default function MyAccountInstitution() {
           </div>
         }
       />
-    </div>
   );
 }

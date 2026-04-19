@@ -1,54 +1,47 @@
 import { useNavigate } from "react-router-dom";
 import { ChevronLeft } from "lucide-react";
 import AccountMenu from "./AccountMenu";
+import Topbar from "./Topbar";
 
 export default function AccountShell({
   title = "Account",
   activeKey = "my",
   right = null,
-  variant = "white", // "blue" | "white"
 }) {
   const nav = useNavigate();
 
-  const isBlue = variant === "blue";
-
   return (
-    <div className="w-full min-w-[1440px]">
-      {/* Header row */}
-      <div className="flex items-center gap-4 mb-6">
-        <button
-          type="button"
-          onClick={() => nav(-1)}
-          className={[
-            "w-11 h-11 rounded-full flex items-center justify-center transition",
-            isBlue ? "bg-white/10 text-white hover:bg-white/15" : "bg-[#F6F7FF] text-[#14143A] hover:bg-[#EEF0FF]",
-          ].join(" ")}
-          aria-label="Go back"
-        >
-          <ChevronLeft size={24} strokeWidth={2.5} />
-        </button>
+    <div className="min-w-0 space-y-5 overflow-x-hidden pb-10 sm:space-y-6 xl:space-y-7">
+      <Topbar />
 
-        <h1
-          className={[
-            "text-xl font-semibold",
-            isBlue ? "text-white" : "text-[#14143A]",
-          ].join(" ")}
-        >
-          {title}
-        </h1>
-      </div>
+      <div className="px-4 sm:px-6 lg:px-8 xl:px-10">
+        {/* Header row */}
+        <div className="mb-6 flex items-center gap-4">
+          <button
+            type="button"
+            onClick={() => nav(-1)}
+            className="flex h-[44px] w-[44px] cursor-pointer items-center justify-center rounded-full bg-[#F6F7FF] text-[#14143A] transition hover:bg-[#EEF0FF]"
+            aria-label="Go back"
+          >
+            <ChevronLeft size={24} strokeWidth={2.5} />
+          </button>
 
-      {/* Big rounded panel like the images */}
-      <div className="bg-[#DFDCFA] rounded-[34px] p-6 md:p-10">
-        {/* Balanced split on xl */}
-        <div className="grid grid-cols-[1fr_1.1fr] gap-8 xl:gap-12">
-          {/* LEFT half */}
-          <div className="min-w-0">
-            <AccountMenu activeKey={activeKey} />
+          <h1 className="text-[24px] font-semibold tracking-[-0.02em] text-[#14143A]">
+            {title}
+          </h1>
+        </div>
+
+        {/* Content Panel */}
+        <div className="rounded-[34px] bg-[#DFDCFA] p-6 md:p-10">
+          <div className="grid grid-cols-1 gap-10 lg:grid-cols-[1fr_1.1fr] xl:gap-14">
+            {/* LEFT half */}
+            <div className="min-w-0 max-w-[420px]">
+              <AccountMenu activeKey={activeKey} />
+            </div>
+
+            {/* RIGHT half */}
+            <div className="min-w-0">{right}</div>
           </div>
-
-          {/* RIGHT half */}
-          <div className="min-w-0">{right}</div>
         </div>
       </div>
     </div>

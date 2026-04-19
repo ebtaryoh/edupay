@@ -67,7 +67,21 @@ export default function Payments() {
 
       } catch (err) {
         console.error("PAYMENTS LOAD FAILED:", err);
-        setError(err.message || "Failed to load billing information.");
+        const status = err?.response?.status;
+        const msg = err?.response?.data?.message || err?.message || "";
+
+        // Gracefully handle "no bills" or 404 errors
+        if (
+          status === 404 || 
+          msg.toLowerCase().includes("not found") || 
+          msg.toLowerCase().includes("no bill") || 
+          msg.toLowerCase().includes("no fee structure")
+        ) {
+           setBills([]);
+           if (!debtStatus) setDebtStatus({ totalDebt: 0 });
+        } else {
+          setError(msg || "Failed to load billing information.");
+        }
       } finally {
         setLoading(false);
       }
@@ -101,19 +115,19 @@ export default function Payments() {
 
           <CategoryItem
             title="SUG Dues"
-            onClick={() => alert("SUG Dues payments are coming soon.")}
+            onClick={() => nav("/dashboard/payments/category/sug-dues")}
             icon={<Users size={22} strokeWidth={2.5} />}
           />
 
           <CategoryItem
             title="Accomodation/Hostel Fees"
-            onClick={() => alert("Accommodation/Hostel fee payments are coming soon.")}
+            onClick={() => nav("/dashboard/payments/category/accommodation-hostel")}
             icon={<Home size={22} strokeWidth={2.5} />}
           />
 
           <CategoryItem
             title="Departmental Fees"
-            onClick={() => alert("Departmental fee payments are coming soon.")}
+            onClick={() => nav("/dashboard/payments/category/departmental-fees")}
             icon={<Library size={22} strokeWidth={2.5} />}
           />
         </div>

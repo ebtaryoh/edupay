@@ -19,16 +19,16 @@ export default function WelcomePage() {
             {/* Quick Pay Card */}
             <div className="mt-6 w-full rounded-[28px] bg-[#2C14DD] px-7 py-7 text-white">
               {/* Card art */}
-              <div className="flex h-36 items-center justify-center">
+              <div className="flex h-44 items-center justify-center">
                 <img 
                   src={coinsImg} 
                   alt="Quick Pay" 
-                  className="h-32 w-auto object-contain"
+                  className="h-48 w-auto object-contain scale-110"
                 />
               </div>
 
-              <h2 className="mt-2 text-3xl font-extrabold">Quick Pay</h2>
-              <p className="mt-2 text-sm leading-relaxed text-white/75">
+              <h2 className="mt-3 text-center text-3xl font-extrabold">Quick Pay</h2>
+              <p className="mt-2 text-center text-sm leading-relaxed text-white/75 px-4">
                 No account needed. Pay to any institution. Quick, fast and
                 reliable.
               </p>

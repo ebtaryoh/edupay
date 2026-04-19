@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Smartphone, Globe, ChevronRight, ChevronDown } from "lucide-react";
 import Input from "../../components/ui/Input";
 
@@ -20,21 +21,26 @@ function LeftTab({ active, title, icon }) {
 }
 
 export default function AirtimePurchase() {
+  const nav = useNavigate();
   const [network, setNetwork] = useState("");
 
   return (
     <div className="grid grid-cols-1 xl:grid-cols-[1fr_520px] gap-10">
       <div>
         <div className="space-y-4 max-w-[540px]">
-          <LeftTab
-            active
-            title="Airtime Recharge"
-            icon={<Smartphone size={22} strokeWidth={2.5} />}
-          />
-          <LeftTab
-            title="Buy Data"
-            icon={<Globe size={22} strokeWidth={2.5} />}
-          />
+          <div className="cursor-pointer">
+            <LeftTab
+              active
+              title="Airtime Recharge"
+              icon={<Smartphone size={22} strokeWidth={2.5} />}
+            />
+          </div>
+          <div className="cursor-pointer" onClick={() => nav("/dashboard/payments/data")}>
+            <LeftTab
+              title="Buy Data"
+              icon={<Globe size={22} strokeWidth={2.5} />}
+            />
+          </div>
         </div>
 
         <h3 className="mt-10 font-semibold text-[#14143A]">Recent Top-ups</h3>
